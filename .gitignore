@@ -1,0 +1,7 @@
+
+src/\.vs/
+
+LSTMTimeSeriesDemo/bin/
+LSTMTimeSeriesDemo/obj/
+packages/
+*.cache

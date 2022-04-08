@@ -30,6 +30,8 @@ namespace LSTMTimeSeriesDemo
         LineItem predictedLine;
         LineItem testDataLine;
 
+        NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
+
         public LSTMTimeSeries()
         {
             int timeStep = 5;
@@ -325,12 +327,12 @@ namespace LSTMTimeSeriesDemo
             int hiDim = 1;
             int cellDim = inDim;
 
-//            Task.Run(() =>
-//            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
+            //            Task.Run(() =>
+            //            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
 
-            NeuralNetwork.Base.LSTMTrainer trainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
+            currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
             Task.Run(() =>
-            trainer.Train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
+            currentLSTMTrainer.Train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
         }
 
 
@@ -405,23 +407,7 @@ namespace LSTMTimeSeriesDemo
             modelLine.Clear();
             foreach (var miniBatchData in nextBatch(DataSet["features"].train, DataSet["label"].train, batchSize))
             {
-                var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData.X, device);
-                var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData.Y, device);
-
-                //model evaluation
-                // build the model
-
-                // var fea = Variable.InputVariable(new int[] { inDim }, DataType.Float, featuresName, null, false /*isSparse*/);
-                // var lab = Variable.InputVariable(new int[] { ouDim }, DataType.Float, labelsName, new List<CNTK.Axis>() { CNTK.Axis.DefaultBatchAxis() }, false);
-                var fea = model.Arguments[0];
-                var lab = model.Output;
-
-                var inputDataMap = new Dictionary<Variable, Value>() { { fea, xValues } };
-                var outputDataMap = new Dictionary<Variable, Value>() { { lab, null } };
-                model.Evaluate(inputDataMap, outputDataMap, device);
-
-                var oData = outputDataMap[lab].GetDenseData<float>(lab);
-
+                var oData = currentLSTMTrainer.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y);
                 foreach (var y in oData)
                     modelLine.AddPoint(new PointPair(sample++, y[0]));
             }

@@ -10,6 +10,8 @@ namespace NeuralNetwork.Base
         int ouDim = 1;
         string featuresName = "feature";
         string labelsName = "label";
+        Function currentModelForEval = null;
+        DeviceDescriptor currentDevice = null;
 
         public LSTMTrainer(int inDim, int ouDim, string featuresName, string labelsName)
         {
@@ -64,8 +66,11 @@ namespace NeuralNetwork.Base
                     trainer.TrainMinibatch(batchData, device);
                 }
 
+                currentModelForEval = lstmModel.Clone();
+                currentDevice = device;
+
                 //output training process
-                progressReport(trainer, lstmModel.Clone(), i, device);
+                progressReport(trainer, currentModelForEval, i, device);
             }
         }
 
@@ -104,6 +109,28 @@ namespace NeuralNetwork.Base
                 yield return (x, y);
             }
 
+        }
+
+        public IList<IList<float>> CurrentModelEvaluate(IEnumerable<float> miniBatchData_X, IEnumerable<float> miniBatchData_Y)
+        {
+            var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData_X, currentDevice);
+            var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData_Y, currentDevice);
+
+            //model evaluation
+            // build the model
+
+            // var fea = Variable.InputVariable(new int[] { inDim }, DataType.Float, featuresName, null, false /*isSparse*/);
+            // var lab = Variable.InputVariable(new int[] { ouDim }, DataType.Float, labelsName, new List<CNTK.Axis>() { CNTK.Axis.DefaultBatchAxis() }, false);
+            var fea = currentModelForEval.Arguments[0];
+            var lab = currentModelForEval.Output;
+
+            var inputDataMap = new Dictionary<Variable, Value>() { { fea, xValues } };
+            var outputDataMap = new Dictionary<Variable, Value>() { { lab, null } };
+
+            currentModelForEval.Evaluate(inputDataMap, outputDataMap, currentDevice);
+
+            var oData = outputDataMap[lab].GetDenseData<float>(lab);
+            return oData;
         }
 
     }

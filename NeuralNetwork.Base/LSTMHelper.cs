@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LSTMTimeSeriesDemo
+namespace NeuralNetwork.Base
 {
     public static class LSTMHelper
     {

@@ -3,5 +3,10 @@ src/\.vs/
 
 LSTMTimeSeriesDemo/bin/
 LSTMTimeSeriesDemo/obj/
+
+NeuralNetwork.Base/bin/
+NeuralNetwork.Base/obj/
+
 packages/
 *.cache
+.vs/CNTK.NET.Samples/v17/.suo

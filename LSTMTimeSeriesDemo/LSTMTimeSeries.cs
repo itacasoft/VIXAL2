@@ -325,82 +325,42 @@ namespace LSTMTimeSeriesDemo
             int hiDim = 1;
             int cellDim = inDim;
 
+//            Task.Run(() =>
+//            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
+
+            NeuralNetwork.Base.LSTMTrainer trainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
             Task.Run(() =>
-            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
+            trainer.Train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
         }
 
-        private void train(Dictionary<string, (float[][] train, float[][] valid, float[][] test)> dataSet, 
-            int hiDim, int cellDim, int iteration, int batchSize, Action<CNTK.Trainer, Function, int, DeviceDescriptor> progressReport, DeviceDescriptor device)
-        {
-            //split dataset on train, validate and test parts
-            var featureSet = dataSet["features"];
-            var labelSet = dataSet["label"];
-
-            // build the model
-            var feature = Variable.InputVariable(new int[] { inDim }, DataType.Float, featuresName, null, false /*isSparse*/);
-            var label = Variable.InputVariable(new int[] { ouDim }, DataType.Float, labelsName, new List<CNTK.Axis>() { CNTK.Axis.DefaultBatchAxis() }, false);
-
-            var lstmModel = LSTMHelper.CreateModel(feature, ouDim, hiDim, cellDim, device, "timeSeriesOutput");
-
-            Function trainingLoss = CNTKLib.SquaredError(lstmModel, label, "squarederrorLoss");
-            Function prediction = CNTKLib.SquaredError(lstmModel, label, "squarederrorEval");
-
-
-            // prepare for training
-            TrainingParameterScheduleDouble learningRatePerSample = new TrainingParameterScheduleDouble(0.0005, 1);
-            TrainingParameterScheduleDouble momentumTimeConstant = CNTKLib.MomentumAsTimeConstantSchedule(256);
-
-            IList<Learner> parameterLearners = new List<Learner>() {
-                Learner.MomentumSGDLearner(lstmModel.Parameters(), learningRatePerSample, momentumTimeConstant, /*unitGainMomentum = */true)  };
-
-            //create trainer
-            var trainer = Trainer.CreateTrainer(lstmModel, trainingLoss, prediction, parameterLearners);
-
-            // train the model
-            for (int i = 1; i <= iteration; i++)
-            {
-                //get the next minibatch amount of data
-                foreach (var miniBatchData in nextBatch(featureSet.train, labelSet.train, batchSize))
-                {
-                    var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData.X, device);
-                    var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData.Y, device);
-
-                    //Combine variables and data in to Dictionary for the training
-                    var batchData = new Dictionary<Variable, Value>();
-                    batchData.Add(feature, xValues);
-                    batchData.Add(label, yValues);
-
-                    //train minibarch data
-                    trainer.TrainMinibatch(batchData, device);
-                }
-
-                if (this.InvokeRequired)
-                {
-                    // Execute the same method, but this time on the GUI thread
-                    this.Invoke(
-                        new Action(() =>
-                        {
-                            //output training process
-                            progressReport(trainer, lstmModel.Clone(), i, device);
-                        }
-                        ));
-                }
-                else
-                {
-                    //output training process
-                    progressReport(trainer, lstmModel.Clone(), i, device);
-
-                }             
-            }
-        }
 
         void progressReport(CNTK.Trainer trainer, Function model, int iteration, CNTK.DeviceDescriptor device)
         {
-            textBox3.Text = iteration.ToString();
-            textBox4.Text = trainer.PreviousMinibatchLossAverage().ToString();
-            progressBar1.Value = iteration;
+            if (this.InvokeRequired)
+            {
+                // Execute the same method, but this time on the GUI thread
+                this.Invoke(
+                    new Action(() =>
+                    {
+                        //output training process
+                        textBox3.Text = iteration.ToString();
+                        textBox4.Text = trainer.PreviousMinibatchLossAverage().ToString();
+                        progressBar1.Value = iteration;
 
-            reportOnGraphs(trainer, model, iteration, device);
+                        reportOnGraphs(trainer, model, iteration, device);
+
+                    }
+                    ));
+            }
+            else
+            {
+                //output training process
+                textBox3.Text = iteration.ToString();
+                textBox4.Text = trainer.PreviousMinibatchLossAverage().ToString();
+                progressBar1.Value = iteration;
+
+                reportOnGraphs(trainer, model, iteration, device);
+            }
         }
 
         private void reportOnGraphs(CNTK.Trainer trainer, Function model, int i, CNTK.DeviceDescriptor device)

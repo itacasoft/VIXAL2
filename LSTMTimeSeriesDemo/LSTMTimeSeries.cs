@@ -378,22 +378,10 @@ namespace LSTMTimeSeriesDemo
             predictedLine.Clear();
             foreach (var miniBatchData in nextBatch(DataSet["features"].test, DataSet["label"].test, batchSize))
             {
-                //get data from dataset
-                var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData.X, device);
-                var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData.Y, device);
-
-                //model evaluation
-                var fea = model.Arguments[0];
-                var lab = model.Output;
-                //evaluation preparation
-                var inputDataMap = new Dictionary<Variable, Value>() { { fea, xValues } };
-                var outputDataMap = new Dictionary<Variable, Value>() { { lab, null } };
-                model.Evaluate(inputDataMap, outputDataMap, device);
-                //extract the data
-                var oData = outputDataMap[lab].GetDenseData<float>(lab);
-                //show on graph
-                foreach (var y in oData)
-                    predictedLine.AddPoint(new PointPair(sample++, y[0]));
+                 var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X, miniBatchData.Y);
+                 //show on graph
+                 foreach (var y in oData)
+                     predictedLine.AddPoint(new PointPair(sample++, y[0]));
             }
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpML.Types;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -39,7 +40,8 @@ namespace LSTMTimeSeriesDemo
             //load data
             //load data in to memory
             var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
-            DataSet = loadWaveDataset(Math.Sin, xdata, inDim, timeStep);
+            //DataSet = loadWaveDataset(Math.Sin, xdata, inDim, timeStep);
+            DataSet = loadFullDataSet("..\\..\\..\\..\\Data\\FullDataSet.csv", 5);
         }
 
         private void InitiGraphs()
@@ -240,6 +242,69 @@ namespace LSTMTimeSeriesDemo
             var xxx = splitData(a1.ToArray(), 0.1f, 0.1f);
             var yyy = splitData(b1.ToArray(), 0.1f, 0.1f);
 
+
+            var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
+            retVal.Add("features", xxx);
+            retVal.Add("label", yyy);
+            return retVal;
+        }
+
+
+        static Dictionary<string, (float[][] train, float[][] valid, float[][] test)> loadFullDataSet(string path, int gap)
+        {
+            void ProcessData(string[][] rawData, out List<string> names, out List<DateTime> dates, out double[][] data)
+            {
+                //first row is header (symbols), exluding the first field (date)
+                names = new List<string>();
+                for (int i = 1; i < rawData[0].Length; i++)
+                {
+                    names.Add(rawData[0][i]);
+                }
+
+                dates = new List<DateTime>();
+
+                data = new double[rawData.Length - 1][];
+                for (int row = 1; row < rawData.Length; row++)
+                {
+                    data[row - 1] = new double[rawData[row].Length - 1]; //first column is dates
+
+                    DateTime stockDate;
+                    if (!DateTime.TryParse(rawData[row][0], out stockDate))
+                        throw new Exception(rawData[row][0] + " at row " + row.ToString() + " does not represent a valid date");
+                    dates.Add(stockDate);
+
+                    for (int col = 1; col < rawData[row].Length; col++)
+                    {
+                        if (!double.TryParse(rawData[row][col], out data[row - 1][col - 1]))
+                        {
+                            throw new InvalidCastException("Field at row " + (row).ToString() + ", col " + col.ToString() + " is not a valid double value");
+                        }
+                    }
+                }
+            }
+
+
+            string[][] stocksData = Utils.LoadCsvAsStrings(path);
+
+            List<string> stockNames;
+            List<DateTime> stockDates;
+            double[][] stockData;
+            ProcessData(stocksData, out stockNames, out stockDates, out stockData);
+
+            StockList.FillNaNs(stockData);
+
+            float[][] fStockData = Utils.ToFloatArray(stockData);
+            float[][] y = new float[stockData.Length][];
+
+            for (int row = 0; row < fStockData.Length; row++)
+            {
+                y[row] = new float[1];
+                if (row >= gap)
+                    y[row - gap][0] = fStockData[row][0];
+            }
+
+            var xxx = splitData(fStockData, 0.1f, 0.1f);
+            var yyy = splitData(y, 0.1f, 0.1f);
 
             var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
             retVal.Add("features", xxx);

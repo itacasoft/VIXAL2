@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LSTMTimeSeriesDemo", "LSTMT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetwork.Base", "NeuralNetwork.Base\NeuralNetwork.Base.csproj", "{B5F33E19-84BE-4F73-A4CA-C4D63039906F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpML.Types", "SharpML.Types\SharpML.Types.csproj", "{2C004EEF-C37F-4057-889C-9E20318D7E5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{B5F33E19-84BE-4F73-A4CA-C4D63039906F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B5F33E19-84BE-4F73-A4CA-C4D63039906F}.Release|x64.ActiveCfg = Release|Any CPU
 		{B5F33E19-84BE-4F73-A4CA-C4D63039906F}.Release|x64.Build.0 = Release|Any CPU
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Debug|x64.ActiveCfg = Debug|x64
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Debug|x64.Build.0 = Debug|x64
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Release|x64.ActiveCfg = Release|x64
+		{2C004EEF-C37F-4057-889C-9E20318D7E5A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

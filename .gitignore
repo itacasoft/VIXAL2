@@ -7,6 +7,10 @@ LSTMTimeSeriesDemo/obj/
 NeuralNetwork.Base/bin/
 NeuralNetwork.Base/obj/
 
+SharpML.Types/bin/
+SharpML.Types/obj/
+
 packages/
 *.cache
 .vs/
+*.suo

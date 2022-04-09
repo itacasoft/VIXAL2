@@ -388,7 +388,7 @@ namespace LSTMTimeSeriesDemo
 
         private void currentModelEvaluation(Trainer trainer, Function model, int i, DeviceDescriptor device)
         {
-            lossDataLine.AddPoint(new PointPair(i, trainer.PreviousMinibatchLossAverage()));
+            lossDataLine.AddPoint(new PointPair(i, currentLSTMTrainer.CurrentTrainer_PreviousMinibatchLossAverage));
 
             //get the next minibatch amount of data
             int sample = 1;

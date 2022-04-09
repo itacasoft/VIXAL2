@@ -10,8 +10,9 @@ namespace NeuralNetwork.Base
         int ouDim = 1;
         string featuresName = "feature";
         string labelsName = "label";
-        Function currentModelForEval = null;
+        Function currentModel = null;
         DeviceDescriptor currentDevice = null;
+        Trainer currentTrainer = null;
 
         public LSTMTrainer(int inDim, int ouDim, string featuresName, string labelsName)
         {
@@ -46,7 +47,7 @@ namespace NeuralNetwork.Base
                 Learner.MomentumSGDLearner(lstmModel.Parameters(), learningRatePerSample, momentumTimeConstant, /*unitGainMomentum = */true)  };
 
             //create trainer
-            var trainer = Trainer.CreateTrainer(lstmModel, trainingLoss, prediction, parameterLearners);
+            currentTrainer = Trainer.CreateTrainer(lstmModel, trainingLoss, prediction, parameterLearners);
 
             // train the model
             for (int i = 1; i <= iteration; i++)
@@ -63,14 +64,14 @@ namespace NeuralNetwork.Base
                     batchData.Add(label, yValues);
 
                     //train minibarch data
-                    trainer.TrainMinibatch(batchData, device);
+                    currentTrainer.TrainMinibatch(batchData, device);
                 }
 
-                currentModelForEval = lstmModel.Clone();
+                currentModel = lstmModel.Clone();
                 currentDevice = device;
 
                 //output training process
-                progressReport(trainer, currentModelForEval, i, device);
+                progressReport(currentTrainer, currentModel, i, device);
             }
         }
 
@@ -121,17 +122,26 @@ namespace NeuralNetwork.Base
 
             // var fea = Variable.InputVariable(new int[] { inDim }, DataType.Float, featuresName, null, false /*isSparse*/);
             // var lab = Variable.InputVariable(new int[] { ouDim }, DataType.Float, labelsName, new List<CNTK.Axis>() { CNTK.Axis.DefaultBatchAxis() }, false);
-            var fea = currentModelForEval.Arguments[0];
-            var lab = currentModelForEval.Output;
+            var fea = currentModel.Arguments[0];
+            var lab = currentModel.Output;
 
             var inputDataMap = new Dictionary<Variable, Value>() { { fea, xValues } };
             var outputDataMap = new Dictionary<Variable, Value>() { { lab, null } };
 
-            currentModelForEval.Evaluate(inputDataMap, outputDataMap, currentDevice);
+            currentModel.Evaluate(inputDataMap, outputDataMap, currentDevice);
 
             var oData = outputDataMap[lab].GetDenseData<float>(lab);
             return oData;
         }
+
+        public double CurrentTrainer_PreviousMinibatchLossAverage
+        {
+            get
+            {
+                return currentTrainer.PreviousMinibatchLossAverage();       
+            }
+        }
+
 
         public IList<IList<float>> CurrentModelTest(IEnumerable<float> miniBatchData_X, IEnumerable<float> miniBatchData_Y)
         {
@@ -139,12 +149,12 @@ namespace NeuralNetwork.Base
             var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData_Y, currentDevice);
 
             //model evaluation
-            var fea = currentModelForEval.Arguments[0];
-            var lab = currentModelForEval.Output;
+            var fea = currentModel.Arguments[0];
+            var lab = currentModel.Output;
             //evaluation preparation
             var inputDataMap = new Dictionary<Variable, Value>() { { fea, xValues } };
             var outputDataMap = new Dictionary<Variable, Value>() { { lab, null } };
-            currentModelForEval.Evaluate(inputDataMap, outputDataMap, currentDevice);
+            currentModel.Evaluate(inputDataMap, outputDataMap, currentDevice);
             //extract the data
             var oData = outputDataMap[lab].GetDenseData<float>(lab);
             return oData;

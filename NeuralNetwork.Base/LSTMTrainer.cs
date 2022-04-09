@@ -4,6 +4,13 @@ using System.Collections.Generic;
 
 namespace NeuralNetwork.Base
 {
+    public enum DeviceType
+    {
+        UseDefaultDevice,
+        CPUDevice,
+        GPUDevice
+    }
+
     public class LSTMTrainer
     {
         int inDim = 5;
@@ -23,8 +30,14 @@ namespace NeuralNetwork.Base
         }
 
         public void Train(Dictionary<string, (float[][] train, float[][] valid, float[][] test)> dataSet,
-            int hiDim, int cellDim, int iteration, int batchSize, Action<CNTK.Trainer, Function, int, DeviceDescriptor> progressReport, DeviceDescriptor device)
+            int hiDim, int cellDim, int iteration, int batchSize, Action<int> progressReport, DeviceType deviceType, int deviceId = 0)
         {
+            var device = DeviceDescriptor.CPUDevice;
+            if (deviceType == DeviceType.GPUDevice)
+                device = DeviceDescriptor.GPUDevice(deviceId);
+            if (deviceType == DeviceType.UseDefaultDevice)
+                device = DeviceDescriptor.UseDefaultDevice();
+
             //split dataset on train, validate and test parts
             var featureSet = dataSet["features"];
             var labelSet = dataSet["label"];
@@ -71,7 +84,7 @@ namespace NeuralNetwork.Base
                 currentDevice = device;
 
                 //output training process
-                progressReport(currentTrainer, currentModel, i, device);
+                progressReport(i);
             }
         }
 
@@ -134,7 +147,7 @@ namespace NeuralNetwork.Base
             return oData;
         }
 
-        public double CurrentTrainer_PreviousMinibatchLossAverage
+        public double PreviousMinibatchLossAverage
         {
             get
             {
@@ -159,6 +172,5 @@ namespace NeuralNetwork.Base
             var oData = outputDataMap[lab].GetDenseData<float>(lab);
             return oData;
         }
-
     }
 }

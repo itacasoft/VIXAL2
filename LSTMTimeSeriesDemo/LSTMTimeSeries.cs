@@ -1,5 +1,4 @@
-﻿using CNTK;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -332,11 +331,11 @@ namespace LSTMTimeSeriesDemo
 
             currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
             Task.Run(() =>
-            currentLSTMTrainer.Train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
+            currentLSTMTrainer.Train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
         }
 
 
-        void progressReport(CNTK.Trainer trainer, Function model, int iteration, CNTK.DeviceDescriptor device)
+        void progressReport(int iteration)
         {
             if (this.InvokeRequired)
             {
@@ -346,10 +345,10 @@ namespace LSTMTimeSeriesDemo
                     {
                         //output training process
                         textBox3.Text = iteration.ToString();
-                        textBox4.Text = trainer.PreviousMinibatchLossAverage().ToString();
+                        textBox4.Text = currentLSTMTrainer.PreviousMinibatchLossAverage.ToString();
                         progressBar1.Value = iteration;
 
-                        reportOnGraphs(trainer, model, iteration, device);
+                        reportOnGraphs(iteration);
 
                     }
                     ));
@@ -358,20 +357,20 @@ namespace LSTMTimeSeriesDemo
             {
                 //output training process
                 textBox3.Text = iteration.ToString();
-                textBox4.Text = trainer.PreviousMinibatchLossAverage().ToString();
+                textBox4.Text = currentLSTMTrainer.PreviousMinibatchLossAverage.ToString();
                 progressBar1.Value = iteration;
 
-                reportOnGraphs(trainer, model, iteration, device);
+                reportOnGraphs(iteration);
             }
         }
 
-        private void reportOnGraphs(CNTK.Trainer trainer, Function model, int i, CNTK.DeviceDescriptor device)
+        private void reportOnGraphs(int iteration)
         {
-            currentModelEvaluation(trainer, model, i, device);
-            currentModelTest(trainer, model, i, device);
+            currentModelEvaluation(iteration);
+            currentModelTest(iteration);
         }
 
-        private void currentModelTest(Trainer trainer, Function model, int i, DeviceDescriptor device)
+        private void currentModelTest(int iteration)
         {
             //get the next minibatch amount of data
             int sample = 1;
@@ -386,9 +385,9 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 
-        private void currentModelEvaluation(Trainer trainer, Function model, int i, DeviceDescriptor device)
+        private void currentModelEvaluation(int iteration)
         {
-            lossDataLine.AddPoint(new PointPair(i, currentLSTMTrainer.CurrentTrainer_PreviousMinibatchLossAverage));
+            lossDataLine.AddPoint(new PointPair(iteration, currentLSTMTrainer.PreviousMinibatchLossAverage));
 
             //get the next minibatch amount of data
             int sample = 1;

@@ -41,7 +41,7 @@ namespace LSTMTimeSeriesDemo
             //load data in to memory
             var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
             //DataSet = loadWaveDataset(Math.Sin, xdata, inDim, timeStep);
-            DataSet = loadFullDataSet("..\\..\\..\\..\\Data\\FullDataSet.csv", 5);
+            DataSet = loadFullDataSet("..\\..\\..\\..\\Data\\FullDataSet.csv", timeStep);
         }
 
         private void InitiGraphs()
@@ -145,7 +145,7 @@ namespace LSTMTimeSeriesDemo
             col.Width = 70;
             listView1.Columns.Add(col);
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < X.Length; i++)
             {
                var itm =  listView1.Items.Add($"{(i+1).ToString()}");
                 for (int j = 0; j < X[i].Length; j++)
@@ -284,7 +284,7 @@ namespace LSTMTimeSeriesDemo
             }
 
 
-            string[][] stocksData = Utils.LoadCsvAsStrings(path);
+            string[][] stocksData = Utils.LoadCsvAsStrings(path, gap+1);
 
             List<string> stockNames;
             List<DateTime> stockDates;
@@ -293,7 +293,8 @@ namespace LSTMTimeSeriesDemo
 
             StockList.FillNaNs(stockData);
 
-            float[][] fStockData = Utils.ToFloatArray(stockData);
+            Normalizer.Instance.Initialize(stockData);
+            float[][] fStockData = Utils.ToFloatArray(Normalizer.Instance.Normalize(stockData));
             float[][] y = new float[stockData.Length][];
 
             for (int row = 0; row < fStockData.Length; row++)

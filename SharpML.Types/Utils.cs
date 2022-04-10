@@ -82,9 +82,24 @@ namespace SharpML.Types
             return File.ReadAllLines(filename).Select(x => x.Split(new char[] { ';' }).Select(y => double.Parse(y)).ToArray()).ToArray();
         }
 
-        public static string[][] LoadCsvAsStrings(string filename)
+        public static string[][] LoadCsvAsStrings(string filename, int colCount = 0)
         {
-            return File.ReadAllLines(filename).Select(x => x.Split(new char[] { ';' })).ToArray();
+            string[][] result0 = File.ReadAllLines(filename).Select(x => x.Split(new char[] { ';' })).ToArray();
+
+            if (colCount == 0)
+                return result0;
+
+            string[][] result = new string[result0.Length][];
+            for (int row = 0; row<result0.Length; row++)
+            {
+                result[row] = new string[Math.Min(result0[row].Length, colCount)];
+                for (int col = 0; col<Math.Min(result0[row].Length, colCount); col++)
+                {
+                    result[row][col] = result0[row][col];
+                }
+            }
+
+            return result;
         }
 
         public static void WriteCsv(double[][] data, string path)

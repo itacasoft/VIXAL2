@@ -34,7 +34,7 @@ namespace LSTMTimeSeriesDemo
 
         public LSTMTimeSeries()
         {
-            int timeStep = 5;
+            int timeStep = 10;
             InitializeComponent();
             InitiGraphs();
             //load data
@@ -304,8 +304,8 @@ namespace LSTMTimeSeriesDemo
                     y[row - gap][0] = fStockData[row][0];
             }
 
-            var xxx = splitData(fStockData, 0.1f, 0.1f);
-            var yyy = splitData(y, 0.1f, 0.1f);
+            var xxx = splitData(fStockData, 0.2f, 0.2f);
+            var yyy = splitData(y, 0.2f, 0.2f);
 
             var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
             retVal.Add("features", xxx);
@@ -443,7 +443,7 @@ namespace LSTMTimeSeriesDemo
             predictedLine.Clear();
             foreach (var miniBatchData in nextBatch(DataSet["features"].test, DataSet["label"].test, batchSize))
             {
-                 var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X, miniBatchData.Y);
+                 var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X);
                  //show on graph
                  foreach (var y in oData)
                      predictedLine.AddPoint(new PointPair(sample++, y[0]));

@@ -14,3 +14,4 @@ packages/
 *.cache
 .vs/
 *.suo
+Data/FullDataSet_00.csv

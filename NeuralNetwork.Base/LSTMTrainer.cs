@@ -65,6 +65,8 @@ namespace NeuralNetwork.Base
             // train the model
             for (int i = 1; i <= iteration; i++)
             {
+/*
+ * 
                 //get the next minibatch amount of data
                 foreach (var miniBatchData in nextBatch(featureSet.train, labelSet.train, batchSize))
                 {
@@ -77,7 +79,31 @@ namespace NeuralNetwork.Base
                     batchData.Add(label, yValues);
 
                     //train minibarch data
-                    currentTrainer.TrainMinibatch(batchData, device);
+                    if (i == iteration-1)
+                        currentTrainer.TrainMinibatch(batchData, true, device);
+                    else
+                        currentTrainer.TrainMinibatch(batchData, false, device);
+
+                }
+*/
+                var lsit = nextBatch2(featureSet.train, labelSet.train, batchSize);
+
+                for (int m=0; m<lsit.Count; m++)
+                {
+                    var miniBatchData = lsit[m];
+                    var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData.X, device);
+                    var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData.Y, device);
+
+                    //Combine variables and data in to Dictionary for the training
+                    var batchData = new Dictionary<Variable, Value>();
+                    batchData.Add(feature, xValues);
+                    batchData.Add(label, yValues);
+
+                    //train minibarch data
+                    if (m == lsit.Count - 1)
+                        currentTrainer.TrainMinibatch(batchData, true, device);
+                    else
+                        currentTrainer.TrainMinibatch(batchData, false, device);
                 }
 
                 currentModel = lstmModel.Clone();
@@ -125,6 +151,42 @@ namespace NeuralNetwork.Base
 
         }
 
+        private static List<(float[] X, float[] Y)> nextBatch2(float[][] X, float[][] Y, int mMSize)
+        {
+
+            float[] asBatch(float[][] data, int start, int count)
+            {
+                var lst = new List<float>();
+                for (int i = start; i < start + count; i++)
+                {
+                    if (i >= data.Length)
+                        break;
+
+                    lst.AddRange(data[i]);
+                }
+                return lst.ToArray();
+            }
+
+            List<(float[] X, float[] Y)> result;
+            result = new List<(float[] X, float[] Y)>();
+
+            for (int i = 0; i <= X.Length - 1; i += mMSize)
+            {
+                var size = X.Length - i;
+                if (size > 0 && size > mMSize)
+                    size = mMSize;
+
+                var x = asBatch(X, i, size);
+                var y = asBatch(Y, i, size);
+
+                result.Add((x, y));
+            }
+
+            return result;
+
+        }
+
+
         public IList<IList<float>> CurrentModelEvaluate(IEnumerable<float> miniBatchData_X, IEnumerable<float> miniBatchData_Y)
         {
             var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData_X, currentDevice);
@@ -156,10 +218,9 @@ namespace NeuralNetwork.Base
         }
 
 
-        public IList<IList<float>> CurrentModelTest(IEnumerable<float> miniBatchData_X, IEnumerable<float> miniBatchData_Y)
+        public IList<IList<float>> CurrentModelTest(IEnumerable<float> miniBatchData_X)
         {
             var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData_X, currentDevice);
-            var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData_Y, currentDevice);
 
             //model evaluation
             var fea = currentModel.Arguments[0];

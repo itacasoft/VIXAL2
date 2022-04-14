@@ -206,10 +206,10 @@ namespace SharpML.Types
             return (long)(value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
-        public static float[][] ToFloatArray(double[][] doubleArray)
+        public static float[][] ToFloatArray(double[][] doubleArray, int removedRows = 0)
         {
-            float[][] floatArray = new float[doubleArray.Length][];
-            for (int row = 0; row < doubleArray.Length; row++)
+            float[][] floatArray = new float[doubleArray.Length-removedRows][];
+            for (int row = 0; row < floatArray.Length; row++)
             {
                 floatArray[row] = new float[doubleArray[row].Length];
                 for (int col = 0; col < doubleArray[row].Length; col++)

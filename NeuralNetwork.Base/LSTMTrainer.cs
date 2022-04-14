@@ -86,7 +86,7 @@ namespace NeuralNetwork.Base
 
                 }
 */
-                var lsit = nextBatch2(featureSet.train, labelSet.train, batchSize);
+                var lsit = nextBatch(featureSet.train, labelSet.train, batchSize);
 
                 for (int m=0; m<lsit.Count; m++)
                 {
@@ -121,37 +121,7 @@ namespace NeuralNetwork.Base
         /// <param name="Y"></param>
         /// <param name="mMSize"></param>
         /// <returns></returns>
-        private static IEnumerable<(float[] X, float[] Y)> nextBatch(float[][] X, float[][] Y, int mMSize)
-        {
-
-            float[] asBatch(float[][] data, int start, int count)
-            {
-                var lst = new List<float>();
-                for (int i = start; i < start + count; i++)
-                {
-                    if (i >= data.Length)
-                        break;
-
-                    lst.AddRange(data[i]);
-                }
-                return lst.ToArray();
-            }
-
-            for (int i = 0; i <= X.Length - 1; i += mMSize)
-            {
-                var size = X.Length - i;
-                if (size > 0 && size > mMSize)
-                    size = mMSize;
-
-                var x = asBatch(X, i, size);
-                var y = asBatch(Y, i, size);
-
-                yield return (x, y);
-            }
-
-        }
-
-        private static List<(float[] X, float[] Y)> nextBatch2(float[][] X, float[][] Y, int mMSize)
+        private static List<(float[] X, float[] Y)> nextBatch(float[][] X, float[][] Y, int mMSize)
         {
 
             float[] asBatch(float[][] data, int start, int count)

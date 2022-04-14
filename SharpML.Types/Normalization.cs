@@ -174,6 +174,18 @@ namespace SharpML.Types
 
         public abstract void Initialize(double[] trainVector);
 
+        public void Initialize(double[][] data, int indexTo)
+        {
+            double[][] myarray = new double[indexTo][];
+
+            for (int i=0; i<indexTo; i++)
+            {
+                myarray[i] = data[i];
+            }
+
+            Initialize(myarray);
+        }
+
         public abstract void Initialize(double[][] trainMatrix);
 
     }

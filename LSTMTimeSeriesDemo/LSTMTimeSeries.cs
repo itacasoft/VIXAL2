@@ -17,6 +17,7 @@ namespace LSTMTimeSeriesDemo
         int inDim = 5;
         int ouDim = 1;
         int batchSize=100;
+        int daysPredict = 10;
         string featuresName = "feature";
         string labelsName = "label";
 
@@ -26,6 +27,7 @@ namespace LSTMTimeSeriesDemo
         LineItem trainingDataLine;
 
         LineItem lossDataLine;
+        LineItem performanceDataLine;
 
         LineItem predictedLine;
         LineItem testDataLine;
@@ -34,14 +36,17 @@ namespace LSTMTimeSeriesDemo
 
         public LSTMTimeSeries()
         {
-            int timeStep = 10;
             InitializeComponent();
             InitiGraphs();
             //load data
             //load data in to memory
             var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
-            //DataSet = loadWaveDataset(Math.Sin, xdata, inDim, timeStep);
-            DataSet = loadFullDataSet("..\\..\\..\\..\\Data\\FullDataSet.csv", timeStep);
+
+#if ORIGINAL_WORK
+            DataSet = loadWaveDataset(Math.Sin, xdata, inDim, daysPredict);
+#else
+            DataSet = loadFullDataSet("..\\..\\..\\..\\Data\\FullDataSet.csv", daysPredict);
+#endif
         }
 
         private void InitiGraphs()
@@ -51,11 +56,11 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl1.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl1.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
-            trainingDataLine = new LineItem("Data Points", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
-            trainingDataLine.Symbol.Fill = new Fill(Color.Red);
+            trainingDataLine = new LineItem("Training Data", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            trainingDataLine.Symbol.Fill = new Fill(Color.Blue);
             trainingDataLine.Symbol.Size = 1;
 
-            modelLine = new LineItem("Data Points", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            modelLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
             modelLine.Symbol.Fill = new Fill(Color.Red);
             modelLine.Symbol.Size = 1;
 
@@ -67,6 +72,11 @@ namespace LSTMTimeSeriesDemo
             lossDataLine.Symbol.Fill = new Fill(Color.Red);
             lossDataLine.Symbol.Size = 5;
 
+            performanceDataLine = new LineItem("Performance", null, null, Color.DarkKhaki, ZedGraph.SymbolType.Diamond, 1);
+            performanceDataLine.Symbol.Fill = new Fill(Color.DarkKhaki);
+            performanceDataLine.Symbol.Size = 5;
+
+
             //Add line to graph
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
            // this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
@@ -75,6 +85,7 @@ namespace LSTMTimeSeriesDemo
 
 
             this.zedGraphControl2.GraphPane.CurveList.Add(lossDataLine);
+            this.zedGraphControl2.GraphPane.CurveList.Add(performanceDataLine);
             this.zedGraphControl2.GraphPane.AxisChange(this.CreateGraphics());
 
 
@@ -82,11 +93,16 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
-            testDataLine = new LineItem("Actual Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
-            testDataLine.Symbol.Fill = new Fill(Color.Red);
-            testDataLine.Symbol.Size = 1;
+            testDataLine = new LineItem("Actual Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            testDataLine.Symbol.Fill = new Fill(Color.Blue);
+            testDataLine.Symbol.Size = 3;
+            testDataLine.Symbol.Type = SymbolType.Triangle;
 
-            predictedLine = new LineItem("Prediction", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            zedGraphControl3.IsShowPointValues = true;
+            zedGraphControl3.PointValueFormat = "0.0000";
+            zedGraphControl3.PointDateFormat = "d";
+
+            predictedLine = new LineItem("Prediction", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
             predictedLine.Symbol.Fill = new Fill(Color.Red);
             predictedLine.Symbol.Size = 1;
 
@@ -293,9 +309,9 @@ namespace LSTMTimeSeriesDemo
 
             StockList.FillNaNs(stockData);
 
-            Normalizer.Instance.Initialize(stockData);
+            Normalizer.Instance.Initialize(stockData, stockData.Length - gap);
             float[][] fStockData = Utils.ToFloatArray(Normalizer.Instance.Normalize(stockData));
-            float[][] y = new float[stockData.Length][];
+            float[][] y = new float[fStockData.Length][];
 
             for (int row = 0; row < fStockData.Length; row++)
             {
@@ -304,8 +320,8 @@ namespace LSTMTimeSeriesDemo
                     y[row - gap][0] = fStockData[row][0];
             }
 
-            var xxx = splitData(fStockData, 0.2f, 0.2f);
-            var yyy = splitData(y, 0.2f, 0.2f);
+            var xxx = splitAndRemoveBlankData(fStockData, 0.2f, 0.2f, gap);
+            var yyy = splitAndRemoveBlankData(y, 0.2f, 0.2f, gap);
 
             var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
             retVal.Add("features", xxx);
@@ -320,13 +336,24 @@ namespace LSTMTimeSeriesDemo
         /// <param name="valSize">percentage amount of validation </param>
         /// <param name="testSize">percentage amount for testing</param>
         /// <returns></returns>
-        static (float[][] train, float[][] valid, float[][] test) splitData(float[][] data, float valSize = 0.1f, float testSize = 0.1f)
+        static (float[][] train, float[][] valid, float[][] test) splitData(float[][] data, float valSize, float testSize)
         {
             //calculate
             var posTest = (int)(data.Length * (1 - testSize));
             var posVal = (int)(posTest * (1 - valSize));
 
             return (data.Skip(0).Take(posVal).ToArray(), data.Skip(posVal).Take(posTest - posVal).ToArray(), data.Skip(posTest).ToArray());
+        }
+
+        static (float[][] train, float[][] valid, float[][] test) splitAndRemoveBlankData(float[][] data, float valSize, float testSize, int blankSize)
+        {
+            //calculate
+            int total = data.Length;
+            var posVal = (int)(total * (1 - valSize-testSize));
+            var posTest = (int)(total * (1 - testSize));
+            var lenTest = data.Length - posTest - blankSize;
+
+            return (data.Skip(0).Take(posVal).ToArray(), data.Skip(posVal).Take(posTest - posVal).ToArray(), data.Skip(posTest).Take(lenTest).ToArray());
         }
 
         /// <summary>
@@ -441,15 +468,60 @@ namespace LSTMTimeSeriesDemo
             //get the next minibatch amount of data
             int sample = 1;
             predictedLine.Clear();
+            List<float> predictectList = new List<float>();
+            List<float> dataYList = new List<float>();
+
             foreach (var miniBatchData in nextBatch(DataSet["features"].test, DataSet["label"].test, batchSize))
             {
                  var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X);
-                 //show on graph
-                 foreach (var y in oData)
-                     predictedLine.AddPoint(new PointPair(sample++, y[0]));
+                //show on graph
+                foreach (var y in oData)
+                {
+                    predictedLine.AddPoint(new PointPair(sample++, y[0]));
+                    predictectList.Add(y[0]);
+                }
             }
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
+
+            float[][] dataY = DataSet["label"].test;
+            for (int i = 0; i < dataY.Length; i++)
+                dataYList.Add(dataY[i][0]);
+
+            float performance = Compare(dataYList.ToArray(), predictectList.ToArray());
+            label4.Text = performance.ToString();
+
         }
+
+        public virtual float Compare(float[] dataY, float[] dataPredicted)
+        {
+            float result;
+
+            float guessed = 0, failed = 0;
+            float predicted0 = dataPredicted[0];
+            float future0 = dataY[0];
+
+            for (int row = 1; row < dataY.Length; row++)
+            {
+                float future1 = dataY[row];
+                bool futurePositiveTrend = (future1 > future0);
+
+                float predicted1 = dataPredicted[row];
+                bool predictedPositiveTrend = (predicted1 > predicted0);
+
+                if (predictedPositiveTrend == futurePositiveTrend)
+                    guessed++;
+                else
+                    failed++;
+
+                predicted0 = predicted1;
+                future0 = future1;
+            }
+
+            result = guessed / (guessed + failed);
+
+            return result;
+        }
+
 
         private void currentModelEvaluation(int iteration)
         {
@@ -466,6 +538,16 @@ namespace LSTMTimeSeriesDemo
             }
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox4_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

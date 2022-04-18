@@ -265,6 +265,38 @@ namespace LSTMTimeSeriesDemo
             return retVal;
         }
 
+        static void SaveFullDataSet(Dictionary<string, (float[][] train, float[][] valid, float[][] test)> ds, string path)
+        {
+            List<float[]> data = new List<float[]>();
+            
+            for (int i=0; i < ds["features"].train.Length; i++)
+            {
+                data.Add(ds["features"].train[i]);
+            }
+
+            for (int i = 0; i < ds["features"].valid.Length; i++)
+            {
+                data.Add(ds["features"].valid[i]);
+            }
+
+            for (int i = 0; i < ds["features"].test.Length; i++)
+            {
+                data.Add(ds["features"].test[i]);
+            }
+
+            double[][] data1 = new double[data.Count][];
+            for (int i=0; i<data.Count; i++)
+            {
+                data1[i] = new double[data[i].Length];
+                for (int j=0; j<data[i].Length; j++)
+                {
+                    data1[i][j] = data[i][j];
+                }
+            }
+
+            Utils.WriteCsv(data1, path);
+        }
+
 
         static Dictionary<string, (float[][] train, float[][] valid, float[][] test)> loadFullDataSet(string path, int gap)
         {

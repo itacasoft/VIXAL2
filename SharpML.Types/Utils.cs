@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace SharpML.Types
 {
@@ -9,6 +10,12 @@ namespace SharpML.Types
     {
         public const int PrefixLength = 27;
         public const int ProgressBarLength = 52;
+        private static Action<string, ConsoleColor> outputProcedure;
+
+        public static void RegisterProcedureForOutput(Action<string, ConsoleColor> outputProcedure)
+        {
+            Utils.outputProcedure = outputProcedure;
+        }
 
         public static string CreateProgressBar(int length, double percent)
         {
@@ -28,14 +35,27 @@ namespace SharpML.Types
             return progressBar;
         }
 
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
         public static void DrawMessage(string prefix, string message, ConsoleColor color)
         {
-            Console.CursorLeft = 0;
-            Console.ForegroundColor = color;
+            if (outputProcedure != null)
+            {
+                outputProcedure((prefix.PadRight(Utils.PrefixLength) + message).PadRight(Console.WindowWidth - 1), color);
+            }
+            else if (GetConsoleWindow() != IntPtr.Zero)
+            {
+                Console.CursorLeft = 0;
+                Console.ForegroundColor = color;
+                Console.Write((prefix.PadRight(Utils.PrefixLength) + message).PadRight(Console.WindowWidth - 1));
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+        }
 
-            Console.Write((prefix.PadRight(Utils.PrefixLength) + message).PadRight(Console.WindowWidth - 1));
-
-            Console.ForegroundColor = ConsoleColor.Gray;
+        public static void DrawMessage(string message)
+        {
+            DrawMessage("", message, ConsoleColor.Gray);
         }
 
         public static int PercentIntervalByLength(int length)
@@ -90,10 +110,10 @@ namespace SharpML.Types
                 return result0;
 
             string[][] result = new string[result0.Length][];
-            for (int row = 0; row<result0.Length; row++)
+            for (int row = 0; row < result0.Length; row++)
             {
                 result[row] = new string[Math.Min(result0[row].Length, colCount)];
-                for (int col = 0; col<Math.Min(result0[row].Length, colCount); col++)
+                for (int col = 0; col < Math.Min(result0[row].Length, colCount); col++)
                 {
                     result[row][col] = result0[row][col];
                 }
@@ -206,10 +226,10 @@ namespace SharpML.Types
             return (long)(value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
-        public static float[][] ToFloatArray(double[][] doubleArray, int removedRows = 0)
+        public static float[][] ToFloatArray(double[][] doubleArray)
         {
-            float[][] floatArray = new float[doubleArray.Length-removedRows][];
-            for (int row = 0; row < floatArray.Length; row++)
+            float[][] floatArray = new float[doubleArray.Length][];
+            for (int row = 0; row < doubleArray.Length; row++)
             {
                 floatArray[row] = new float[doubleArray[row].Length];
                 for (int col = 0; col < doubleArray[row].Length; col++)

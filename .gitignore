@@ -10,6 +10,10 @@ NeuralNetwork.Base/obj/
 SharpML.Types/bin/
 SharpML.Types/obj/
 
+VIXAL2.Data/bin/
+VIXAL2.Data/obj/
+
+
 packages/
 *.cache
 .vs/

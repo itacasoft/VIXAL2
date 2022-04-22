@@ -105,15 +105,6 @@ namespace VIXAL2.Data
             return retVal;
         }
 
-        public (float[][] train, float[][] valid, float[][] test) this[string key]
-        {
-            get
-            {
-                var res = GetFeatureLabelDataSet();
-                return res[key];
-            }
-        }
-
         public Dictionary<string, (double[][] train, double[][] valid, double[][] test)> GetFeatureLabelDataSet2()
         {
             var retVal = new Dictionary<string, (double[][] train, double[][] valid, double[][] test)>();
@@ -126,7 +117,15 @@ namespace VIXAL2.Data
             return retVal;
         }
 
-
+        public (float[][] train, float[][] valid, float[][] test) this[string key]
+        {
+            get
+            {
+                var res = GetFeatureLabelDataSet();
+                return res[key];
+            }
+        }
+        
         public int ValidCount
         {
             get

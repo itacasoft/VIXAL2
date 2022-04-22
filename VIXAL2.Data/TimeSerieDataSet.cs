@@ -114,6 +114,19 @@ namespace VIXAL2.Data
             }
         }
 
+        public Dictionary<string, (double[][] train, double[][] valid, double[][] test)> GetFeatureLabelDataSet2()
+        {
+            var retVal = new Dictionary<string, (double[][] train, double[][] valid, double[][] test)>();
+
+            var xxx = (trainDataX, validDataX, testDataX);
+            var yyy = (trainDataY, validDataY, testDataY);
+            retVal.Add("features", xxx);
+            retVal.Add("label", yyy);
+
+            return retVal;
+        }
+
+
         public int ValidCount
         {
             get
@@ -310,6 +323,14 @@ namespace VIXAL2.Data
             get
             {
                 return dates[dates.Count - 1];
+            }
+        }
+
+        public DateTime[] Dates
+        {
+            get
+            {
+                return dates.ToArray();
             }
         }
 

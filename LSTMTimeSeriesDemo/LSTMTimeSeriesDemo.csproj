@@ -118,6 +118,10 @@
       <Project>{2c004eef-c37f-4057-889c-9e20318d7e5a}</Project>
       <Name>SharpML.Types</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VIXAL2.Data\VIXAL2.Data.csproj">
+      <Project>{5276d76d-db76-4e23-a0b6-e8fff569fe32}</Project>
+      <Name>VIXAL2.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\CNTK.Deps.MKL.2.7.0\build\netstandard2.0\CNTK.Deps.MKL.targets" Condition="Exists('..\packages\CNTK.Deps.MKL.2.7.0\build\netstandard2.0\CNTK.Deps.MKL.targets')" />

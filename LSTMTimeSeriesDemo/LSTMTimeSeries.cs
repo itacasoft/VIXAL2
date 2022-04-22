@@ -8,21 +8,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using VIXAL2.Data;
 using ZedGraph;
 
 namespace LSTMTimeSeriesDemo
 {
     public partial class LSTMTimeSeries : Form
     {
-        int inDim = 5;
-        int ouDim = 1;
         int batchSize=100;
         int daysPredict = 10;
         string featuresName = "feature";
         string labelsName = "label";
 
-
+#if ORIGINAL_WORK
         Dictionary<string, (float[][] train, float[][] valid, float[][] test)> DataSet;
+#else
+        StocksDataset DataSet;
+#endif
+
+
         LineItem modelLine;
         LineItem trainingDataLine;
 
@@ -37,16 +41,6 @@ namespace LSTMTimeSeriesDemo
         public LSTMTimeSeries()
         {
             InitializeComponent();
-            InitiGraphs();
-            //load data
-            //load data in to memory
-            var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
-
-#if ORIGINAL_WORK
-            DataSet = loadWaveDataset(Math.Sin, xdata, inDim, daysPredict);
-#else
-            DataSet = loadFullDataSet("..\\..\\..\\..\\Data\\FullDataSet.csv", daysPredict);
-#endif
         }
 
         private void InitiGraphs()
@@ -56,11 +50,15 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl1.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl1.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
-            trainingDataLine = new LineItem("Training Data", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            if (trainingDataLine != null) trainingDataLine.Clear();
+            else
+                trainingDataLine = new LineItem("Training Data", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
             trainingDataLine.Symbol.Fill = new Fill(Color.Blue);
             trainingDataLine.Symbol.Size = 1;
 
-            modelLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
+            if (modelLine != null) modelLine.Clear();
+            else
+                modelLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
             modelLine.Symbol.Fill = new Fill(Color.Red);
             modelLine.Symbol.Size = 1;
 
@@ -68,11 +66,15 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Iteration";
             zedGraphControl2.GraphPane.YAxis.Title.Text = "Loss value";
 
-            lossDataLine = new LineItem("Loss values", null, null, Color.Red, ZedGraph.SymbolType.Circle, 1);
+            if (lossDataLine != null) lossDataLine.Clear();
+            else
+                lossDataLine = new LineItem("Loss values", null, null, Color.Red, ZedGraph.SymbolType.Circle, 1);
             lossDataLine.Symbol.Fill = new Fill(Color.Red);
             lossDataLine.Symbol.Size = 5;
 
-            performanceDataLine = new LineItem("Performance", null, null, Color.DarkKhaki, ZedGraph.SymbolType.Diamond, 1);
+            if (performanceDataLine != null) performanceDataLine.Clear();
+            else
+                performanceDataLine = new LineItem("Performance", null, null, Color.DarkKhaki, ZedGraph.SymbolType.Diamond, 1);
             performanceDataLine.Symbol.Fill = new Fill(Color.DarkKhaki);
             performanceDataLine.Symbol.Size = 5;
 
@@ -93,7 +95,9 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
-            testDataLine = new LineItem("Actual Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            if (testDataLine != null) testDataLine.Clear();
+            else
+                testDataLine = new LineItem("Actual Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
             testDataLine.Symbol.Fill = new Fill(Color.Blue);
             testDataLine.Symbol.Size = 3;
             testDataLine.Symbol.Type = SymbolType.Triangle;
@@ -102,10 +106,11 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl3.PointValueFormat = "0.0000";
             zedGraphControl3.PointDateFormat = "d";
 
-            predictedLine = new LineItem("Prediction", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
+            if (predictedLine != null) predictedLine.Clear();
+            else
+                predictedLine = new LineItem("Prediction", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
             predictedLine.Symbol.Fill = new Fill(Color.Red);
             predictedLine.Symbol.Size = 1;
-
 
             this.zedGraphControl3.GraphPane.CurveList.Add(testDataLine);
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
@@ -119,8 +124,9 @@ namespace LSTMTimeSeriesDemo
 
         private void CNTKDemo_Load(object sender, EventArgs e)
         {
-            loadListView(DataSet["features"].train, DataSet["label"].train);
-            loadGraphs(DataSet["label"].train, DataSet["label"].test);
+            comboBox1.SelectedIndex = 0;
+            button1.Enabled = false;
+            InitiGraphs();
         }
 
         private void loadGraphs(float[][] train, float[][] test)
@@ -136,40 +142,39 @@ namespace LSTMTimeSeriesDemo
 
         }
 
-        private void loadListView(float[][] X, float[][] Y)
+        private void loadListView(StocksDataset ds)
         {
             //clear the list first
             listView1.Clear();
             listView1.GridLines = true;
             listView1.HideSelection = false;
-            if (X == null || Y == null )
+            if (ds.TrainDataX == null || ds.TrainDataY == null)
                 return;
             //add features
-            listView1.Columns.Add(new ColumnHeader() {Width=20});
-            for (int i=0; i < inDim ;i++)
+            listView1.Columns.Add(new ColumnHeader() { Width = 20 });
+            for (int i = 0; i < ds.StockNames.Length; i++)
             {
                 ///
                 var col1 = new ColumnHeader();
-                col1.Text = $"x{i+1}";
+                col1.Text = ds.StockNames[i];
                 col1.Width = 70;
                 listView1.Columns.Add(col1);
             }
             //Add label
             ///
             var col = new ColumnHeader();
-            col.Text = $"y";
+            col.Text = $"Y";
             col.Width = 70;
             listView1.Columns.Add(col);
 
-            for (int i = 0; i < X.Length; i++)
+            for (int i = 0; i < ds.TrainDataX.Length; i++)
             {
-               var itm =  listView1.Items.Add($"{(i+1).ToString()}");
-                for (int j = 0; j < X[i].Length; j++)
-                    itm.SubItems.Add(X[i][j].ToString());
-                itm.SubItems.Add(Y[i][0].ToString());
+                var itm = listView1.Items.Add($"{(i + 1).ToString()}");
+                for (int j = 0; j < ds.TrainDataX[i].Length; j++)
+                    itm.SubItems.Add(ds.TrainDataX[i][j].ToString());
+                itm.SubItems.Add(ds.TrainDataY[i][0].ToString());
             }
         }
-
 
 
         /// <summary>
@@ -446,17 +451,18 @@ namespace LSTMTimeSeriesDemo
             progressBar1.Maximum = iteration;
             progressBar1.Value = 1;
 
-            inDim = 5;
-            ouDim = 1;
+            int ouDim = 1;
+            int inDim = DataSet.StockNames.Length;
             int hiDim = 1;
-            int cellDim = inDim;
+            int cellDim = 30;// inDim;
+            cellDim = DataSet.StockNames.Length;
 
             //            Task.Run(() =>
             //            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
 
             currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
             Task.Run(() =>
-            currentLSTMTrainer.Train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
+            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiDim, cellDim, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
         }
 
 
@@ -520,7 +526,7 @@ namespace LSTMTimeSeriesDemo
                 dataYList.Add(dataY[i][0]);
 
             float performance = Compare(dataYList.ToArray(), predictectList.ToArray());
-            label4.Text = performance.ToString();
+            label2.Text = "Performance: " + performance.ToString();
 
         }
 
@@ -580,6 +586,26 @@ namespace LSTMTimeSeriesDemo
         private void textBox4_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            InitiGraphs();
+            //load data
+            //load data in to memory
+            var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
+
+#if ORIGINAL_WORK
+            DataSet = loadWaveDataset(Math.Sin, xdata, inDim, daysPredict);
+#else
+            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", 1, comboBox1.SelectedIndex + 1);
+            DataSet.Prepare();
+#endif
+
+            loadListView(DataSet);
+            loadGraphs(DataSet["label"].train, DataSet["label"].test);
+
+            button1.Enabled = true;
         }
     }
 }

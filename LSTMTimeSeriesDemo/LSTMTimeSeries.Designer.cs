@@ -50,6 +50,9 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.button2 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
+            this.textBoxCells = new System.Windows.Forms.TextBox();
+            this.textBoxHidden = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -220,7 +223,7 @@
             // textBox2
             // 
             this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Location = new System.Drawing.Point(1080, 18);
+            this.textBox2.Location = new System.Drawing.Point(1080, 19);
             this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(48, 26);
@@ -312,18 +315,52 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(682, 129);
+            this.label2.Location = new System.Drawing.Point(682, 184);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(104, 20);
             this.label2.TabIndex = 32;
             this.label2.Text = "Performance:";
             // 
+            // textBoxCells
+            // 
+            this.textBoxCells.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxCells.Location = new System.Drawing.Point(921, 121);
+            this.textBoxCells.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxCells.Name = "textBoxCells";
+            this.textBoxCells.Size = new System.Drawing.Size(35, 26);
+            this.textBoxCells.TabIndex = 35;
+            this.textBoxCells.Text = "30";
+            // 
+            // textBoxHidden
+            // 
+            this.textBoxHidden.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxHidden.Location = new System.Drawing.Point(894, 121);
+            this.textBoxHidden.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxHidden.Name = "textBoxHidden";
+            this.textBoxHidden.Size = new System.Drawing.Size(25, 26);
+            this.textBoxHidden.TabIndex = 34;
+            this.textBoxHidden.Text = "1";
+            // 
+            // label6
+            // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(685, 123);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(201, 20);
+            this.label6.TabIndex = 33;
+            this.label6.Text = "Network Dim (hidden|cells):";
+            // 
             // LSTMTimeSeries
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.textBoxCells);
+            this.Controls.Add(this.textBoxHidden);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label5);
@@ -375,6 +412,9 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBoxCells;
+        private System.Windows.Forms.TextBox textBoxHidden;
+        private System.Windows.Forms.Label label6;
     }
 }
 

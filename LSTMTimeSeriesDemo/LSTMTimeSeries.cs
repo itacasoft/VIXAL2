@@ -80,12 +80,13 @@ namespace LSTMTimeSeriesDemo
 
 
             //Add line to graph
+            this.zedGraphControl1.GraphPane.CurveList.Clear();
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
            // this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
-
+            this.zedGraphControl2.GraphPane.CurveList.Clear();
             this.zedGraphControl2.GraphPane.CurveList.Add(lossDataLine);
             this.zedGraphControl2.GraphPane.CurveList.Add(performanceDataLine);
             this.zedGraphControl2.GraphPane.AxisChange(this.CreateGraphics());
@@ -447,22 +448,20 @@ namespace LSTMTimeSeriesDemo
         {
             int iteration = int.Parse(textBox1.Text);
             batchSize = int.Parse(textBox2.Text);
-
+            int hiddenLayersDim = Convert.ToInt32(textBoxHidden.Text);
+            int cellsNumber = Convert.ToInt32(textBoxCells.Text);
             progressBar1.Maximum = iteration;
             progressBar1.Value = 1;
 
             int ouDim = 1;
             int inDim = DataSet.StockNames.Length;
-            int hiDim = 1;
-            int cellDim = 30;// inDim;
-            cellDim = DataSet.StockNames.Length;
 
             //            Task.Run(() =>
             //            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
 
             currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
             Task.Run(() =>
-            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiDim, cellDim, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
+            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
         }
 
 

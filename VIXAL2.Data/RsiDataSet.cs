@@ -7,11 +7,17 @@ namespace VIXAL2.Data
 {
     public class RsiDataSet : StocksDataset
     {
-        protected int range = 14;
+        private int range = 14;
 
-        public RsiDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount, int range = 14) : base(stockNames, dates, allData, predictCount)
+        public RsiDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
         {
-            this.range = range;
+            
+        }
+
+        public int Range 
+        { 
+            get { return range; } 
+            set { range = value; }
         }
 
         public override void Prepare()

@@ -8,9 +8,14 @@ namespace VIXAL2.Data
     {
         protected int range = 30;
 
-        public MovingAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount, int range = 30) : base(stockNames, dates, allData, predictCount)
+        public MovingAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
         {
-            this.range = range;
+        }
+
+        public int Range
+        {
+            get { return range; }
+            set { range = value; }
         }
 
         public override void Prepare()
@@ -64,14 +69,10 @@ namespace VIXAL2.Data
                 //add the current value
                 pieces.Add(values[i]);
 
-#if USE_NAN_IN_MOVING_AVERAGE
                 if (pieces.Count == range)
                     result[i] = Utils.Mean(pieces.ToArray());
                 else
                     result[i] = double.NaN;
-#else
-                result[i] = Utils.Mean(pieces.ToArray());
-#endif
             }
 
             return result;

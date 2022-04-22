@@ -27,7 +27,7 @@ namespace SharpML.Types
         {
             if (normalizerType == null)
             {
-                _instance = new ClassicNormalizer();
+                _instance = new FakeNormalizer();
             }
             else if ((normalizerType == "classic") || (normalizerType == "Classic") || (normalizerType == "ClassicNormalizer"))
             {

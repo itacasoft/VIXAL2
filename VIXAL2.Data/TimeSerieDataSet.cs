@@ -60,7 +60,7 @@ namespace VIXAL2.Data
         /// <summary>
         /// This method returns a copy of testDataX array, including the latest PredictGap days
         /// </summary>
-        public TimeSerieArray GetTestArrayX()
+        public TimeSerieArray GetTestArrayExtendedX()
         {
             TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount, allData[0].Length);
             for (int row = 0; row < result.Length; row++)
@@ -68,6 +68,23 @@ namespace VIXAL2.Data
                 for (int col = 0; col < result.Columns; col++)
                 {
                     result.SetValue(row, col, dates[row + TrainCount + ValidCount], allData[row + TrainCount + ValidCount][col]);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// This method returns a copy of data for latest PredictGap days 
+        /// </summary>
+        public TimeSerieArray GetExtendedArrayX()
+        {
+            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount - testCount, allData[0].Length);
+            for (int row = 0; row < result.Length; row++)
+            {
+                for (int col = 0; col < result.Columns; col++)
+                {
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount + testCount], allData[row + TrainCount + ValidCount + testCount][col]);
                 }
             }
 
@@ -289,6 +306,30 @@ namespace VIXAL2.Data
             get
             {
                 return trainDataY;
+            }
+        }
+
+        public double[][] ValidDataX
+        {
+            get
+            {
+                return validDataX;
+            }
+        }
+
+        public double[][] ValidDataY
+        {
+            get
+            {
+                return validDataY;
+            }
+        }
+
+        public double[][] TestDataX
+        {
+            get
+            {
+                return testDataX;
             }
         }
 

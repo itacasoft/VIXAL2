@@ -239,5 +239,15 @@ namespace SharpML.Types
             }
             return floatArray;
         }
+
+        public static float[] ToFloatArray(double[] doubleArray)
+        {
+            float[] floatArray = new float[doubleArray.Length];
+            for (int row = 0; row < doubleArray.Length; row++)
+            {
+                 floatArray[row] = (float)doubleArray[row];
+            }
+            return floatArray;
+        }
     }
 }

@@ -34,6 +34,7 @@ namespace LSTMTimeSeriesDemo
         LineItem performanceDataLine;
 
         LineItem predictedLine;
+        LineItem predictedLineExtreme;
         LineItem testDataLine;
 
         NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
@@ -113,6 +114,13 @@ namespace LSTMTimeSeriesDemo
             predictedLine.Symbol.Fill = new Fill(Color.Red);
             predictedLine.Symbol.Size = 1;
 
+            if (predictedLineExtreme != null) predictedLineExtreme.Clear();
+            else
+                predictedLineExtreme = new LineItem("PredictionExtreme", null, null, Color.Violet, ZedGraph.SymbolType.Diamond, 1);
+            predictedLineExtreme.Symbol.Fill = new Fill(Color.Violet);
+            predictedLineExtreme.Symbol.Size = 1;
+
+            this.zedGraphControl3.GraphPane.CurveList.Clear();
             this.zedGraphControl3.GraphPane.CurveList.Add(testDataLine);
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl3.GraphPane.CurveList.Add(predictedLine);
@@ -155,25 +163,51 @@ namespace LSTMTimeSeriesDemo
             listView1.Columns.Add(new ColumnHeader() { Width = 20 });
             for (int i = 0; i < ds.StockNames.Length; i++)
             {
-                ///
                 var col1 = new ColumnHeader();
                 col1.Text = ds.StockNames[i];
                 col1.Width = 70;
                 listView1.Columns.Add(col1);
             }
-            //Add label
-            ///
-            var col = new ColumnHeader();
-            col.Text = $"Y";
-            col.Width = 70;
-            listView1.Columns.Add(col);
+
+            //Add labels
+            for (int i = 0; i < ds.TrainDataY[0].Length; i++)
+            {
+                var col = new ColumnHeader();
+                col.Text = $"Y" + (i + 1);
+                col.Width = 70;
+                listView1.Columns.Add(col);
+            }
 
             for (int i = 0; i < ds.TrainDataX.Length; i++)
             {
                 var itm = listView1.Items.Add($"{(i + 1).ToString()}");
                 for (int j = 0; j < ds.TrainDataX[i].Length; j++)
                     itm.SubItems.Add(ds.TrainDataX[i][j].ToString());
-                itm.SubItems.Add(ds.TrainDataY[i][0].ToString());
+
+                for (int j = 0; j < ds.TrainDataY[i].Length; j++)
+                    itm.SubItems.Add(ds.TrainDataY[i][j].ToString());
+            }
+
+            for (int i = 0; i < ds.ValidDataX.Length; i++)
+            {
+                var itm = listView1.Items.Add($"{(i + 1).ToString()}");
+                itm.BackColor = Color.Yellow;
+                for (int j = 0; j < ds.ValidDataX[i].Length; j++)
+                    itm.SubItems.Add(ds.ValidDataX[i][j].ToString());
+
+                for (int j = 0; j < ds.ValidDataY[i].Length; j++)
+                    itm.SubItems.Add(ds.ValidDataY[i][j].ToString());
+            }
+
+            for (int i = 0; i < ds.TestDataX.Length; i++)
+            {
+                var itm = listView1.Items.Add($"{(i + 1).ToString()}");
+                itm.BackColor = Color.LightCoral;
+                for (int j = 0; j < ds.TestDataX[i].Length; j++)
+                    itm.SubItems.Add(ds.TestDataX[i][j].ToString());
+
+                for (int j = 0; j < ds.TestDataY[i].Length; j++)
+                    itm.SubItems.Add(ds.TestDataY[i][j].ToString());
             }
         }
 
@@ -453,7 +487,7 @@ namespace LSTMTimeSeriesDemo
             progressBar1.Maximum = iteration;
             progressBar1.Value = 1;
 
-            int ouDim = 1;
+            int ouDim = DataSet.TrainDataY[0].Length;
             int inDim = DataSet.StockNames.Length;
 
             //            Task.Run(() =>
@@ -518,6 +552,16 @@ namespace LSTMTimeSeriesDemo
                     predictectList.Add(y[0]);
                 }
             }
+
+            //predico anche l'estremo
+            var dad = DataSet.GetExtendedArrayX();
+            var vals = Utils.GetVectorFromArray(dad.Values, 0);
+            var oDataExt = currentLSTMTrainer.CurrentModelTest(Utils.ToFloatArray(vals));
+            foreach (var y in oDataExt)
+            {
+                predictedLineExtreme.AddPoint(new PointPair(sample++, y[0]));
+            }
+
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
 
             float[][] dataY = DataSet["label"].test;
@@ -590,14 +634,13 @@ namespace LSTMTimeSeriesDemo
         private void button2_Click(object sender, EventArgs e)
         {
             InitiGraphs();
-            //load data
-            //load data in to memory
-            var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
 
 #if ORIGINAL_WORK
+            //load data in to memory
+            var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
             DataSet = loadWaveDataset(Math.Sin, xdata, inDim, daysPredict);
 #else
-            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", 1, comboBox1.SelectedIndex + 1);
+            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", 2, comboBox1.SelectedIndex + 1);
             DataSet.Prepare();
 #endif
 

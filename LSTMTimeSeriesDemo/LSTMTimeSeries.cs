@@ -134,7 +134,7 @@ namespace LSTMTimeSeriesDemo
         private void CNTKDemo_Load(object sender, EventArgs e)
         {
             comboBox1.SelectedIndex = 0;
-            button1.Enabled = false;
+            buttonStart.Enabled = false;
             InitiGraphs();
         }
 
@@ -647,7 +647,7 @@ namespace LSTMTimeSeriesDemo
             loadListView(DataSet);
             loadGraphs(DataSet["label"].train, DataSet["label"].test);
 
-            button1.Enabled = true;
+            buttonStart.Enabled = true;
         }
     }
 }

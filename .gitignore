@@ -13,9 +13,9 @@ SharpML.Types/obj/
 VIXAL2.Data/bin/
 VIXAL2.Data/obj/
 
-
 packages/
 *.cache
 .vs/
 *.suo
 Data/FullDataSet_00.csv
+Data/FullDataSet.csv

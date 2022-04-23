@@ -101,8 +101,7 @@ namespace LSTMTimeSeriesDemo
             else
                 testDataLine = new LineItem("Actual Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
             testDataLine.Symbol.Fill = new Fill(Color.Blue);
-            testDataLine.Symbol.Size = 3;
-            testDataLine.Symbol.Type = SymbolType.Triangle;
+            testDataLine.Symbol.Size = 1;
 
             zedGraphControl3.IsShowPointValues = true;
             zedGraphControl3.PointValueFormat = "0.0000";
@@ -118,12 +117,15 @@ namespace LSTMTimeSeriesDemo
             else
                 predictedLineExtreme = new LineItem("PredictionExtreme", null, null, Color.Violet, ZedGraph.SymbolType.Diamond, 1);
             predictedLineExtreme.Symbol.Fill = new Fill(Color.Violet);
-            predictedLineExtreme.Symbol.Size = 1;
+            predictedLineExtreme.Symbol.Size = 2;
+            predictedLineExtreme.Symbol.Type = SymbolType.Diamond;
 
             this.zedGraphControl3.GraphPane.CurveList.Clear();
             this.zedGraphControl3.GraphPane.CurveList.Add(testDataLine);
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl3.GraphPane.CurveList.Add(predictedLine);
+            this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
+            this.zedGraphControl3.GraphPane.CurveList.Add(predictedLineExtreme);
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
 
             // zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
@@ -531,13 +533,40 @@ namespace LSTMTimeSeriesDemo
         private void reportOnGraphs(int iteration)
         {
             currentModelEvaluation(iteration);
-            currentModelTest(iteration);
+
+            int sample;
+            currentModelTest(iteration, out sample);
+            currentModelTestExtreme(sample);
+
+            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 
-        private void currentModelTest(int iteration)
+        private void currentModelTestExtreme(int sample)
+        {
+            predictedLineExtreme.Clear();
+            //predico anche l'estremo
+            var dad = DataSet.GetExtendedArrayX();
+            var normalizedDadValues = Normalizer.Instance.Normalize(dad.Values);
+
+            float[] bat = new float[dad.Length * dad.Columns];
+            int sss = 0;
+            for (int i = 0; i < dad.Length; i++)
+            {
+                for (int j = 0; j < dad.Columns; j++)
+                    bat[sss++] = (float)normalizedDadValues[i][j];
+            }
+            var oDataExt = currentLSTMTrainer.CurrentModelTest(bat);
+            foreach (var y in oDataExt)
+            {
+                predictedLineExtreme.AddPoint(new PointPair(sample++, y[0]));
+            }
+
+        }
+
+        private void currentModelTest(int iteration, out int sample)
         {
             //get the next minibatch amount of data
-            int sample = 1;
+            sample = 1;
             predictedLine.Clear();
             List<float> predictectList = new List<float>();
             List<float> dataYList = new List<float>();
@@ -552,17 +581,6 @@ namespace LSTMTimeSeriesDemo
                     predictectList.Add(y[0]);
                 }
             }
-
-            //predico anche l'estremo
-            var dad = DataSet.GetExtendedArrayX();
-            var vals = Utils.GetVectorFromArray(dad.Values, 0);
-            var oDataExt = currentLSTMTrainer.CurrentModelTest(Utils.ToFloatArray(vals));
-            foreach (var y in oDataExt)
-            {
-                predictedLineExtreme.AddPoint(new PointPair(sample++, y[0]));
-            }
-
-            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
 
             float[][] dataY = DataSet["label"].test;
             for (int i = 0; i < dataY.Length; i++)

@@ -1,4 +1,5 @@
-﻿using SharpML.Types;
+﻿using Accord.Math;
+using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
@@ -75,7 +76,7 @@ namespace VIXAL2.Data
         }
 
         /// <summary>
-        /// This method returns a copy of data for latest PredictGap days 
+        /// This method returns an unnormalized copy of dataX for latest PredictGap days 
         /// </summary>
         public TimeSerieArray GetExtendedArrayX()
         {
@@ -114,7 +115,14 @@ namespace VIXAL2.Data
         {
             var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
 
-            var xxx = (Utils.ToFloatArray(trainDataX), Utils.ToFloatArray(validDataX), Utils.ToFloatArray(testDataX));
+            float[][] extendedTestDataX = Utils.ToFloatArray(testDataX);
+
+#if EXTENDED_TEST
+            var exte = Utils.ToFloatArray(Normalizer.Instance.Normalize(this.GetExtendedArrayX().Values));
+            extendedTestDataX = extendedTestDataX.Stack<float>(exte);
+#endif
+
+            var xxx = (Utils.ToFloatArray(trainDataX), Utils.ToFloatArray(validDataX), extendedTestDataX);
             var yyy = (Utils.ToFloatArray(trainDataY), Utils.ToFloatArray(validDataY), Utils.ToFloatArray(testDataY));
             retVal.Add("features", xxx);
             retVal.Add("label", yyy);

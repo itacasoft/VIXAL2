@@ -25,27 +25,7 @@ namespace VIXAL2.Data
             this.allData = GetRsi(allData.ToArray(), range);
             RemoveNaNs(allData, dates);
 
-            int trainTo = Convert.ToInt32(allData.Count * TrainPercent);
-            trainCount = trainTo;
-            int validFrom = trainTo + 1;
-            int validTo = Convert.ToInt32(allData.Count * ValidPercent) + validFrom;
-            validCount = validTo - validFrom;
-            testCount = allData.Count - validCount - trainCount - PredictDays;
-
-            SplitData(allData.ToArray());
-
-            NormalizeData(trainDataX, validDataX, testDataX, true);
-            NormalizeData(trainDataY, validDataY, testDataY);
-
-/*
-            Training = CreateSequencesTraining();
-            Validation = CreateSequencesValidation();
-            //            Testing = CreateSequencesTesting();
-            InputDimension = Training[0].Steps[0].Input.Rows;
-            OutputDimension = Training[0].Steps[0].TargetOutput.Rows;
-            LossTraining = new LossSumOfSquares();
-            LossReporting = new LossSumOfSquares();
-*/
+            base.Prepare();
         }
 
         public override string ClassShortName

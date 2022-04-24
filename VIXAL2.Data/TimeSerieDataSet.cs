@@ -1,5 +1,4 @@
-﻿using Accord.Math;
-using SharpML.Types;
+﻿using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
@@ -213,7 +212,7 @@ namespace VIXAL2.Data
             set
             {
                 if (value < 1)
-                    throw new ArgumentOutOfRangeException("PredictDays must be > 1");
+                    throw new ArgumentOutOfRangeException("PredictDays must be > 0");
                 predictDays = value;
             }
         }

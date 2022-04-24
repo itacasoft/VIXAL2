@@ -659,7 +659,7 @@ namespace LSTMTimeSeriesDemo
             var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
             DataSet = loadWaveDataset(Math.Sin, xdata, inDim, daysPredict);
 #else
-            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", 2, comboBox1.SelectedIndex + 1);
+            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", 1, comboBox1.SelectedIndex + 1);
             DataSet.Prepare();
 #endif
 

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpML.Types", "SharpML.Ty
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIXAL2.Data", "VIXAL2.Data\VIXAL2.Data.csproj", "{5276D76D-DB76-4E23-A0B6-E8FFF569FE32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIXAL2.UnitTest", "VIXAL2.UnitTest\VIXAL2.UnitTest.csproj", "{C27D23E2-A353-4209-9A99-52004E978A04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{5276D76D-DB76-4E23-A0B6-E8FFF569FE32}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5276D76D-DB76-4E23-A0B6-E8FFF569FE32}.Release|x64.ActiveCfg = Release|Any CPU
 		{5276D76D-DB76-4E23-A0B6-E8FFF569FE32}.Release|x64.Build.0 = Release|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Debug|x64.Build.0 = Debug|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Release|x64.ActiveCfg = Release|Any CPU
+		{C27D23E2-A353-4209-9A99-52004E978A04}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -87,7 +87,7 @@ namespace VIXAL2.Data.Base
 
         public void DecodeValues()
         {
-            values = Normalizer.Instance.Decode(values);
+            values = SharpML.Types.Normalization.Normalizer.Instance.Decode(values);
         }
 
         public double[] GetColumnValues(int column = 0)

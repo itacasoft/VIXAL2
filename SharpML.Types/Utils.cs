@@ -63,38 +63,12 @@ namespace SharpML.Types
             return Math.Max(1, (int)Math.Round(length / 100.0));
         }
 
-        public static double NormalizeValue(double value, double newMean, double newStd, double oldMean, double oldStd)
-        {
-            return (value - oldMean) * (newStd / oldStd) + newMean;
-        }
-
         public static double ToInterval(double value, double newMin, double newMax, double oldMin, double oldMax)
         {
             if (oldMax - oldMin == 0)
                 return (newMax - newMin) / 2;
 
             return (value - oldMin) * (newMax - newMin) / (oldMax - oldMin) + newMin;
-        }
-
-        internal static double[] Decode(RnnConfig rnnConfig, double[] values)
-        {
-            double[] result = new double[values.Length];
-            for (int col = 0; col < values.Length; col++)
-            {
-                result[col] = rnnConfig.GetTransformed(0, 0, col, values[col]);
-            }
-            return result;
-        }
-
-        internal static double[] Normalize(RnnConfig rnnConfig, double[] values)
-        {
-            double[] result = new double[values.Length];
-            for (int col = 0; col < 7; col++)
-            {
-                Stat stat = rnnConfig.GetStat(0, 0, col);
-                result[col] = Utils.NormalizeValue(values[col], 0, 1, stat.Mean, stat.Deviance);
-            }
-            return result;
         }
 
         public static double[][] LoadCsv(string filename)

@@ -1,4 +1,5 @@
 ﻿using SharpML.Types;
+using SharpML.Types.Normalization;
 
 namespace VIXAL2.Data.Base
 {

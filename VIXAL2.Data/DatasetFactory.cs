@@ -5,7 +5,7 @@ using Accord.Math;
 using Accord.Statistics;
 using System.Data;
 using System.Linq;
-
+using SharpML.Types.Normalization;
 
 namespace VIXAL2.Data
 {

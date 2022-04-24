@@ -1,4 +1,5 @@
 ﻿using SharpML.Types;
+using SharpML.Types.Normalization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

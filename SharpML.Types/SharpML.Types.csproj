@@ -74,9 +74,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Normalization\ClassicNormalizer.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Normalization.cs" />
+    <Compile Include="Normalization\FakeNormalizer.cs" />
+    <Compile Include="Normalization\MinMaxScaler.cs" />
+    <Compile Include="Normalization\ModernNormalizer.cs" />
+    <Compile Include="Normalization\Normalizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RnnConfig.cs" />
     <Compile Include="Serializer.cs" />

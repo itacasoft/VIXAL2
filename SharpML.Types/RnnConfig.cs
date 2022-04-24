@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpML.Types.Normalization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,7 +46,7 @@ namespace SharpML.Types
         public double GetTransformed(int order, int row, int column, double value)
         {
             Stat st = GetStat(order, row, column);
-            return Utils.NormalizeValue(value, st.Mean, st.Deviance, 0, 1);
+            return ClassicNormalizer.NormalizeValue(value, st.Mean, st.Deviance, 0, 1);
         }
 
         public void SetClippedValue(int row, int col, double value)

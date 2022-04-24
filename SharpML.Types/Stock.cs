@@ -218,7 +218,7 @@ namespace SharpML.Types
 
         public static void FillNaNs(double[][] data)
         {
-            Random currentRandom = new Random(Normalizer.Instance.Random.Next());
+            Random currentRandom = new Random(Normalization.Normalizer.Instance.Random.Next());
 
             // Loop through all columns
             int row = 0;

@@ -2,6 +2,7 @@
 using System;
 using Accord.Math;
 using VIXAL2.UnitTest.Data;
+using SharpML.Types;
 
 namespace VIXAL2.UnitTest
 {
@@ -11,13 +12,14 @@ namespace VIXAL2.UnitTest
         public double[][] ValidX;
         public double[][] TestX;
     }
-
-    public class PCATests
+    
+    [TestClass]
+    public class MatrixTests
     {
-        internal TestData GetEnergyData(double validFrom, double validTo, double testFrom)
+        internal TestData GetEnergyData(double trainPerc, double validPerc)
         {
-            int ValidCount = Convert.ToInt32(EnergyData.ICLN.Length * (validTo - validFrom));
-            int TrainCount = Convert.ToInt32(EnergyData.ICLN.Length * (validFrom));
+            int TrainCount = Convert.ToInt32(EnergyData.ICLN.Length * trainPerc);
+            int ValidCount = Convert.ToInt32(EnergyData.ICLN.Length * validPerc);
             int TestCount = EnergyData.ICLN.Length - ValidCount - TrainCount;
             TestData result = new TestData();
             
@@ -54,42 +56,23 @@ namespace VIXAL2.UnitTest
             return result;
         }
 
-        private void PcaTransformation(int xy)
+        [TestMethod]
+        public void GetColumnFromMatrixTest()
         {
-/*
-            TestData data = GetEnergyData(0.6, 0.8, 0.8);
-            double[][] train = data.TrainX;
-            double[][] valid = data.ValidX;
-            double[][] test = data.TestX;
+            double[][] matrix = GetEnergyData(0.6,0.2).ValidX;
+            double[] vector = Utils.GetVectorFromArray(matrix, 0);
 
-            // Perform PCA
-            double[] w = null;
-            double[,] u = null;
-            double[,] vt = new double[0, 0];
-            double[,] cov = train.Transpose().Dot(train).ToMatrix().Divide(train.Length);
+            Assert.AreEqual(vector.Length, matrix.Length);
 
-            alglib.svd.rmatrixsvd(cov, cov.GetLength(0), cov.GetLength(1), 0, 1, 2, ref w, ref u, ref vt);
-            vt = vt.Transpose();
+            var vector1 = matrix.GetColumn<double>(0);
+            Assert.AreEqual(vector.Length, vector1.Length);
+            Assert.AreEqual(vector[0], vector1[0]);
+            Assert.AreEqual(vector[11], vector1[11]);
+            Assert.AreEqual(vector[vector.Length-1], vector1[vector.Length-1]);
 
-            // Reduce coefficients
-            double[,] vtt = new double[vt.GetLength(0), (int)Math.Round(vt.GetLength(1) * 1.0)];
-            for (int i = 0; i < vtt.GetLength(0); ++i)
-                for (int k = 0; k < vtt.GetLength(1); ++k)
-                    vtt[i, k] = vt[i, k];
-            vt = vtt;
-
-            // Get new data
-            train = train.Dot(vt);
-            valid = valid.Dot(vt);
-            test = test.Dot(vt);
-
-            Types.RnnConfig rnnConfig = new Types.RnnConfig();
-            rnnConfig.PcaCoefficients[0] = vt.Transpose();
-
-            data.TrainX = train;
-            data.ValidX = valid;
-            data.TestX = test;
-*/
+            Assert.AreEqual(vector1[11], matrix[11][0]);
+            vector1[11] = vector1[11] + 14.1;
+            Assert.AreNotEqual(vector1[11], matrix[11][0]);
         }
     }
 }

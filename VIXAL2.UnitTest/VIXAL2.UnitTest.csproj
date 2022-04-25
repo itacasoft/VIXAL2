@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\EnergyData.cs" />
-    <Compile Include="PCATests.cs" />
+    <Compile Include="MatrixTests.cs" />
     <Compile Include="TestNormalization.cs" />
     <Compile Include="TestVixal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

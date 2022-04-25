@@ -79,6 +79,10 @@ namespace VIXAL2.Data
             {
                 ds = new DiscontinuousDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
             }
+            else if (dataSetType == 5)
+            {
+                ds = new MovingEnhancedAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
+            }
             else
             {
                 ds = new StocksDataset(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);

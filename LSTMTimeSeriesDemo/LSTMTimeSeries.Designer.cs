@@ -293,7 +293,8 @@
             "Normal",
             "MovingAverage",
             "RSI",
-            "Discontinuous"});
+            "Discontinuous",
+            "MovingEnhancedAverage"});
             this.comboBox1.Location = new System.Drawing.Point(738, 18);
             this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBox1.Name = "comboBox1";

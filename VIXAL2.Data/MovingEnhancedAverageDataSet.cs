@@ -6,7 +6,7 @@ namespace VIXAL2.Data
 {
     public class MovingEnhancedAverageDataSet : StocksDataset
     {
-        protected int range = 30;
+        protected int range = 20;
 
         public MovingEnhancedAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
         {
@@ -34,20 +34,18 @@ namespace VIXAL2.Data
             }
         }
 
-        public static double[] GetMovingEnhancedAverage(double[] values, int range)
+        public static double[] GetFutureMovingAverage(double[] values, int range)
         {
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
             {
                 List<double> pieces = new List<double>();
-                //add the previous values
-                for (int j = i - (range - 1); j < i; j++)
+                //add the previous and future values
+                for (int j = i - (range/2); j < i + (range / 2); j++)
                 {
-                    if (j >= 0)
+                    if ((j >= 0) && (j<values.Length))
                         pieces.Add(values[j]);
                 }
-                //add the current value
-                pieces.Add(values[i]);
 
                 if (pieces.Count == range)
                     result[i] = Utils.Mean(pieces.ToArray());
@@ -69,7 +67,7 @@ namespace VIXAL2.Data
             for (int col = 0; col < input[0].Length; col++)
             {
                 double[] singleStock = Utils.GetVectorFromArray(input, col);
-                double[] movingAverage = GetMovingEnhancedAverage(singleStock, range);
+                double[] movingAverage = GetFutureMovingAverage(singleStock, range);
 
                 //apply moving average on data
                 for (int row = 0; row < result.Count; row++)

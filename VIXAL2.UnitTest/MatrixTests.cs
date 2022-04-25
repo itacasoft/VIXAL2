@@ -11,19 +11,15 @@ namespace VIXAL2.UnitTest
         public double[][] TrainX;
         public double[][] ValidX;
         public double[][] TestX;
-    }
-    
-    [TestClass]
-    public class MatrixTests
-    {
-        internal TestData GetEnergyData(double trainPerc, double validPerc)
+
+        public static TestData GetEnergyData(double trainPerc, double validPerc)
         {
             int TrainCount = Convert.ToInt32(EnergyData.ICLN.Length * trainPerc);
             int ValidCount = Convert.ToInt32(EnergyData.ICLN.Length * validPerc);
             int TestCount = EnergyData.ICLN.Length - ValidCount - TrainCount;
             TestData result = new TestData();
-            
-            result.TrainX  = new double[TrainCount][];
+
+            result.TrainX = new double[TrainCount][];
             for (int i = 0; i < result.TrainX.Length; i++)
             {
                 result.TrainX[i] = new double[4];
@@ -56,10 +52,16 @@ namespace VIXAL2.UnitTest
             return result;
         }
 
+    }
+
+    [TestClass]
+    public class MatrixTests
+    {
+
         [TestMethod]
         public void GetColumnFromMatrixTest()
         {
-            double[][] matrix = GetEnergyData(0.6,0.2).ValidX;
+            double[][] matrix = TestData.GetEnergyData(0.6,0.2).ValidX;
             double[] vector = Utils.GetVectorFromArray(matrix, 0);
 
             Assert.AreEqual(vector.Length, matrix.Length);

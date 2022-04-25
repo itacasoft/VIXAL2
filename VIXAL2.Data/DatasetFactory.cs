@@ -75,6 +75,10 @@ namespace VIXAL2.Data
             {
                 ds = new RsiDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
             }
+            else if (dataSetType == 4)
+            {
+                ds = new DiscontinuousDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
+            }
             else
             {
                 ds = new StocksDataset(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);

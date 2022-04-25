@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace VIXAL2.Data
 {
-    public class MovingAverageDataSet : StocksDataset
+    public class MovingEnhancedAverageDataSet : StocksDataset
     {
-        protected int range = 20;
+        protected int range = 30;
 
-        public MovingAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
+        public MovingEnhancedAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
         {
         }
 
@@ -20,7 +20,7 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
-            this.allData = GetMovingAverage(allData.ToArray(), range);
+            this.allData = GetMovingEnhancedAverage(allData.ToArray(), range);
             RemoveNaNs(allData, dates);
 
             base.Prepare();
@@ -30,11 +30,11 @@ namespace VIXAL2.Data
         {
             get
             {
-                return "MovingAverageDs";
+                return "MovingEnhancedAverageDs";
             }
         }
 
-        public static double[] GetMovingAverage(double[] values, int range)
+        public static double[] GetMovingEnhancedAverage(double[] values, int range)
         {
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
@@ -58,7 +58,7 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public static List<double[]> GetMovingAverage(double[][] input, int range)
+        public static List<double[]> GetMovingEnhancedAverage(double[][] input, int range)
         {
             List<double[]> result = new List<double[]>();
             for (int row = 0; row < input.Length; row++)
@@ -69,7 +69,7 @@ namespace VIXAL2.Data
             for (int col = 0; col < input[0].Length; col++)
             {
                 double[] singleStock = Utils.GetVectorFromArray(input, col);
-                double[] movingAverage = GetMovingAverage(singleStock, range);
+                double[] movingAverage = GetMovingEnhancedAverage(singleStock, range);
 
                 //apply moving average on data
                 for (int row = 0; row < result.Count; row++)

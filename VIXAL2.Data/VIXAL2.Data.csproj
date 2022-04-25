@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DiscontinuousDataSet.cs" />
+    <Compile Include="MovingEnhancedAverageDataSet.cs" />
     <Compile Include="MovingAverageDataSet.cs" />
     <Compile Include="Base\NormalizedDataSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

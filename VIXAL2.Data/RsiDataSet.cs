@@ -9,7 +9,7 @@ namespace VIXAL2.Data
     {
         private int range = 14;
 
-        public RsiDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
+        public RsiDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
             
         }

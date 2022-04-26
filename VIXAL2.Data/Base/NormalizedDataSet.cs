@@ -24,8 +24,11 @@ namespace VIXAL2.Data.Base
             }
 
             Normalizer.Instance.NormalizeByRef(train);
-            Normalizer.Instance.NormalizeByRef(valid);
-            Normalizer.Instance.NormalizeByRef(test);
+            if (valid.Length > 0)
+                Normalizer.Instance.NormalizeByRef(valid);
+            if (test.Length > 0)
+                Normalizer.Instance.NormalizeByRef(test);
+
         }
     }
 }

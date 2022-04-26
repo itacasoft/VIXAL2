@@ -58,7 +58,7 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public static StocksDataset CreateDataset(string inputCsv, int predictCount, int dataSetType)
+        public static StocksDataset CreateDataset(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType)
         {
             var t = LoadCsvAsTuple(inputCsv);
 
@@ -69,23 +69,23 @@ namespace VIXAL2.Data
             StocksDataset ds;
             if (dataSetType == 2)
             {
-                ds = new MovingAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
+                ds = new MovingAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == 3)
             {
-                ds = new RsiDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
+                ds = new RsiDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == 4)
             {
-                ds = new DiscontinuousDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
+                ds = new DiscontinuousDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == 5)
             {
-                ds = new MovingEnhancedAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
+                ds = new MovingEnhancedAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
             else
             {
-                ds = new StocksDataset(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, predictCount);
+                ds = new StocksDataset(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
             return ds;
         }

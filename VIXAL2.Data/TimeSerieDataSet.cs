@@ -16,11 +16,12 @@ namespace VIXAL2.Data
         protected double[][] validDataX, validDataY;
         protected double[][] testDataX, testDataY;
         protected int columnsToPredict;
+        protected int firstColumnToPredict;
         protected float trainPercent = 0.60F;
         protected float validPercent = 0.20F;
-        protected int predictDays = 10;
+        protected int predictDays = 20;
 
-        public TimeSerieDataSet(string[] colNames, DateTime[] dates, double[][] data, int columnsToPredict) : base()
+        public TimeSerieDataSet(string[] colNames, DateTime[] dates, double[][] data, int firstColumnToPredict, int columnsToPredict) : base()
         {
             this.colNames = colNames;
             this.allData = new List<double[]>();
@@ -29,6 +30,7 @@ namespace VIXAL2.Data
             this.dates = new List<DateTime>();
             this.dates.AddRange(dates);
             this.columnsToPredict = columnsToPredict;
+            this.firstColumnToPredict = firstColumnToPredict;
             
             originalData = (double[][])data.Clone();
         }
@@ -236,7 +238,7 @@ namespace VIXAL2.Data
                 trainDataY[row] = new double[columnsToPredict];
                 for (int col = 0; col < trainDataY[row].Length; col++)
                 {
-                    trainDataY[row][col] = input[row + predictDays][col];
+                    trainDataY[row][col] = input[row + predictDays][col + firstColumnToPredict];
                 }
             }
 
@@ -256,7 +258,7 @@ namespace VIXAL2.Data
                 validDataY[row] = new double[columnsToPredict];
                 for (int col = 0; col < validDataY[row].Length; col++)
                 {
-                    validDataY[row][col] = input[row + TrainCount + predictDays][col];
+                    validDataY[row][col] = input[row + TrainCount + predictDays][col + firstColumnToPredict];
                 }
             }
 
@@ -276,7 +278,7 @@ namespace VIXAL2.Data
                 testDataY[row] = new double[columnsToPredict];
                 for (int col = 0; col < testDataY[row].Length; col++)
                 {
-                    testDataY[row][col] = input[row + TrainCount + ValidCount + predictDays][col];
+                    testDataY[row][col] = input[row + TrainCount + ValidCount + predictDays][col + firstColumnToPredict];
                 }
             }
         }

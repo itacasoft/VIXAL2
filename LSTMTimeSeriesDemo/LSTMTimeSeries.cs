@@ -659,7 +659,11 @@ namespace LSTMTimeSeriesDemo
             var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
             DataSet = loadWaveDataset(Math.Sin, xdata, inDim, daysPredict);
 #else
-            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", 1, comboBox1.SelectedIndex + 1);
+            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, comboBox1.SelectedIndex + 1);
+            DataSet.TrainPercent = 0.6F;
+            DataSet.ValidPercent = 0.2F;
+            if (DataSet.GetType() == typeof(MovingAverageDataSet))
+                ((MovingAverageDataSet)DataSet).PredictDays = Convert.ToInt32(textBox6.Text);
             DataSet.Prepare();
 #endif
 

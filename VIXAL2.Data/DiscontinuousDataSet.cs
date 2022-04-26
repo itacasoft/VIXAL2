@@ -5,7 +5,7 @@ namespace VIXAL2.Data
 {
     public class DiscontinuousDataSet : StocksDataset
     {
-        public DiscontinuousDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
+        public DiscontinuousDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
         }
 

@@ -8,7 +8,7 @@ namespace VIXAL2.Data
     {
         protected int range = 20;
 
-        public MovingEnhancedAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) : base(stockNames, dates, allData, predictCount)
+        public MovingEnhancedAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
         }
 

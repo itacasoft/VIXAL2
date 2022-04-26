@@ -9,8 +9,8 @@ namespace VIXAL2.Data
         List<double> predictionResults;
         TimeSerieArray predicted;
 
-        public StocksDataset(string[] stockNames, DateTime[] dates, double[][] allData, int predictCount) :
-            base(stockNames, dates, allData, predictCount)
+        public StocksDataset(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) :
+            base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
             predictionResults = new List<double>();
 

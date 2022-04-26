@@ -16,6 +16,11 @@ VIXAL2.Data/obj/
 VIXAL2.UnitTest/bin/
 VIXAL2.UnitTest/obj/
 
+VIXAL2.Retrieve/bin/
+VIXAL2.Retrieve/obj/
+
+Data/
+
 packages/
 *.cache
 .vs/

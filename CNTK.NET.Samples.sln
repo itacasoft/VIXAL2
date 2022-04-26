@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIXAL2.Data", "VIXAL2.Data\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIXAL2.UnitTest", "VIXAL2.UnitTest\VIXAL2.UnitTest.csproj", "{C27D23E2-A353-4209-9A99-52004E978A04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIXAL2.Retrieve", "VIXAL2.Retrieve\VIXAL2.Retrieve.csproj", "{43825D68-166E-472A-BA74-9FF37340CBDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,14 @@ Global
 		{C27D23E2-A353-4209-9A99-52004E978A04}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C27D23E2-A353-4209-9A99-52004E978A04}.Release|x64.ActiveCfg = Release|Any CPU
 		{C27D23E2-A353-4209-9A99-52004E978A04}.Release|x64.Build.0 = Release|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Debug|x64.Build.0 = Debug|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Release|x64.ActiveCfg = Release|Any CPU
+		{43825D68-166E-472A-BA74-9FF37340CBDC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

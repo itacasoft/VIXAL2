@@ -1,0 +1,110 @@
+﻿Source;Symbol;Description
+//ETF
+YA;ICLN;iShares Global Clean Energy ETF
+YA;BOTZ;Global X Robotics & Artificial Intelligence ETF
+YA;IWDA.AS;iShares Core MSCI World UCITS ETF USD (Acc)
+YA;SXR8.DE;iShares Core S&P 500 UCITS ETF USD (Acc)
+YA;ISPY.MI;L&G Cyber Security UCITS ETF
+YA;BCHN.MI;Invesco CoinShares Global Blockchain UCITS ETF
+//Borsa Italiana
+YA;ISP.MI;Intesa Sanpaolo S.p.A.
+YA;STLA.MI;Stellantis N.V.
+YA;ENI.MI;Eni S.p.A.
+YA;RACE.MI;Ferrari N.V.
+YA;ENEL.MI;Enel S.p.A.
+YA;STM.MI;STMicroelectronics N.V.
+YA;G.MI;Assicurazioni Generali S.p.A.
+YA;UCG.MI;UniCredit S.p.A.
+YA;CNHI.MI;CNH Industrial N.V.
+YA;SRG.MI;Snam S.p.A.
+YA;EXO.MI;Exor N.V.
+YA;TEN.MI;Tenaris S.A.
+YA;ATL.MI;Atlantia SpA
+YA;TRN.MI;Terna - Rete Elettrica Nazionale SpA
+YA;MONC.MI;Moncler S.p.A.
+YA;ATH.MI;Ambienthesis S.p.A.
+YA;TES.MI;Tesmec S.p.A.
+YA;REC.MI;Recordati Industria Chimica e Farmaceutica S.p.A.
+YA;SRI.MI;Servizi Italia S.p.A.
+YA;DIA.MI;DiaSorin S.p.A.
+YA;IKG.MI;Intek Group S.p.A.
+YA;CHL.MI;Centro HL Distribuzione S.p.A.
+YA;A2A.MI;A2A S.p.A.
+//Borse altre
+YA;CFR.SW;Compagnie Financière Richemont SAYA
+//Borsa New York
+YA;AA;Alcoa Corporation
+YA;BA;The Boeing Company
+YA;CAT;Caterpillar Inc.
+YA;KO;The Coca-Cola Company
+YA;DD;DuPont de Nemours, Inc.
+YA;GE;General Electric Company
+YA;HPQ;HP Inc.
+YA;IBM;IBM Inc.
+YA;DIS;The Walt Disney Company
+YA;MMM;3M Company
+YA;MSFT;Microsoft Corp.
+YA;AAPL;Apple Inc.
+YA;TSLA;Tesla Inc.
+YA;BRK-B;Berkshire Hathaway Inc.
+YA;NVDA;NVIDIA Corporation
+YA;TSM;Taiwan Semiconductor Manufacturing Company Limited
+YA;FB;Meta Platforms, Inc.
+YA;JNJ;Johnson & Johnson
+YA;V;Visa Inc.
+YA;JPM;JPMorgan Chase & Co.
+YA;BAC;Bank of America Corporation
+YA;WMT;Walmart Inc.
+YA;TCEHY;Tencent Holdings Limited
+YA;PG;The Procter & Gamble Company
+YA;XOM;Exxon Mobil Corporation
+YA;CVX;Chevron Corporation
+YA;PFE;Pfizer Inc.
+YA;ABBV;AbbVie Inc.
+YA;BHP;BHP Group Limited
+YA;CSCO;Cisco Systems, Inc.
+YA;VZ;Verizon Communications Inc.
+YA;BABA;Alibaba Group Holding Limited
+YA;PEP;PepsiCo, Inc.
+YA;ORCL;Oracle Corporation
+YA;ABT;Abbott Laboratories
+YA;CMCSA;Comcast Corporation
+YA;MRK;Merck & Co., Inc.
+YA;GOOG;Alphabet Inc.
+//Commodities
+YA;CL=F;Crude Oil
+YA;GC=F;Gold
+YA;NG=F;Natural Gas
+YA;LBS=F;Lumber
+YA;CT=F;Cotton
+YA;ZW=F;Wheat
+YA;ZC=F;Corn
+YA;KC=F;Coffee
+YA;HG=F;Copper
+//YA;^VIX;CBOE Volatility Index
+//Indici
+YA;ES=F;E-Mini S&P 500
+YA;YM=F;Mini Dow Jones Indus.
+YA;NQ=F;NasDaq 100
+YA;FTSEMIB.MI;FTSE MIB Index
+YA;^HSI;HANG SENG INDEX
+YA;^N225;Nikkei 225
+YA;^TNX;Treasury Yield 10 Years
+//Valute
+YA;BTC-EUR;Bitcoin EUR
+YA;EURUSD=X;EUR/USD
+YA;EURJPY=X;EUR/JPY
+YA;EURGBP=X;EUR/GBP
+YA;EURCHF=X;EUR/CHF
+YA;EURCAD=X;EUR/CAD
+YA;EURAUD=X;EUR/AUD
+YA;EURNZD=X;EUR/NZD
+YA;EURCNY=X;EUR/CNY
+YA;EURHKD=X;EUR/HKD
+YA;EURSEK=X;EUR/SEK
+YA;EURKRW=X;EUR/KRW
+YA;EURSGD=X;EUR/SGD
+YA;EURNOK=X;EUR/NOK
+YA;EURZAR=X;EUR/ZAR
+YA;EURTRY=X;EUR/TRY
+YA;EURRUB=X;EUR/RUB

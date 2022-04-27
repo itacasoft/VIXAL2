@@ -23,9 +23,9 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(dataX[0], EnergyData.Eni[0]);
 
             double[] stairData = DiscontinuousDataSet.CreateStairVector(dataX, dataY);
-            Assert.AreEqual(stairData[0], -0.5);
-            Assert.AreEqual(stairData[2], -0.2);
-            Assert.AreEqual(stairData[6], 0.5);
+            Assert.AreEqual(stairData[0], -0.2);
+            Assert.AreEqual(stairData[2], 0.1);
+            Assert.AreEqual(stairData[6], 0.2);
         }
     }
 }

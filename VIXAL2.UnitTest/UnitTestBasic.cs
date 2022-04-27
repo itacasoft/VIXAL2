@@ -274,6 +274,7 @@ namespace VIXAL2.UnitTest
         public void TestRsiDataSet()
         {
             const int RANGE = 14;
+            const int FIRST_PREDICT = 0;
             const int PREDICT_DAYS = 10;
             const int EXPECTED_TRAINCOUNT = 52;
             const int EXPECTED_VALIDCOUNT = 17;
@@ -306,7 +307,7 @@ namespace VIXAL2.UnitTest
             };
 
 
-            RsiDataSet ds = new RsiDataSet(stocks, DD, data, 1);
+            RsiDataSet ds = new RsiDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
             ds.Range = RANGE;
             ds.Prepare();

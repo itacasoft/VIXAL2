@@ -16,6 +16,7 @@ namespace VIXAL2.UnitTest
         {
             const int COUNT = 101;
             const int PREDICT_DAYS = 10;
+            const int FIRST_PREDICT = 0;
             const int PREDICT_COUNT = 1;
 
             List<DateTime> dates = new List<DateTime>();
@@ -37,7 +38,8 @@ namespace VIXAL2.UnitTest
             keys.Add("Key1");
             keys.Add("Key2");
 
-            TimeSerieDataSet ds = new TimeSerieDataSet(keys.ToArray(), dates.ToArray(), data, PREDICT_COUNT);
+            TimeSerieDataSet ds = new TimeSerieDataSet(keys.ToArray(), dates.ToArray(), data, FIRST_PREDICT, PREDICT_COUNT);
+            ds.PredictDays = PREDICT_DAYS;
             ds.Prepare();
 
             Assert.AreEqual(ds.TrainCount, 61);
@@ -62,6 +64,7 @@ namespace VIXAL2.UnitTest
         {
             const int COUNT = 101;
             const int PREDICT_DAYS = 10;
+            const int FIRST_PREDICT = 0;
             const int PREDICT_COUNT = 2;
 
             List<DateTime> dates = new List<DateTime>();
@@ -82,7 +85,8 @@ namespace VIXAL2.UnitTest
             stockNames.Add("Company A");
             stockNames.Add("Company B");
 
-            StocksDataset ds = new StocksDataset(stockNames.ToArray(), dates.ToArray(), data, PREDICT_COUNT);
+            StocksDataset ds = new StocksDataset(stockNames.ToArray(), dates.ToArray(), data, FIRST_PREDICT, PREDICT_COUNT);
+            ds.PredictDays = PREDICT_DAYS;
             ds.Prepare();
 
             Assert.AreEqual(ds.TrainCount, 61);

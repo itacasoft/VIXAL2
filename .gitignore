@@ -19,6 +19,9 @@ VIXAL2.UnitTest/obj/
 VIXAL2.Retrieve/bin/
 VIXAL2.Retrieve/obj/
 
+CNTK.UnitTestProject/bin/
+CNTK.UnitTestProject/obj/
+
 Data/
 
 packages/

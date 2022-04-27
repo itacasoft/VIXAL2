@@ -114,7 +114,7 @@ namespace NeuralNetwork.Base
 
             return new Tuple<Function, Function>(LSTMCell.Item1, LSTMCell.Item2);
         }
-        
+
         /// <summary>
         /// Build a one direction recurrent neural network (RNN) with long-short-term-memory (LSTM) cells.
         /// http://colah.github.io/posts/2015-08-Understanding-LSTMs/
@@ -137,10 +137,10 @@ namespace NeuralNetwork.Base
             Function lastCell = CNTKLib.SequenceLast(LSTMFunction);
 
             //implement drop out for 10%
-            var dropOut = CNTKLib.Dropout(lastCell,0.2, 1);
+            var dropOut = CNTKLib.Dropout(lastCell, 0.2, 1);
 
             //create last dense layer before output
-            var outputLayer =  FullyConnectedLinearLayer(dropOut, outDim, device, outputName);
+            var outputLayer = FullyConnectedLinearLayer(dropOut, outDim, device, outputName);
 
             return outputLayer;
         }
@@ -167,6 +167,5 @@ namespace NeuralNetwork.Base
             var plusParam = new Parameter(s2, 0.0f, device, "plusParam");
             return CNTKLib.Plus(plusParam, timesFunction, outputName);
         }
-
     }
 }

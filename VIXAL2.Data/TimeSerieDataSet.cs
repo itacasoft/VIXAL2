@@ -8,8 +8,6 @@ namespace VIXAL2.Data
     public class TimeSerieDataSet : NormalizedDataSet
     {
         protected int validCount = -1, testCount = -1, trainCount = -1;
-        protected double[][] originalData;
-        protected List<double[]> allData;
         protected List<DateTime> dates;
         protected string[] colNames;
         protected double[][] trainDataX, trainDataY;
@@ -21,18 +19,13 @@ namespace VIXAL2.Data
         protected float validPercent = 0.20F;
         protected int predictDays = 20;
 
-        public TimeSerieDataSet(string[] colNames, DateTime[] dates, double[][] data, int firstColumnToPredict, int columnsToPredict) : base()
+        public TimeSerieDataSet(string[] colNames, DateTime[] dates, double[][] data, int firstColumnToPredict, int columnsToPredict) : base(data)
         {
             this.colNames = colNames;
-            this.allData = new List<double[]>();
-            allData.AddRange(data);
-
             this.dates = new List<DateTime>();
             this.dates.AddRange(dates);
             this.columnsToPredict = columnsToPredict;
             this.firstColumnToPredict = firstColumnToPredict;
-            
-            originalData = (double[][])data.Clone();
         }
 
         public override void Prepare()

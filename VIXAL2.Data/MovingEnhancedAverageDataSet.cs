@@ -20,7 +20,7 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
-            this.allData = GetMovingEnhancedAverage(allData.ToArray(), range);
+            this.originalData = GetMovingEnhancedAverage(originalData, range);
             RemoveNaNs(allData, dates);
 
             base.Prepare();
@@ -56,12 +56,12 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public static List<double[]> GetMovingEnhancedAverage(double[][] input, int range)
+        public static double[][] GetMovingEnhancedAverage(double[][] input, int range)
         {
-            List<double[]> result = new List<double[]>();
+            double[][] result = new double[input.Length][];
             for (int row = 0; row < input.Length; row++)
             {
-                result.Add(new double[input[row].Length]);
+                result[row] = new double[input[row].Length];
             }
 
             for (int col = 0; col < input[0].Length; col++)
@@ -70,7 +70,7 @@ namespace VIXAL2.Data
                 double[] movingAverage = GetFutureMovingAverage(singleStock, range);
 
                 //apply moving average on data
-                for (int row = 0; row < result.Count; row++)
+                for (int row = 0; row < result.Length; row++)
                 {
                     result[row][col] = movingAverage[row];
                 }

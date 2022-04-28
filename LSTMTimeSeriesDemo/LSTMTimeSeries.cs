@@ -374,7 +374,6 @@ namespace LSTMTimeSeriesDemo
                 }
             }
 
-
             string[][] stocksData = Utils.LoadCsvAsStrings(path, gap+1);
 
             List<string> stockNames;
@@ -547,14 +546,13 @@ namespace LSTMTimeSeriesDemo
             predictedLineExtreme.Clear();
             //predico anche l'estremo
             var dad = DataSet.GetExtendedArrayX();
-            var normalizedDadValues = Normalizer.Instance.Normalize(dad.Values);
 
             float[] bat = new float[dad.Length * dad.Columns];
             int sss = 0;
             for (int i = 0; i < dad.Length; i++)
             {
                 for (int j = 0; j < dad.Columns; j++)
-                    bat[sss++] = (float)normalizedDadValues[i][j];
+                    bat[sss++] = (float)dad.Values[i][j];
             }
             var oDataExt = currentLSTMTrainer.CurrentModelTest(bat);
             foreach (var y in oDataExt)

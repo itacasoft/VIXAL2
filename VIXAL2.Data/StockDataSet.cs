@@ -69,7 +69,7 @@ namespace VIXAL2.Data
 
         public void PredictedDecode()
         {
-            predicted.DecodeValues();
+            predicted.DecodeValues(normalizer);
         }
 
         public TimeSerieArray PredictedGetVector(int col)

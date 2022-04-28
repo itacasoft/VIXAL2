@@ -18,6 +18,7 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 10;
             const int FIRST_PREDICT = 0;
             const int PREDICT_COUNT = 1;
+            const int TESTXEXTENDED_COUNT = 20;
 
             List<DateTime> dates = new List<DateTime>();
             DateTime firstDate = Convert.ToDateTime("2022-01-05", CultureInfo.InvariantCulture);
@@ -28,11 +29,17 @@ namespace VIXAL2.UnitTest
             double[][] data = new double[COUNT][];
             for (int i = 0; i < data.Length; i++)
             {
-                data[i] = new double[2];
+                data[i] = new double[3];
                 data[i][0] = i + 1;
                 data[i][1] = (i + 1) * 2;
+                data[i][2] = Data.EnergyData.Eni[i];
             }
 
+            //each element 0 is half of the corresponding element 1
+            Assert.AreEqual(data[2][0] * 2, data[2][1]);
+            //the third column has real data
+            Assert.AreNotEqual(data[2][0], data[2][2]);
+            Assert.AreNotEqual(data[2][1], data[2][2]);
 
             List<string> keys = new List<string>();
             keys.Add("Key1");
@@ -47,9 +54,19 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.TestCount, 10);
 
             double[][] x = ds.GetTestArrayExtendedX().Values;
-            Assert.AreEqual(x.Length, 20);
-            Assert.AreEqual(x[0][0], 82);
-            Assert.AreEqual(x[0][1], 164);
+            Assert.AreEqual(x.Length, TESTXEXTENDED_COUNT);
+
+            Assert.AreEqual(x[0][0], 0.81);
+            Assert.AreEqual(x[0][1], 0.81);
+            Assert.IsTrue(0.62 < x[0][2] && x[0][2] < 0.63);
+
+            Assert.AreEqual(x[12][0], 0.93);
+            Assert.AreEqual(x[12][1], 0.93);
+            Assert.IsTrue(0.73 < x[12][2] && x[12][2] < 0.74);
+
+            Assert.AreEqual(x[TESTXEXTENDED_COUNT-1][0], 1);
+            Assert.AreEqual(x[TESTXEXTENDED_COUNT-1][1], 1);
+            Assert.IsTrue(0.68 < x[TESTXEXTENDED_COUNT-1][2] && x[TESTXEXTENDED_COUNT-1][2] < 0.69);
 
             TimeSerieArray current = ds.GetColumnData(0);
             TimeSerieArray future = ds.GetColumnData(0, 10);

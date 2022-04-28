@@ -16,40 +16,42 @@ namespace SharpML.Types.Normalization
                 if (_instance == null)
                 {
                     string normalizerType = ConfigurationManager.AppSettings["NormalizerType"];
-                    InnerConstructor(normalizerType);
+                    _instance = Constructor(normalizerType);
                 }
 
                 return _instance;
             }
         }
 
-        private static void InnerConstructor(string normalizerType)
+        public static INormalizer Constructor(string normalizerType)
         {
+            INormalizer result;
             if (normalizerType == null)
             {
-                _instance = new FakeNormalizer();
+                result = new FakeNormalizer();
             }
             else if ((normalizerType == "classic") || (normalizerType == "Classic") || (normalizerType == "ClassicNormalizer"))
             {
-                _instance = new ClassicNormalizer();
+                result = new ClassicNormalizer();
             }
             else if ((normalizerType == "modern") || (normalizerType == "Modern") || (normalizerType == "ModernNormalizer"))
             {
-                _instance = new ModernNormalizer();
+                result = new ModernNormalizer();
             }
             else if ((normalizerType.ToLower() == "minmax") || (normalizerType.ToLower() == "minmaxscaler"))
             {
-                _instance = new MinMaxScaler();
+                result = new MinMaxScaler();
             }
             else
             {
-                _instance = new FakeNormalizer();
+                result = new FakeNormalizer();
             }
+            return result;
         }
 
         public static void SubstituteType(string normalizationType)
         {
-            InnerConstructor(normalizationType);
+            _instance = Constructor(normalizationType);
         }
     }
 
@@ -79,6 +81,7 @@ namespace SharpML.Types.Normalization
             return result;
         }
 
+        [Obsolete]
         void SetArrayFromVector(double[] input, int column, double[][] output)
         {
             double[] result = new double[input.Length];
@@ -88,7 +91,20 @@ namespace SharpML.Types.Normalization
             }
         }
 
+        void SetArrayFromVector(double[] input, int column, IEnumerable<double[]> output)
+        {
+            double[] result = new double[input.Length];
 
+            int i = 0;
+            foreach (var row in output)
+            {
+                row[column] = input[i];
+                i++;
+            }
+        }
+
+
+        [Obsolete]
         public void NormalizeByRef(double[][] values)
         {
             if (!initialized) throw new InvalidOperationException("INormalizer not initialized");
@@ -100,11 +116,29 @@ namespace SharpML.Types.Normalization
                 //normalize train
                 for (int row = 0; row < v.Length; row++)
                 {
-                    v[row] = Normalizer.Instance.Normalize(v[row], column);
+                    v[row] = Normalize(v[row], column);
                 }
                 SetArrayFromVector(v, column, values);
             }
         }
+
+        public void NormalizeByRef(IEnumerable<double[]> values)
+        {
+            if (!initialized) throw new InvalidOperationException("INormalizer not initialized");
+
+            for (int column = 0; column < values.First<double[]>().Length; column++)
+            {
+                double[] v = GetVectorFromArray(values.ToArray<double[]>(), column);
+
+                //normalize train
+                for (int row = 0; row < v.Length; row++)
+                {
+                    v[row] = Normalize(v[row], column);
+                }
+                SetArrayFromVector(v, column, values);
+            }
+        }
+
         public double[][] Normalize(double[][] values)
         {
             if (!initialized) throw new InvalidOperationException("INormalizer not initialized");
@@ -186,7 +220,9 @@ namespace SharpML.Types.Normalization
             Initialize(myarray);
         }
 
+        [Obsolete]
         public abstract void Initialize(double[][] trainMatrix);
 
+        public abstract void Initialize(IEnumerable<double[]> trainMatrix);
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SharpML.Types.Normalization
 {
@@ -19,7 +21,6 @@ namespace SharpML.Types.Normalization
             }
         }
 
-
         public override void Initialize(double[] trainVector)
         {
             rnnConfig = new RnnConfig();
@@ -30,7 +31,6 @@ namespace SharpML.Types.Normalization
 
             initialized = true;
         }
-
 
         public override void Initialize(double[][] trainMatrix)
         {
@@ -43,6 +43,20 @@ namespace SharpML.Types.Normalization
                 rnnConfig.SetStat(0, 0, col, stats[col]);
 
             initialized = true;
+        }
+
+        public override void Initialize(IEnumerable<double[]> trainMatrix)
+        {
+            rnnConfig = new RnnConfig();
+            rnnConfig.BeginStat(0, trainMatrix.Count(), trainMatrix.First<double[]>().Length, int.MaxValue);
+            Stat[] stats = GetStats(trainMatrix.ToArray<double[]>(), 0, trainMatrix.Count());
+            foreach (Stat st in stats)
+                if (st.Deviance == 0) st.Deviance = 1;
+            for (int col = 0; col < trainMatrix.First<double[]>().Length; ++col)
+                rnnConfig.SetStat(0, 0, col, stats[col]);
+
+            initialized = true;
+
         }
 
         public override double[] Normalize(double[] values, int col)

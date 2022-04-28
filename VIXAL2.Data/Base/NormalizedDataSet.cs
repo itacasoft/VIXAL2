@@ -1,22 +1,41 @@
 ﻿using SharpML.Types;
 using SharpML.Types.Normalization;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 
 namespace VIXAL2.Data.Base
 {
     public abstract class NormalizedDataSet
     {
-        protected double[][] originalData;
+        private double[][] _originalData;
+        protected double[][] originalData
+        {
+            get 
+            {
+                return _originalData; 
+            }
+            set 
+            {
+                _originalData = value;
+                allData = _originalData.ToList<double[]>();
+            }
+        }
+
         protected List<double[]> allData;
+        protected INormalizer normalizer;
 
         public NormalizedDataSet(double[][] data)
         {
-            this.allData = new List<double[]>();
-            allData.AddRange(data);
-            originalData = (double[][])data.Clone();
+            originalData = data;
+            string normalizerType = ConfigurationManager.AppSettings["NormalizerType"];
+            normalizer = Normalizer.Constructor(normalizerType);
         }
 
         public abstract void Prepare();
+
+        [ObsoleteAttribute("This method is obsolete. Call NormalizeAllData instead.", false)]
         protected void NormalizeData(double[][] train, double[][] valid, double[][] test, bool initialize = false)
         {
             if (initialize)
@@ -39,8 +58,8 @@ namespace VIXAL2.Data.Base
 
         protected void NormalizeAllData()
         {
-            Normalizer.Instance.Initialize(allData.ToArray());
-            Normalizer.Instance.Normalize(allData.ToArray());
+            normalizer.Initialize(allData);
+            normalizer.NormalizeByRef(allData);
         }
     }
 }

@@ -60,6 +60,11 @@ namespace SharpML.Types
             else
                 return null;
         }
+
+        internal void BeginStat(int v, object p, object length, int maxValue)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [Serializable]

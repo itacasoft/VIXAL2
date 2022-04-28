@@ -30,6 +30,8 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
+            NormalizeAllData();
+
             int trainTo = Convert.ToInt32(allData.Count * trainPercent);
             trainCount = trainTo;
             int validFrom = trainTo + 1;
@@ -39,8 +41,8 @@ namespace VIXAL2.Data
 
             SplitData(allData.ToArray());
 
-            NormalizeData(trainDataX, validDataX, testDataX, true);
-            NormalizeData(trainDataY, validDataY, testDataY);
+//            NormalizeData(trainDataX, validDataX, testDataX, true);
+//            NormalizeData(trainDataY, validDataY, testDataY);
 
 /*            Training = CreateSequencesTraining();
             Validation = CreateSequencesValidation();

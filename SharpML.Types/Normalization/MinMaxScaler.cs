@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace SharpML.Types.Normalization
 {
@@ -7,10 +8,18 @@ namespace SharpML.Types.Normalization
         double[] mins;
         double[] maxs;
 
-        public override void Initialize(double[][] X)
+        public override void Initialize(double[][] trainMatrix)
         {
-            mins = MinOfEachColumn(X);
-            maxs = MaxOfEachColumn(X);
+            mins = MinOfEachColumn(trainMatrix);
+            maxs = MaxOfEachColumn(trainMatrix);
+
+            initialized = true;
+        }
+
+        public override void Initialize(IEnumerable<double[]> trainMatrix)
+        {
+            mins = MinOfEachColumn(trainMatrix.ToArray<double[]>());
+            maxs = MaxOfEachColumn(trainMatrix.ToArray<double[]>());
 
             initialized = true;
         }

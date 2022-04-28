@@ -1,4 +1,6 @@
-﻿namespace SharpML.Types.Normalization
+﻿using System.Collections.Generic;
+
+namespace SharpML.Types.Normalization
 {
     public class FakeNormalizer : INormalizer
     {
@@ -6,6 +8,12 @@
         {
             initialized = true;
         }
+
+        public override void Initialize(IEnumerable<double[]> trainMatrix)
+        {
+            initialized = true;
+        }
+
 
         public override void Initialize(double[] trainVector)
         {

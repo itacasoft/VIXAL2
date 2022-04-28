@@ -1,4 +1,5 @@
 ﻿using SharpML.Types;
+using SharpML.Types.Normalization;
 using System;
 
 namespace VIXAL2.Data.Base
@@ -85,9 +86,9 @@ namespace VIXAL2.Data.Base
             return GetValue(dates[0], col);
         }
 
-        public void DecodeValues()
+        public void DecodeValues(INormalizer normalizer)
         {
-            values = SharpML.Types.Normalization.Normalizer.Instance.Decode(values);
+            values = normalizer.Decode(values);
         }
 
         public double[] GetColumnValues(int column = 0)

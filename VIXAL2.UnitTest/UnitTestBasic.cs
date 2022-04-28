@@ -118,8 +118,8 @@ namespace VIXAL2.UnitTest
             };
 
             int range = 3;
-            List<double[]> output = MovingAverageDataSet.GetMovingAverage(input, range);
-            Assert.AreEqual(output.Count, input.Length);
+            double[][] output = MovingAverageDataSet.GetMovingAverage(input, range);
+            Assert.AreEqual(output.Length, input.Length);
             Assert.IsTrue(output[0][0] == 1 || double.IsNaN(output[0][0]));
             Assert.IsTrue(output[1][0] == 1.5 || double.IsNaN(output[1][0]));
             Assert.AreEqual(output[2][0], 2);

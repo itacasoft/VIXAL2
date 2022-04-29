@@ -4,11 +4,6 @@ namespace SharpML.Types.Normalization
 {
     public class FakeNormalizer : INormalizer
     {
-        public override void Initialize(double[][] trainMatrix)
-        {
-            initialized = true;
-        }
-
         public override void Initialize(IEnumerable<double[]> trainMatrix)
         {
             initialized = true;

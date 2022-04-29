@@ -90,20 +90,6 @@ namespace SharpML.Types.Normalization
             return result;
         }
 
-        public override void Initialize(double[][] trainMatrix)
-        {
-            rnnConfig = new RnnConfig();
-            //vecchio fn-trading: salvo le statistiche in RnnConfig
-            rnnConfig.BeginStat(0, trainMatrix.Length, trainMatrix[0].Length, int.MaxValue);
-            Stat[] stats = GetStats(trainMatrix, 0, trainMatrix.Length);
-            foreach (Stat st in stats)
-                if (st.Deviance == 0)
-                    st.Deviance = 1;
-            for (int col = 0; col < trainMatrix[0].Length; ++col)
-                rnnConfig.SetStat(0, 0, col, stats[col]);
-
-            initialized = true;
-        }
 
         public override void Initialize(IEnumerable<double[]> trainMatrix)
         {

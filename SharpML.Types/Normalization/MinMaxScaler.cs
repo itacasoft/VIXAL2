@@ -8,14 +8,6 @@ namespace SharpML.Types.Normalization
         double[] mins;
         double[] maxs;
 
-        public override void Initialize(double[][] trainMatrix)
-        {
-            mins = MinOfEachColumn(trainMatrix);
-            maxs = MaxOfEachColumn(trainMatrix);
-
-            initialized = true;
-        }
-
         public override void Initialize(IEnumerable<double[]> trainMatrix)
         {
             mins = MinOfEachColumn(trainMatrix.ToArray<double[]>());

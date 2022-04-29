@@ -81,15 +81,6 @@ namespace SharpML.Types.Normalization
             return result;
         }
 
-        [Obsolete]
-        void SetArrayFromVector(double[] input, int column, double[][] output)
-        {
-            double[] result = new double[input.Length];
-            for (int row = 0; row < input.Length; row++)
-            {
-                output[row][column] = input[row];
-            }
-        }
 
         void SetArrayFromVector(double[] input, int column, IEnumerable<double[]> output)
         {
@@ -103,24 +94,6 @@ namespace SharpML.Types.Normalization
             }
         }
 
-
-        [Obsolete]
-        public void NormalizeByRef(double[][] values)
-        {
-            if (!initialized) throw new InvalidOperationException("INormalizer not initialized");
-
-            for (int column = 0; column < values[0].Length; column++)
-            {
-                double[] v = GetVectorFromArray(values, column);
-
-                //normalize train
-                for (int row = 0; row < v.Length; row++)
-                {
-                    v[row] = Normalize(v[row], column);
-                }
-                SetArrayFromVector(v, column, values);
-            }
-        }
 
         public void NormalizeByRef(IEnumerable<double[]> values)
         {
@@ -219,9 +192,6 @@ namespace SharpML.Types.Normalization
 
             Initialize(myarray);
         }
-
-        [Obsolete]
-        public abstract void Initialize(double[][] trainMatrix);
 
         public abstract void Initialize(IEnumerable<double[]> trainMatrix);
     }

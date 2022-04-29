@@ -2,14 +2,13 @@
 using SharpML.Types.Normalization;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VIXAL2.Data;
+using VIXAL2.Data.Base;
 using ZedGraph;
 
 namespace LSTMTimeSeriesDemo
@@ -161,7 +160,11 @@ namespace LSTMTimeSeriesDemo
                 trainingDataLine.AddPoint(p);
             }
 
-            var testDataX = ds.GetTestArrayX();
+            //cache data for next iteration
+            if (ds.Obj1 == null)
+                ds.Obj1 = ds.GetTestArrayX();
+            
+            TimeSerieArray testDataX = (TimeSerieArray)ds.Obj1;
 
             for (int i = 0; i < testDataX.Length; i++)
             {
@@ -170,8 +173,11 @@ namespace LSTMTimeSeriesDemo
                 testDataXLine.AddPoint(p);
             }
 
+            //cache data for next iteration
+            if (ds.Obj2 == null)
+                ds.Obj2 = ds.GetTestArrayY();
 
-            var testDataY = ds.GetTestArrayY();
+            TimeSerieArray testDataY = (TimeSerieArray)ds.Obj2;
 
             for (int i = 0; i < testDataY.Length; i++)
             {
@@ -182,7 +188,6 @@ namespace LSTMTimeSeriesDemo
 
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
-
         }
 
         private void loadListView(StocksDataset ds)
@@ -676,16 +681,6 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }
 
-        private void label4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox4_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
             InitiGraphs();
@@ -707,7 +702,7 @@ namespace LSTMTimeSeriesDemo
             loadGraphs(DataSet);
 
             buttonStart.Enabled = true;
-            label9.Text = "Dataset: " + DataSet.AllData[0].Length + " cols, " + DataSet.AllData.Count + " rows";
+            label9.Text = "Dataset: " + DataSet.DataList[0].Length + " cols, " + DataSet.DataList.Count + " rows";
 //            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
 
         }

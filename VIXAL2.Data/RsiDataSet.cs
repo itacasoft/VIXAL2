@@ -22,8 +22,8 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
-            this.originalData = GetRsi(originalData, range);
-            RemoveNaNs(allData, Dates);
+            this.Data = GetRsi(Data, range);
+            RemoveNaNs(dataList, Dates);
 
             base.Prepare();
         }

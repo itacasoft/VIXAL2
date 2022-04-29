@@ -20,8 +20,8 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
-            this.originalData = GetMovingAverage(originalData, range);
-            RemoveNaNs(allData, Dates);
+            this.Data = GetMovingAverage(Data, range);
+            RemoveNaNs(dataList, Dates);
 
             base.Prepare();
         }

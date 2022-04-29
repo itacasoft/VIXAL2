@@ -25,6 +25,37 @@ namespace VIXAL2.Data.Base
             }
         }
 
+        public TimeSerieArray(string[] stockNames, DateTime[] dates, double[][] allData)
+        {
+            int rows = allData.Length;
+            int cols = stockNames.Length;
+
+            values = new double[rows][];
+            for (int i = 0; i < rows; i++)
+            {
+                values[i] = new double[cols];
+            }
+            this.dates = new DateTime[rows];
+            for (int r = 0; r < rows; r++)
+            {
+                this.dates[r] = dates[r];
+            }
+
+            colNames = new string[stockNames.Length];
+            for (int i=0; i<cols; i++)
+            {
+                colNames [i] = stockNames [i];
+            }
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    SetValue(r, c, this.dates[r], allData[r][c]);
+                }
+            }
+        }
+
         public double[][] Values
         {
             get

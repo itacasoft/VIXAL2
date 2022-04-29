@@ -8,11 +8,16 @@ namespace VIXAL2.Data
     {
         List<double> predictionResults;
         TimeSerieArray predicted;
+        TimeSerieArray originalData;
+
+        public Object Obj1;
+        public Object Obj2;
 
         public StocksDataset(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) :
             base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
             predictionResults = new List<double>();
+            originalData = new TimeSerieArray(stockNames, dates, allData);
 
             if (allData.Length != dates.Length)
                 throw new ArgumentException("Date lenght is not the same of Data lenght");
@@ -31,8 +36,6 @@ namespace VIXAL2.Data
                 return "StockDs";
             }
         }
-
-
 
         public double GetPredictionResult(int col)
         {

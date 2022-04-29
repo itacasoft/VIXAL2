@@ -9,26 +9,27 @@ namespace VIXAL2.Data.Base
 {
     public abstract class NormalizedDataSet
     {
-        private double[][] _originalData;
-        protected double[][] originalData
+        private double[][] _data;
+
+        protected double[][] Data
         {
             get 
             {
-                return _originalData; 
+                return _data; 
             }
             set 
             {
-                _originalData = value;
-                allData = _originalData.ToList<double[]>();
+                _data = value;
+                dataList = _data.ToList<double[]>();
             }
         }
 
-        protected List<double[]> allData;
+        protected List<double[]> dataList;
         protected INormalizer normalizer;
 
         public NormalizedDataSet(double[][] data)
         {
-            originalData = data;
+            _data = data;
             string normalizerType = ConfigurationManager.AppSettings["NormalizerType"];
             normalizer = Normalizer.Constructor(normalizerType);
         }
@@ -37,8 +38,8 @@ namespace VIXAL2.Data.Base
 
         protected void NormalizeAllData()
         {
-            normalizer.Initialize(allData);
-            normalizer.NormalizeByRef(allData);
+            normalizer.Initialize(dataList);
+            normalizer.NormalizeByRef(dataList);
         }
     }
 }

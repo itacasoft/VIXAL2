@@ -33,14 +33,14 @@ namespace VIXAL2.Data
         {
             NormalizeAllData();
 
-            int trainTo = Convert.ToInt32(allData.Count * trainPercent);
+            int trainTo = Convert.ToInt32(dataList.Count * trainPercent);
             trainCount = trainTo;
             int validFrom = trainTo + 1;
-            int validTo = Convert.ToInt32(allData.Count * validPercent) + validFrom;
+            int validTo = Convert.ToInt32(dataList.Count * validPercent) + validFrom;
             validCount = validTo - validFrom;
-            testCount = allData.Count - validCount - trainCount - predictDays;
+            testCount = dataList.Count - validCount - trainCount - predictDays;
 
-            SplitData(allData.ToArray());
+            SplitData(dataList.ToArray());
 
 //            NormalizeData(trainDataX, validDataX, testDataX, true);
 //            NormalizeData(trainDataY, validDataY, testDataY);
@@ -60,12 +60,12 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayExtendedX()
         {
-            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount, allData[0].Length);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount, dataList[0].Length);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], allData[row + TrainCount + ValidCount][col]);
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], dataList[row + TrainCount + ValidCount][col]);
                 }
             }
 
@@ -77,12 +77,12 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayX()
         {
-            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount - predictDays, allData[0].Length);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount - predictDays, dataList[0].Length);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], allData[row + TrainCount + ValidCount][col]);
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], dataList[row + TrainCount + ValidCount][col]);
                 }
             }
 
@@ -95,12 +95,12 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetExtendedArrayX()
         {
-            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount - testCount, allData[0].Length);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount - testCount, dataList[0].Length);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount + testCount], allData[row + TrainCount + ValidCount + testCount][col]);
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount + testCount], dataList[row + TrainCount + ValidCount + testCount][col]);
                 }
             }
 
@@ -112,13 +112,13 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayY()
         {
-            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount - predictDays, columnsToPredict);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount - predictDays, columnsToPredict);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < columnsToPredict; col++)
                 {
                     //save the future value (+ gap), but with current date
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], allData[row + TrainCount + ValidCount + predictDays][firstColumnToPredict+col]);
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], dataList[row + TrainCount + ValidCount + predictDays][firstColumnToPredict+col]);
                 }
             }
 
@@ -300,20 +300,20 @@ namespace VIXAL2.Data
 
         public TimeSerieArray GetColumnData(int col, int gap=0)
         {
-            TimeSerieArray result = new TimeSerieArray(allData.Count - gap, 1);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - gap, 1);
 
             for (int row=0; row< result.Length; row++)
             {
-                result.SetValue(row, 0, dates[row+gap],allData[row+gap][col]);
+                result.SetValue(row, 0, dates[row+gap],dataList[row+gap][col]);
             }
             return result;
         }
 
-        public List<double[]> AllData
+        public List<double[]> DataList
         {
             get
             {
-                return allData;
+                return dataList;
             }
         }
 

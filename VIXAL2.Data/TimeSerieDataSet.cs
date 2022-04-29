@@ -7,17 +7,18 @@ namespace VIXAL2.Data
 {
     public class TimeSerieDataSet : NormalizedDataSet
     {
+        private List<DateTime> dates;
+        private string[] colNames;
+        private double[][] trainDataX, trainDataY;
+        private double[][] validDataX, validDataY;
+        private double[][] testDataX, testDataY;
+        private float trainPercent = 0.60F;
+        private float validPercent = 0.20F;
+        private int predictDays = 20;
+
         protected int validCount = -1, testCount = -1, trainCount = -1;
-        protected List<DateTime> dates;
-        protected string[] colNames;
-        protected double[][] trainDataX, trainDataY;
-        protected double[][] validDataX, validDataY;
-        protected double[][] testDataX, testDataY;
-        protected int columnsToPredict;
         protected int firstColumnToPredict;
-        protected float trainPercent = 0.60F;
-        protected float validPercent = 0.20F;
-        protected int predictDays = 20;
+        protected int columnsToPredict;
 
         public TimeSerieDataSet(string[] colNames, DateTime[] dates, double[][] data, int firstColumnToPredict, int columnsToPredict) : base(data)
         {
@@ -72,7 +73,25 @@ namespace VIXAL2.Data
         }
 
         /// <summary>
-        /// This method returns an unnormalized copy of dataX for latest PredictGap days 
+        /// This method returns a copy of testDataX array, excluding the latest PredictGap days
+        /// </summary>
+        public TimeSerieArray GetTestArrayX()
+        {
+            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount - predictDays, allData[0].Length);
+            for (int row = 0; row < result.Length; row++)
+            {
+                for (int col = 0; col < result.Columns; col++)
+                {
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], allData[row + TrainCount + ValidCount][col]);
+                }
+            }
+
+            return result;
+        }
+
+
+        /// <summary>
+        /// This method returns a copy of dataX for latest PredictGap days 
         /// </summary>
         public TimeSerieArray GetExtendedArrayX()
         {
@@ -91,15 +110,15 @@ namespace VIXAL2.Data
         /// <summary>
         /// This method returns a copy of testDataY array
         /// </summary>
-        public TimeSerieArray GetTestArrayY(int gap)
+        public TimeSerieArray GetTestArrayY()
         {
-            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount - gap, allData[0].Length);
+            TimeSerieArray result = new TimeSerieArray(allData.Count - TrainCount - validCount - predictDays, columnsToPredict);
             for (int row = 0; row < result.Length; row++)
             {
-                for (int col = 0; col < result.Columns; col++)
+                for (int col = 0; col < columnsToPredict; col++)
                 {
                     //save the future value (+ gap), but with current date
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], allData[row + TrainCount + ValidCount + gap][col]);
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], allData[row + TrainCount + ValidCount + predictDays][firstColumnToPredict+col]);
                 }
             }
 
@@ -126,7 +145,8 @@ namespace VIXAL2.Data
             return retVal;
         }
 
-        public Dictionary<string, (double[][] train, double[][] valid, double[][] test)> GetFeatureLabelDataSet2()
+        [Obsolete]
+        public Dictionary<string, (double[][] train, double[][] valid, double[][] test)> GetFeatureLabelDataSet0()
         {
             var retVal = new Dictionary<string, (double[][] train, double[][] valid, double[][] test)>();
 
@@ -370,14 +390,23 @@ namespace VIXAL2.Data
             }
         }
 
-        public DateTime[] Dates
+        public List<DateTime> Dates
         {
             get
             {
-                return dates.ToArray();
+                return dates;
             }
         }
 
+        public string[] ColNames
+        {
+            get
+            {
+                return colNames;
+            }
+        }
+
+       
         protected void RemoveNaNs(List<double[]> mydata, List<DateTime> mydates)
         {
             for (int row = mydata.Count-1; row >= 0; row--)

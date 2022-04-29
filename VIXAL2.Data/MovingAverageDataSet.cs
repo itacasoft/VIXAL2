@@ -21,7 +21,7 @@ namespace VIXAL2.Data
         public override void Prepare()
         {
             this.originalData = GetMovingAverage(originalData, range);
-            RemoveNaNs(allData, dates);
+            RemoveNaNs(allData, Dates);
 
             base.Prepare();
         }

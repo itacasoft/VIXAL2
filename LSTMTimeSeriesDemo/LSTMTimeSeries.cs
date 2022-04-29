@@ -141,13 +141,24 @@ namespace LSTMTimeSeriesDemo
             InitiGraphs();
         }
 
-        private void loadGraphs(float[][] train, float[][] test)
+        private void loadGraphs(StocksDataset ds)
         {
-            for(int i=0; i<train.Length; i++)
-              trainingDataLine.AddPoint(new PointPair(i + 1, train[i][0]));
+            double[] traindDataYList = Utils.GetVectorFromArray(DataSet.TrainDataY, 0);
 
-            for (int i = 0; i < test.Length; i++)
-                testDataLine.AddPoint(new PointPair(i + 1, test[i][0]));
+            for (int i = 0; i < traindDataYList.Length; i++)
+            {
+                var p = new PointPair(i + 1, traindDataYList[i]);
+                trainingDataLine.AddPoint(p);
+            }
+
+            var testDataY = ds.GetTestArrayY();
+
+            for (int i = 0; i < testDataY.Length; i++)
+            {
+                var p = new PointPair(i + 1, testDataY.Values[i][0]);
+                p.Tag = "( " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
+                testDataLine.AddPoint(p);
+            }
 
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
@@ -164,10 +175,10 @@ namespace LSTMTimeSeriesDemo
                 return;
             //add features
             listView1.Columns.Add(new ColumnHeader() { Width = 20 });
-            for (int i = 0; i < ds.StockNames.Length; i++)
+            for (int i = 0; i < ds.ColNames.Length; i++)
             {
                 var col1 = new ColumnHeader();
-                col1.Text = ds.StockNames[i];
+                col1.Text = ds.ColNames[i];
                 col1.Width = 70;
                 listView1.Columns.Add(col1);
             }
@@ -490,7 +501,7 @@ namespace LSTMTimeSeriesDemo
             progressBar1.Value = 1;
 
             int ouDim = DataSet.TrainDataY[0].Length;
-            int inDim = DataSet.StockNames.Length;
+            int inDim = DataSet.ColNames.Length;
 
             //            Task.Run(() =>
             //            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
@@ -547,28 +558,35 @@ namespace LSTMTimeSeriesDemo
             //predico anche l'estremo
             var dad = DataSet.GetExtendedArrayX();
 
-            float[] bat = new float[dad.Length * dad.Columns];
+            float[] batch = new float[dad.Length * dad.Columns];
             int sss = 0;
             for (int i = 0; i < dad.Length; i++)
             {
                 for (int j = 0; j < dad.Columns; j++)
-                    bat[sss++] = (float)dad.Values[i][j];
+                    batch[sss++] = (float)dad.Values[i][j];
             }
-            var oDataExt = currentLSTMTrainer.CurrentModelTest(bat);
+            var oDataExt = currentLSTMTrainer.CurrentModelTest(batch);
+
+            int mydateIndex = 0;
             foreach (var y in oDataExt)
             {
-                predictedLineExtreme.AddPoint(new PointPair(sample++, y[0]));
+                var p = new PointPair(sample++, y[0]);
+                p.Tag = "( " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                predictedLineExtreme.AddPoint(p);
+                mydateIndex++;
             }
 
         }
 
         private void currentModelTest(int iteration, out int sample)
         {
+            var testDataX = DataSet.GetTestArrayX();
+
             //get the next minibatch amount of data
             sample = 1;
+            int mydateIndex = 0;
             predictedLine.Clear();
-            List<float> predictectList = new List<float>();
-            List<float> dataYList = new List<float>();
+            List<double> predictectList = new List<double>();
 
             foreach (var miniBatchData in nextBatch(DataSet["features"].test, DataSet["label"].test, batchSize))
             {
@@ -576,34 +594,34 @@ namespace LSTMTimeSeriesDemo
                 //show on graph
                 foreach (var y in oData)
                 {
-                    predictedLine.AddPoint(new PointPair(sample++, y[0]));
+                    var p = new PointPair(sample++, y[0]);
+                    p.Tag = "( " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                    predictedLine.AddPoint(p);
                     predictectList.Add(y[0]);
+                    mydateIndex++;
                 }
             }
 
-            float[][] dataY = DataSet["label"].test;
-            for (int i = 0; i < dataY.Length; i++)
-                dataYList.Add(dataY[i][0]);
+            double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, 0);
 
-            float performance = Compare(dataYList.ToArray(), predictectList.ToArray());
+            float performance = Compare(dataYList, predictectList.ToArray());
             label2.Text = "Performance: " + performance.ToString();
-
         }
 
-        public virtual float Compare(float[] dataY, float[] dataPredicted)
+        public virtual float Compare(double[] dataY, double[] dataPredicted)
         {
             float result;
 
             float guessed = 0, failed = 0;
-            float predicted0 = dataPredicted[0];
-            float future0 = dataY[0];
+            double predicted0 = dataPredicted[0];
+            double future0 = dataY[0];
 
             for (int row = 1; row < dataY.Length; row++)
             {
-                float future1 = dataY[row];
+                double future1 = dataY[row];
                 bool futurePositiveTrend = (future1 > future0);
 
-                float predicted1 = dataPredicted[row];
+                double predicted1 = dataPredicted[row];
                 bool predictedPositiveTrend = (predicted1 > predicted0);
 
                 if (predictedPositiveTrend == futurePositiveTrend)
@@ -666,7 +684,7 @@ namespace LSTMTimeSeriesDemo
 #endif
 
             loadListView(DataSet);
-            loadGraphs(DataSet["label"].train, DataSet["label"].test);
+            loadGraphs(DataSet);
 
             buttonStart.Enabled = true;
             label9.Text = "Dataset: " + DataSet.AllData[0].Length + " cols X " + DataSet.AllData.Count + " rows";

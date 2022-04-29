@@ -24,14 +24,6 @@ namespace VIXAL2.Data
                 throw new ArgumentException("Columns to predict is larger than input columns");
         }
 
-        public string[] StockNames
-        {
-            get
-            {
-                return colNames;
-            }
-        }
-
         public override string ClassShortName
         {
             get
@@ -85,7 +77,7 @@ namespace VIXAL2.Data
 
         public virtual double[] CompareAgainstPredicted(TimeSerieArray future)
         {
-            for (int col = 0; col < Math.Min(columnsToPredict, StockNames.Length); col++)
+            for (int col = 0; col < Math.Min(columnsToPredict, ColNames.Length); col++)
             {
                 double guessed = 0, failed = 0;
                 double predicted0 = predicted.Values[0][col];

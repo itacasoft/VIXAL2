@@ -56,22 +56,22 @@ namespace VIXAL2.Data
         {
             base.Prepare();
 
-            for (int col = 0; col < trainDataY[0].Length; col++)
+            for (int col = 0; col < TrainDataY[0].Length; col++)
             {
-                double[] vectorX = Utils.GetVectorFromArray(trainDataX, col);
-                double[] vectorY = Utils.GetVectorFromArray(trainDataY, col);
+                double[] vectorX = Utils.GetVectorFromArray(TrainDataX, col);
+                double[] vectorY = Utils.GetVectorFromArray(TrainDataY, col);
                 double[] stairY = CreateStairVector(vectorX, vectorY);
-                Utils.SetArrayFromVector(stairY, col, trainDataY);
+                Utils.SetArrayFromVector(stairY, col, TrainDataY);
 
-                vectorX = Utils.GetVectorFromArray(validDataX, col);
-                vectorY = Utils.GetVectorFromArray(validDataY, col);
+                vectorX = Utils.GetVectorFromArray(ValidDataX, col);
+                vectorY = Utils.GetVectorFromArray(ValidDataY, col);
                 stairY = CreateStairVector(vectorX, vectorY);
-                Utils.SetArrayFromVector(stairY, col, validDataY);
+                Utils.SetArrayFromVector(stairY, col, ValidDataY);
 
-                vectorX = Utils.GetVectorFromArray(testDataX, col);
-                vectorY = Utils.GetVectorFromArray(testDataY, col);
+                vectorX = Utils.GetVectorFromArray(TestDataX, col);
+                vectorY = Utils.GetVectorFromArray(TestDataY, col);
                 stairY = CreateStairVector(vectorX, vectorY);
-                Utils.SetArrayFromVector(stairY, col, testDataY);
+                Utils.SetArrayFromVector(stairY, col, TestDataY);
             }
         }
     }

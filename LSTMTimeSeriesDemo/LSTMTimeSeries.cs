@@ -36,7 +36,8 @@ namespace LSTMTimeSeriesDemo
 
         LineItem predictedLine;
         LineItem predictedLineExtreme;
-        LineItem testDataLine;
+        LineItem testDataXLine;
+        LineItem testDataYLine;
 
         NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
 
@@ -98,11 +99,18 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
-            if (testDataLine != null) testDataLine.Clear();
+            if (testDataXLine != null) testDataXLine.Clear();
             else
-                testDataLine = new LineItem("Actual Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
-            testDataLine.Symbol.Fill = new Fill(Color.Blue);
-            testDataLine.Symbol.Size = 1;
+                testDataXLine = new LineItem("Actual Data (X)", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
+            testDataXLine.Symbol.Fill = new Fill(Color.Black);
+            testDataXLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dot;
+            testDataXLine.Symbol.Size = 1;
+
+            if (testDataYLine != null) testDataYLine.Clear();
+            else
+                testDataYLine = new LineItem("Expected Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            testDataYLine.Symbol.Fill = new Fill(Color.Blue);
+            testDataYLine.Symbol.Size = 1;
 
             zedGraphControl3.IsShowPointValues = true;
             zedGraphControl3.PointValueFormat = "0.0000";
@@ -122,7 +130,9 @@ namespace LSTMTimeSeriesDemo
             predictedLineExtreme.Symbol.Type = SymbolType.Diamond;
 
             this.zedGraphControl3.GraphPane.CurveList.Clear();
-            this.zedGraphControl3.GraphPane.CurveList.Add(testDataLine);
+            this.zedGraphControl3.GraphPane.CurveList.Add(testDataXLine);
+            this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
+            this.zedGraphControl3.GraphPane.CurveList.Add(testDataYLine);
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl3.GraphPane.CurveList.Add(predictedLine);
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
@@ -151,13 +161,23 @@ namespace LSTMTimeSeriesDemo
                 trainingDataLine.AddPoint(p);
             }
 
+            var testDataX = ds.GetTestArrayX();
+
+            for (int i = 0; i < testDataX.Length; i++)
+            {
+                var p = new PointPair(i + 1, testDataX.Values[i][0]);
+                p.Tag = "( " + testDataX.GetDate(i).ToShortDateString() + ", " + testDataX.Values[i][0] + " )";
+                testDataXLine.AddPoint(p);
+            }
+
+
             var testDataY = ds.GetTestArrayY();
 
             for (int i = 0; i < testDataY.Length; i++)
             {
                 var p = new PointPair(i + 1, testDataY.Values[i][0]);
                 p.Tag = "( " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
-                testDataLine.AddPoint(p);
+                testDataYLine.AddPoint(p);
             }
 
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);

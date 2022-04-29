@@ -707,9 +707,14 @@ namespace LSTMTimeSeriesDemo
             loadGraphs(DataSet);
 
             buttonStart.Enabled = true;
-            label9.Text = "Dataset: " + DataSet.AllData[0].Length + " cols X " + DataSet.AllData.Count + " rows";
-            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
+            label9.Text = "Dataset: " + DataSet.AllData[0].Length + " cols, " + DataSet.AllData.Count + " rows";
+//            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
 
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            currentLSTMTrainer.StopNow = true;
         }
     }
 }

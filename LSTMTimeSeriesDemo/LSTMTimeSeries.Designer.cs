@@ -58,6 +58,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.textBox6 = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -208,27 +209,27 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(955, 122);
+            this.label1.Location = new System.Drawing.Point(944, 122);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(165, 20);
+            this.label1.Size = new System.Drawing.Size(133, 20);
             this.label1.TabIndex = 6;
-            this.label1.Text = "Iterations | batch size:";
+            this.label1.Text = "Iterations | batch:";
             // 
             // textBox1
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(1128, 122);
+            this.textBox1.Location = new System.Drawing.Point(1073, 122);
             this.textBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(71, 26);
+            this.textBox1.Size = new System.Drawing.Size(50, 26);
             this.textBox1.TabIndex = 8;
             this.textBox1.Text = "10";
             // 
             // textBox2
             // 
             this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Location = new System.Drawing.Point(1201, 122);
+            this.textBox2.Location = new System.Drawing.Point(1073, 147);
             this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(48, 26);
@@ -413,11 +414,24 @@
             this.label9.TabIndex = 40;
             this.label9.Text = "Dataset:";
             // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(1158, 105);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(104, 35);
+            this.button1.TabIndex = 41;
+            this.button1.Text = "Stop";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
             // LSTMTimeSeries
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.textBox6);
@@ -485,6 +499,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textBox6;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button button1;
     }
 }
 

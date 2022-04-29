@@ -21,6 +21,8 @@ namespace NeuralNetwork.Base
         DeviceDescriptor currentDevice = null;
         Trainer currentTrainer = null;
 
+        public bool StopNow = false;
+
         public LSTMTrainer(int inDim, int ouDim, string featuresName, string labelsName)
         {
             this.inDim = inDim;
@@ -111,6 +113,7 @@ namespace NeuralNetwork.Base
 
                 //output training process
                 progressReport(i);
+                if (StopNow) return;
             }
         }
 

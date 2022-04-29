@@ -669,6 +669,9 @@ namespace LSTMTimeSeriesDemo
             loadGraphs(DataSet["label"].train, DataSet["label"].test);
 
             buttonStart.Enabled = true;
+            label9.Text = "Dataset: " + DataSet.AllData[0].Length + " cols X " + DataSet.AllData.Count + " rows";
+            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
+
         }
     }
 }

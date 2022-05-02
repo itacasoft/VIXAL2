@@ -29,7 +29,7 @@ namespace VIXAL2.Data.Base
 
         public NormalizedDataSet(double[][] data)
         {
-            _data = data;
+            Data = data;
             string normalizerType = ConfigurationManager.AppSettings["NormalizerType"];
             normalizer = Normalizer.Constructor(normalizerType);
         }

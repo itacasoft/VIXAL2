@@ -182,15 +182,6 @@ namespace NeuralNetwork.Base
             return oData;
         }
 
-        public double PreviousMinibatchLossAverage
-        {
-            get
-            {
-                return currentTrainer.PreviousMinibatchLossAverage();       
-            }
-        }
-
-
         public IList<IList<float>> CurrentModelTest(IEnumerable<float> miniBatchData_X)
         {
             var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData_X, currentDevice);
@@ -206,5 +197,14 @@ namespace NeuralNetwork.Base
             var oData = outputDataMap[lab].GetDenseData<float>(lab);
             return oData;
         }
+
+        public double PreviousMinibatchLossAverage
+        {
+            get
+            {
+                return currentTrainer.PreviousMinibatchLossAverage();
+            }
+        }
+
     }
 }

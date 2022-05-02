@@ -1,8 +1,6 @@
 ﻿using SharpML.Types;
-using SharpML.Types.Normalization;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,16 +14,10 @@ namespace LSTMTimeSeriesDemo
     public partial class LSTMTimeSeries : Form
     {
         int batchSize=100;
-        int daysPredict = 10;
         string featuresName = "feature";
         string labelsName = "label";
 
-#if ORIGINAL_WORK
-        Dictionary<string, (float[][] train, float[][] valid, float[][] test)> DataSet;
-#else
         StocksDataset DataSet;
-#endif
-
 
         LineItem modelLine;
         LineItem trainingDataLine;
@@ -287,229 +279,7 @@ namespace LSTMTimeSeriesDemo
             }
 
         }
-        /// <summary>
-        /// Method of generating wave function y=sin(x)
-        /// </summary>
-        /// <param name="fun"></param>
-        /// <param name="x0"></param>
-        /// <param name="timeSteps"></param>
-        /// <param name="timeShift"></param>
-        /// <returns></returns>
-        static Dictionary<string, (float[][] train, float[][] valid, float[][] test)> loadWaveDataset(Func<double, double> fun, float[] x0, int timeSteps, int timeShift)
-        {
-            ////fill data
-            float[] xsin = new float[x0.Length];//all data
-            for (int l = 0; l < x0.Length; l++)
-                xsin[l] = (float)fun(x0[l]);
 
-
-            //split data on training and testing part
-            var a = new float[xsin.Length - timeShift];
-            var b = new float[xsin.Length - timeShift];
-
-            for (int l = 0; l < xsin.Length; l++)
-            {
-                //
-                if (l < xsin.Length - timeShift)
-                    a[l] = xsin[l];
-
-                //
-                if (l >= timeShift)
-                    b[l - timeShift] = xsin[l];
-            }
-
-            //make arrays of data
-            var a1 = new List<float[]>();
-            var b1 = new List<float[]>();
-            for (int i = 0; i < a.Length - timeSteps + 1; i++)
-            {
-                //features
-                var row = new float[timeSteps];
-                for (int j = 0; j < timeSteps; j++)
-                    row[j] = a[i + j];
-                //create features row
-                a1.Add(row);
-                //label row
-                b1.Add(new float[] { b[i + timeSteps - 1] });
-            }
-
-            //split data into train, validation and test data set
-            var xxx = splitData(a1.ToArray(), 0.1f, 0.1f);
-            var yyy = splitData(b1.ToArray(), 0.1f, 0.1f);
-
-
-            var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
-            retVal.Add("features", xxx);
-            retVal.Add("label", yyy);
-            return retVal;
-        }
-
-        static void SaveFullDataSet(Dictionary<string, (float[][] train, float[][] valid, float[][] test)> ds, string path)
-        {
-            List<float[]> data = new List<float[]>();
-            
-            for (int i=0; i < ds["features"].train.Length; i++)
-            {
-                data.Add(ds["features"].train[i]);
-            }
-
-            for (int i = 0; i < ds["features"].valid.Length; i++)
-            {
-                data.Add(ds["features"].valid[i]);
-            }
-
-            for (int i = 0; i < ds["features"].test.Length; i++)
-            {
-                data.Add(ds["features"].test[i]);
-            }
-
-            double[][] data1 = new double[data.Count][];
-            for (int i=0; i<data.Count; i++)
-            {
-                data1[i] = new double[data[i].Length];
-                for (int j=0; j<data[i].Length; j++)
-                {
-                    data1[i][j] = data[i][j];
-                }
-            }
-
-            Utils.WriteCsv(data1, path);
-        }
-
-
-        static Dictionary<string, (float[][] train, float[][] valid, float[][] test)> loadFullDataSet(string path, int gap)
-        {
-            void ProcessData(string[][] rawData, out List<string> names, out List<DateTime> dates, out double[][] data)
-            {
-                //first row is header (symbols), exluding the first field (date)
-                names = new List<string>();
-                for (int i = 1; i < rawData[0].Length; i++)
-                {
-                    names.Add(rawData[0][i]);
-                }
-
-                dates = new List<DateTime>();
-
-                data = new double[rawData.Length - 1][];
-                for (int row = 1; row < rawData.Length; row++)
-                {
-                    data[row - 1] = new double[rawData[row].Length - 1]; //first column is dates
-
-                    DateTime stockDate;
-                    if (!DateTime.TryParse(rawData[row][0], out stockDate))
-                        throw new Exception(rawData[row][0] + " at row " + row.ToString() + " does not represent a valid date");
-                    dates.Add(stockDate);
-
-                    for (int col = 1; col < rawData[row].Length; col++)
-                    {
-                        if (!double.TryParse(rawData[row][col], out data[row - 1][col - 1]))
-                        {
-                            throw new InvalidCastException("Field at row " + (row).ToString() + ", col " + col.ToString() + " is not a valid double value");
-                        }
-                    }
-                }
-            }
-
-            string[][] stocksData = Utils.LoadCsvAsStrings(path, gap+1);
-
-            List<string> stockNames;
-            List<DateTime> stockDates;
-            double[][] stockData;
-            ProcessData(stocksData, out stockNames, out stockDates, out stockData);
-
-            StockList.FillNaNs(stockData);
-
-            Normalizer.Instance.Initialize(stockData, stockData.Length - gap);
-            float[][] fStockData = Utils.ToFloatArray(Normalizer.Instance.Normalize(stockData));
-            float[][] y = new float[fStockData.Length][];
-
-            for (int row = 0; row < fStockData.Length; row++)
-            {
-                y[row] = new float[1];
-                if (row >= gap)
-                    y[row - gap][0] = fStockData[row][0];
-            }
-
-            var xxx = splitAndRemoveBlankData(fStockData, 0.2f, 0.2f, gap);
-            var yyy = splitAndRemoveBlankData(y, 0.2f, 0.2f, gap);
-
-            var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
-            retVal.Add("features", xxx);
-            retVal.Add("label", yyy);
-            return retVal;
-        }
-
-        /// <summary>
-        /// Split data on training validation and testing data sets
-        /// </summary>
-        /// <param name="data">full data </param>
-        /// <param name="valSize">percentage amount of validation </param>
-        /// <param name="testSize">percentage amount for testing</param>
-        /// <returns></returns>
-        static (float[][] train, float[][] valid, float[][] test) splitData(float[][] data, float valSize, float testSize)
-        {
-            //calculate
-            var posTest = (int)(data.Length * (1 - testSize));
-            var posVal = (int)(posTest * (1 - valSize));
-
-            return (data.Skip(0).Take(posVal).ToArray(), data.Skip(posVal).Take(posTest - posVal).ToArray(), data.Skip(posTest).ToArray());
-        }
-
-        static (float[][] train, float[][] valid, float[][] test) splitAndRemoveBlankData(float[][] data, float valSize, float testSize, int blankSize)
-        {
-            //calculate
-            int total = data.Length;
-            var posVal = (int)(total * (1 - valSize-testSize));
-            var posTest = (int)(total * (1 - testSize));
-            var lenTest = data.Length - posTest - blankSize;
-
-            return (data.Skip(0).Take(posVal).ToArray(), data.Skip(posVal).Take(posTest - posVal).ToArray(), data.Skip(posTest).Take(lenTest).ToArray());
-        }
-
-        /// <summary>
-        /// Taken from https://gist.github.com/wcharczuk/3948606
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="stop"></param>
-        /// <param name="num"></param>
-        /// <param name="endpoint"></param>
-        /// <returns></returns>
-        public static IEnumerable<double> LinSpace(double start, double stop, int num, bool endpoint = true)
-        {
-            var result = new List<double>();
-            if (num <= 0)
-            {
-                return result;
-            }
-
-            if (endpoint)
-            {
-                if (num == 1)
-                {
-                    return new List<double>() { start };
-                }
-
-                var step = (stop - start) / ((double)num - 1.0d);
-                result = Arange(0, num).Select(v => (v * step) + start).ToList();
-            }
-            else
-            {
-                var step = (stop - start) / (double)num;
-                result = Arange(0, num).Select(v => (v * step) + start).ToList();
-            }
-
-            return result;
-        }
-        /// <summary>
-        /// Taken from https://gist.github.com/wcharczuk/3948606
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        public static IEnumerable<double> Arange(double start, int count)
-        {
-            return Enumerable.Range((int)start, count).Select(v => (double)v);
-        }
 
         /// <summary>
         /// Starts the training process of LSTM
@@ -685,18 +455,12 @@ namespace LSTMTimeSeriesDemo
         {
             InitiGraphs();
 
-#if ORIGINAL_WORK
-            //load data in to memory
-            var xdata = LinSpace(0, 100.0, 10000).Select(x => (float)x).ToArray<float>();
-            DataSet = loadWaveDataset(Math.Sin, xdata, inDim, daysPredict);
-#else
             DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, comboBox1.SelectedIndex + 1);
-            DataSet.TrainPercent = 0.6F;
-            DataSet.ValidPercent = 0.2F;
+            DataSet.TrainPercent = 0.8F;
+            DataSet.ValidPercent = 0.0F;
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
                 ((MovingAverageDataSet)DataSet).PredictDays = Convert.ToInt32(textBox6.Text);
             DataSet.Prepare();
-#endif
 
             loadListView(DataSet);
             loadGraphs(DataSet);

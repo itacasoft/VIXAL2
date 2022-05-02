@@ -27,8 +27,6 @@ namespace VIXAL2.GUI
 
         LineItem predictedLine;
         LineItem predictedLineExtreme;
-        LineItem testDataXLine;
-        LineItem testDataYLine;
 
         NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
 
@@ -90,18 +88,23 @@ namespace VIXAL2.GUI
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
-            if (testDataXLine != null) testDataXLine.Clear();
-            else
-                testDataXLine = new LineItem("Actual Data (X)", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
-            testDataXLine.Symbol.Fill = new Fill(Color.Black);
-            testDataXLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dot;
-            testDataXLine.Symbol.Size = 1;
+            //if (testDataXLine != null) testDataXLine.Clear();
+            //else
+            //    testDataXLine = new LineItem("Actual Data (X)", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
+            //testDataXLine.Symbol.Fill = new Fill(Color.Black);
+            //testDataXLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dot;
+            //testDataXLine.Symbol.Size = 1;
 
-            if (testDataYLine != null) testDataYLine.Clear();
-            else
-                testDataYLine = new LineItem("Expected Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
-            testDataYLine.Symbol.Fill = new Fill(Color.Blue);
-            testDataYLine.Symbol.Size = 1;
+            //if (testDataYLine != null) testDataYLine.Clear();
+            //else
+            //    testDataYLine = new LineItem("Expected Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
+            //testDataYLine.Symbol.Fill = new Fill(Color.Blue);
+            //testDataYLine.Symbol.Size = 1;
+
+            zedGraphControl1.IsShowPointValues = true;
+            zedGraphControl1.PointValueFormat = "0.0000";
+            zedGraphControl1.PointDateFormat = "d";
+
 
             zedGraphControl3.IsShowPointValues = true;
             zedGraphControl3.PointValueFormat = "0.0000";
@@ -120,15 +123,15 @@ namespace VIXAL2.GUI
             predictedLineExtreme.Symbol.Size = 2;
             predictedLineExtreme.Symbol.Type = SymbolType.Diamond;
 
-            this.zedGraphControl3.GraphPane.CurveList.Clear();
-            this.zedGraphControl3.GraphPane.CurveList.Add(testDataXLine);
-            this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
-            this.zedGraphControl3.GraphPane.CurveList.Add(testDataYLine);
-            this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
-            this.zedGraphControl3.GraphPane.CurveList.Add(predictedLine);
-            this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
-            this.zedGraphControl3.GraphPane.CurveList.Add(predictedLineExtreme);
-            this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
+            //this.zedGraphControl3.GraphPane.CurveList.Clear();
+            //this.zedGraphControl3.GraphPane.CurveList.Add(testDataXLine);
+            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
+            //this.zedGraphControl3.GraphPane.CurveList.Add(testDataYLine);
+            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
+            //this.zedGraphControl3.GraphPane.CurveList.Add(predictedLine);
+            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
+            //this.zedGraphControl3.GraphPane.CurveList.Add(predictedLineExtreme);
+            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
         }
 
         private void VIXAL2Form_Load(object sender, EventArgs e)
@@ -141,24 +144,22 @@ namespace VIXAL2.GUI
         private void loadGraphs(StocksDataset ds)
         {
             double[] traindDataYList = Utils.GetVectorFromArray(DataSet.TrainDataY, 0);
+            int sample = 1;
 
             for (int i = 0; i < traindDataYList.Length; i++)
             {
-                var p = new PointPair(i + 1, traindDataYList[i]);
+                var p = new PointPair(sample, traindDataYList[i]);
                 trainingDataLine.AddPoint(p);
+                sample++;
             }
 
-            //cache data for next iteration
-            if (ds.Obj1 == null)
-                ds.Obj1 = ds.GetTestArrayX();
+            double[] validDataYList = Utils.GetVectorFromArray(DataSet.ValidDataY, 0);
 
-            TimeSerieArray testDataX = (TimeSerieArray)ds.Obj1;
-
-            for (int i = 0; i < testDataX.Length; i++)
+            for (int i = 0; i < validDataYList.Length; i++)
             {
-                var p = new PointPair(i + 1, testDataX.Values[i][0]);
-                p.Tag = "( " + testDataX.GetDate(i).ToShortDateString() + ", " + testDataX.Values[i][0] + " )";
-                testDataXLine.AddPoint(p);
+                var p = new PointPair(sample, validDataYList[i]);
+                trainingDataLine.AddPoint(p);
+                sample++;
             }
 
             //cache data for next iteration
@@ -169,13 +170,14 @@ namespace VIXAL2.GUI
 
             for (int i = 0; i < testDataY.Length; i++)
             {
-                var p = new PointPair(i + 1, testDataY.Values[i][0]);
+                var p = new PointPair(sample, testDataY.Values[i][0]);
                 p.Tag = "( " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
-                testDataYLine.AddPoint(p);
+                trainingDataLine.AddPoint(p);
+                sample++;
             }
 
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
-            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
+//            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 
         private void loadListView(StocksDataset ds)

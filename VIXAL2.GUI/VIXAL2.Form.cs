@@ -9,11 +9,11 @@ using VIXAL2.Data;
 using VIXAL2.Data.Base;
 using ZedGraph;
 
-namespace LSTMTimeSeriesDemo
+namespace VIXAL2.GUI
 {
-    public partial class LSTMTimeSeries : Form
+    public partial class VIXAL2Form : Form
     {
-        int batchSize=100;
+        int batchSize = 100;
         string featuresName = "feature";
         string labelsName = "label";
 
@@ -32,7 +32,7 @@ namespace LSTMTimeSeriesDemo
 
         NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
 
-        public LSTMTimeSeries()
+        public VIXAL2Form()
         {
             InitializeComponent();
         }
@@ -76,7 +76,7 @@ namespace LSTMTimeSeriesDemo
             //Add line to graph
             this.zedGraphControl1.GraphPane.CurveList.Clear();
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
-           // this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
+            // this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
@@ -129,13 +129,9 @@ namespace LSTMTimeSeriesDemo
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl3.GraphPane.CurveList.Add(predictedLineExtreme);
             this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
-
-            // zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
-
-            //zedGraphControl3.GraphPane.YAxis.Title.Text = "Model Testing";
         }
 
-        private void CNTKDemo_Load(object sender, EventArgs e)
+        private void VIXAL2Form_Load(object sender, EventArgs e)
         {
             comboBox1.SelectedIndex = 0;
             buttonStart.Enabled = false;
@@ -155,7 +151,7 @@ namespace LSTMTimeSeriesDemo
             //cache data for next iteration
             if (ds.Obj1 == null)
                 ds.Obj1 = ds.GetTestArrayX();
-            
+
             TimeSerieArray testDataX = (TimeSerieArray)ds.Obj1;
 
             for (int i = 0; i < testDataX.Length; i++)
@@ -280,13 +276,7 @@ namespace LSTMTimeSeriesDemo
 
         }
 
-
-        /// <summary>
-        /// Starts the training process of LSTM
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button1_Click(object sender, EventArgs e)
+        private void buttonStart_Click(object sender, EventArgs e)
         {
             int iteration = int.Parse(textBox1.Text);
             batchSize = int.Parse(textBox2.Text);
@@ -304,8 +294,8 @@ namespace LSTMTimeSeriesDemo
             currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
             Task.Run(() =>
             currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
-        }
 
+        }
 
         void progressReport(int iteration)
         {
@@ -387,7 +377,7 @@ namespace LSTMTimeSeriesDemo
 
             foreach (var miniBatchData in nextBatch(DataSet["features"].test, DataSet["label"].test, batchSize))
             {
-                 var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X);
+                var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X);
                 //show on graph
                 foreach (var y in oData)
                 {
@@ -453,11 +443,11 @@ namespace LSTMTimeSeriesDemo
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void btnLoad_Click(object sender, EventArgs e)
         {
             InitiGraphs();
 
-            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, comboBox1.SelectedIndex + 1);
+            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, comboBox1.SelectedIndex + 1);
             DataSet.TrainPercent = 0.8F;
             DataSet.ValidPercent = 0.0F;
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
@@ -469,11 +459,11 @@ namespace LSTMTimeSeriesDemo
 
             buttonStart.Enabled = true;
             label9.Text = "Dataset: " + DataSet.DataList[0].Length + " cols, " + DataSet.DataList.Count + " rows";
-//            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
+            //            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
 
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void btnStop_Click(object sender, EventArgs e)
         {
             currentLSTMTrainer.StopNow = true;
         }

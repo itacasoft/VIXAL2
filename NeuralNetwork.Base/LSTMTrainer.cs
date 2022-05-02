@@ -31,14 +31,15 @@ namespace NeuralNetwork.Base
             this.labelsName = labelsName;
         }
 
+
         public void Train(Dictionary<string, (float[][] train, float[][] valid, float[][] test)> dataSet,
             int hiDim, int cellDim, int iteration, int batchSize, Action<int> progressReport, DeviceType deviceType, int deviceId = 0)
         {
-            var device = DeviceDescriptor.CPUDevice;
+            currentDevice = DeviceDescriptor.CPUDevice;
             if (deviceType == DeviceType.GPUDevice)
-                device = DeviceDescriptor.GPUDevice(deviceId);
+                currentDevice = DeviceDescriptor.GPUDevice(deviceId);
             if (deviceType == DeviceType.UseDefaultDevice)
-                device = DeviceDescriptor.UseDefaultDevice();
+                currentDevice = DeviceDescriptor.UseDefaultDevice();
 
             //split dataset on train, validate and test parts
             var featureSet = dataSet["features"];
@@ -48,10 +49,10 @@ namespace NeuralNetwork.Base
             var feature = Variable.InputVariable(new int[] { inDim }, DataType.Float, featuresName, null, false /*isSparse*/);
             var label = Variable.InputVariable(new int[] { ouDim }, DataType.Float, labelsName, new List<CNTK.Axis>() { CNTK.Axis.DefaultBatchAxis() }, false);
 
-            var lstmModel = NeuralNetwork.Base.LSTMHelper.CreateModel(feature, ouDim, hiDim, cellDim, device, "timeSeriesOutput");
+            currentModel = NeuralNetwork.Base.LSTMHelper.CreateModel(feature, ouDim, hiDim, cellDim, currentDevice, "timeSeriesOutput");
 
-            Function trainingLoss = CNTKLib.SquaredError(lstmModel, label, "squarederrorLoss");
-            Function prediction = CNTKLib.SquaredError(lstmModel, label, "squarederrorEval");
+            Function trainingLoss = CNTKLib.SquaredError(currentModel, label, "squarederrorLoss");
+            Function prediction = CNTKLib.SquaredError(currentModel, label, "squarederrorEval");
 
 
             // prepare for training
@@ -59,42 +60,21 @@ namespace NeuralNetwork.Base
             TrainingParameterScheduleDouble momentumTimeConstant = CNTKLib.MomentumAsTimeConstantSchedule(256);
 
             IList<Learner> parameterLearners = new List<Learner>() {
-                Learner.MomentumSGDLearner(lstmModel.Parameters(), learningRatePerSample, momentumTimeConstant, /*unitGainMomentum = */true)  };
+                Learner.MomentumSGDLearner(currentModel.Parameters(), learningRatePerSample, momentumTimeConstant, /*unitGainMomentum = */true)  };
 
             //create trainer
-            currentTrainer = Trainer.CreateTrainer(lstmModel, trainingLoss, prediction, parameterLearners);
+            currentTrainer = Trainer.CreateTrainer(currentModel, trainingLoss, prediction, parameterLearners);
 
             // train the model
             for (int i = 1; i <= iteration; i++)
             {
-/*
- * 
-                //get the next minibatch amount of data
-                foreach (var miniBatchData in nextBatch(featureSet.train, labelSet.train, batchSize))
-                {
-                    var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData.X, device);
-                    var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData.Y, device);
-
-                    //Combine variables and data in to Dictionary for the training
-                    var batchData = new Dictionary<Variable, Value>();
-                    batchData.Add(feature, xValues);
-                    batchData.Add(label, yValues);
-
-                    //train minibarch data
-                    if (i == iteration-1)
-                        currentTrainer.TrainMinibatch(batchData, true, device);
-                    else
-                        currentTrainer.TrainMinibatch(batchData, false, device);
-
-                }
-*/
                 var lsit = nextBatch(featureSet.train, labelSet.train, batchSize);
 
                 for (int m=0; m<lsit.Count; m++)
                 {
                     var miniBatchData = lsit[m];
-                    var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData.X, device);
-                    var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData.Y, device);
+                    var xValues = Value.CreateBatch<float>(new NDShape(1, inDim), miniBatchData.X, currentDevice);
+                    var yValues = Value.CreateBatch<float>(new NDShape(1, ouDim), miniBatchData.Y, currentDevice);
 
                     //Combine variables and data in to Dictionary for the training
                     var batchData = new Dictionary<Variable, Value>();
@@ -103,13 +83,10 @@ namespace NeuralNetwork.Base
 
                     //train minibarch data
                     if (m == lsit.Count - 1)
-                        currentTrainer.TrainMinibatch(batchData, true, device);
+                        currentTrainer.TrainMinibatch(batchData, true, currentDevice);
                     else
-                        currentTrainer.TrainMinibatch(batchData, false, device);
+                        currentTrainer.TrainMinibatch(batchData, false, currentDevice);
                 }
-
-                currentModel = lstmModel.Clone();
-                currentDevice = device;
 
                 //output training process
                 progressReport(i);

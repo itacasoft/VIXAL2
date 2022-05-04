@@ -122,6 +122,11 @@ namespace VIXAL2.Data
                 }
             }
 
+            for (int col = 0; col < columnsToPredict; col++)
+            {
+                result.SetColName(col, colNames[firstColumnToPredict + col]);
+            }
+
             return result;
         }
 

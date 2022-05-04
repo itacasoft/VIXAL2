@@ -21,12 +21,10 @@ namespace VIXAL2.GUI
 
         LineItem modelLine;
         LineItem trainingDataLine;
+        LineItem separationline;
 
         LineItem lossDataLine;
         LineItem performanceDataLine;
-
-        LineItem predictedLine;
-        LineItem predictedLineExtreme;
 
         NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
 
@@ -74,7 +72,7 @@ namespace VIXAL2.GUI
             //Add line to graph
             this.zedGraphControl1.GraphPane.CurveList.Clear();
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
-            // this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
+            this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
@@ -88,18 +86,12 @@ namespace VIXAL2.GUI
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
-            //if (testDataXLine != null) testDataXLine.Clear();
-            //else
-            //    testDataXLine = new LineItem("Actual Data (X)", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
-            //testDataXLine.Symbol.Fill = new Fill(Color.Black);
-            //testDataXLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dot;
-            //testDataXLine.Symbol.Size = 1;
-
-            //if (testDataYLine != null) testDataYLine.Clear();
-            //else
-            //    testDataYLine = new LineItem("Expected Data (Y)", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
-            //testDataYLine.Symbol.Fill = new Fill(Color.Blue);
-            //testDataYLine.Symbol.Size = 1;
+            if (separationline != null) separationline.Clear();
+            else separationline = new LineItem("");
+            separationline.Symbol.Fill = new Fill(Color.Black);
+            separationline.Line.Style = System.Drawing.Drawing2D.DashStyle.Dot;
+            separationline.Symbol.Size = 1;
+            this.zedGraphControl1.GraphPane.CurveList.Add(separationline);
 
             zedGraphControl1.IsShowPointValues = true;
             zedGraphControl1.PointValueFormat = "0.0000";
@@ -109,29 +101,6 @@ namespace VIXAL2.GUI
             zedGraphControl3.IsShowPointValues = true;
             zedGraphControl3.PointValueFormat = "0.0000";
             zedGraphControl3.PointDateFormat = "d";
-
-            if (predictedLine != null) predictedLine.Clear();
-            else
-                predictedLine = new LineItem("Prediction", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
-            predictedLine.Symbol.Fill = new Fill(Color.Red);
-            predictedLine.Symbol.Size = 1;
-
-            if (predictedLineExtreme != null) predictedLineExtreme.Clear();
-            else
-                predictedLineExtreme = new LineItem("PredictionExtreme", null, null, Color.Violet, ZedGraph.SymbolType.Diamond, 1);
-            predictedLineExtreme.Symbol.Fill = new Fill(Color.Violet);
-            predictedLineExtreme.Symbol.Size = 2;
-            predictedLineExtreme.Symbol.Type = SymbolType.Diamond;
-
-            //this.zedGraphControl3.GraphPane.CurveList.Clear();
-            //this.zedGraphControl3.GraphPane.CurveList.Add(testDataXLine);
-            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
-            //this.zedGraphControl3.GraphPane.CurveList.Add(testDataYLine);
-            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
-            //this.zedGraphControl3.GraphPane.CurveList.Add(predictedLine);
-            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
-            //this.zedGraphControl3.GraphPane.CurveList.Add(predictedLineExtreme);
-            //this.zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
         }
 
         private void VIXAL2Form_Load(object sender, EventArgs e)
@@ -168,6 +137,14 @@ namespace VIXAL2.GUI
 
             TimeSerieArray testDataY = (TimeSerieArray)ds.Obj2;
 
+            separationline.Clear();
+            var p1 = new PointPair(sample, -1);
+            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            separationline.AddPoint(p1);
+            p1 = new PointPair(sample, 1);
+            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            separationline.AddPoint(p1);
+
             for (int i = 0; i < testDataY.Length; i++)
             {
                 var p = new PointPair(sample, testDataY.Values[i][0]);
@@ -176,8 +153,9 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
+            zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
-//            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
+
         }
 
         private void loadListView(StocksDataset ds)
@@ -188,6 +166,7 @@ namespace VIXAL2.GUI
             listView1.HideSelection = false;
             if (ds.TrainDataX == null || ds.TrainDataY == null)
                 return;
+
             //add features
             listView1.Columns.Add(new ColumnHeader() { Width = 20 });
             for (int i = 0; i < ds.ColNames.Length; i++)
@@ -206,6 +185,7 @@ namespace VIXAL2.GUI
                 col.Width = 70;
                 listView1.Columns.Add(col);
             }
+
 
             for (int i = 0; i < ds.TrainDataX.Length; i++)
             {
@@ -332,18 +312,19 @@ namespace VIXAL2.GUI
 
         private void reportOnGraphs(int iteration)
         {
-            currentModelEvaluation(iteration);
+            int sample = 1;
+            modelLine.Clear();
 
-            int sample;
-            currentModelTest(iteration, out sample);
-            currentModelTestExtreme(sample);
+            currentModelEvaluation(iteration, ref sample);
+            currentModelTest(iteration, ref sample);
+            currentModelTestExtreme(ref sample);
 
-            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
+            zedGraphControl1.Refresh();
+            //zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
 
-        private void currentModelTestExtreme(int sample)
+        private void currentModelTestExtreme(ref int sample)
         {
-            predictedLineExtreme.Clear();
             //predico anche l'estremo
             var dad = DataSet.GetExtendedArrayX();
 
@@ -360,21 +341,20 @@ namespace VIXAL2.GUI
             foreach (var y in oDataExt)
             {
                 var p = new PointPair(sample++, y[0]);
-                p.Tag = "( " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
-                predictedLineExtreme.AddPoint(p);
+                p.Tag = "(EXT_TEST " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                modelLine.AddPoint(p);
                 mydateIndex++;
             }
 
         }
 
-        private void currentModelTest(int iteration, out int sample)
+        private void currentModelTest(int iteration, ref int sample)
         {
             var testDataX = DataSet.GetTestArrayX();
 
             //get the next minibatch amount of data
-            sample = 1;
             int mydateIndex = 0;
-            predictedLine.Clear();
+
             List<double> predictectList = new List<double>();
 
             foreach (var miniBatchData in nextBatch(DataSet["features"].test, DataSet["label"].test, batchSize))
@@ -384,8 +364,8 @@ namespace VIXAL2.GUI
                 foreach (var y in oData)
                 {
                     var p = new PointPair(sample++, y[0]);
-                    p.Tag = "( " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
-                    predictedLine.AddPoint(p);
+                    p.Tag = "(TEST " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                    modelLine.AddPoint(p);
                     predictectList.Add(y[0]);
                     mydateIndex++;
                 }
@@ -428,20 +408,17 @@ namespace VIXAL2.GUI
         }
 
 
-        private void currentModelEvaluation(int iteration)
+        private void currentModelEvaluation(int iteration, ref int sample)
         {
             lossDataLine.AddPoint(new PointPair(iteration, currentLSTMTrainer.PreviousMinibatchLossAverage));
 
             //get the next minibatch amount of data
-            int sample = 1;
-            modelLine.Clear();
             foreach (var miniBatchData in nextBatch(DataSet["features"].train, DataSet["label"].train, batchSize))
             {
                 var oData = currentLSTMTrainer.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y);
                 foreach (var y in oData)
                     modelLine.AddPoint(new PointPair(sample++, y[0]));
             }
-            zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }
 
@@ -449,11 +426,12 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, comboBox1.SelectedIndex + 1);
-            DataSet.TrainPercent = 0.8F;
+            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1);
+            DataSet.TrainPercent = 0.96F;
             DataSet.ValidPercent = 0.0F;
+            DataSet.PredictDays = Convert.ToInt32(textBoxPredictDays.Text);
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
-                ((MovingAverageDataSet)DataSet).PredictDays = Convert.ToInt32(textBox6.Text);
+                ((MovingAverageDataSet)DataSet).PredictDays = Convert.ToInt32(textBoxPredictDays.Text);
             DataSet.Prepare();
 
             loadListView(DataSet);
@@ -468,6 +446,11 @@ namespace VIXAL2.GUI
         private void btnStop_Click(object sender, EventArgs e)
         {
             currentLSTMTrainer.StopNow = true;
+        }
+
+        private void listView1_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            textBoxYIndex.Text = (e.Column - 1).ToString();
         }
     }
 }

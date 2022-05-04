@@ -32,9 +32,9 @@
             this.btnStop = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.textBoxPredictDays = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.textBoxYIndex = new System.Windows.Forms.TextBox();
             this.textBoxCells = new System.Windows.Forms.TextBox();
             this.textBoxHidden = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -99,15 +99,15 @@
             this.label8.TabIndex = 63;
             this.label8.Text = "Predict days:";
             // 
-            // textBox6
+            // textBoxPredictDays
             // 
-            this.textBox6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox6.Location = new System.Drawing.Point(1083, 21);
-            this.textBox6.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(35, 26);
-            this.textBox6.TabIndex = 62;
-            this.textBox6.Text = "20";
+            this.textBoxPredictDays.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxPredictDays.Location = new System.Drawing.Point(1083, 21);
+            this.textBoxPredictDays.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxPredictDays.Name = "textBoxPredictDays";
+            this.textBoxPredictDays.Size = new System.Drawing.Size(35, 26);
+            this.textBoxPredictDays.TabIndex = 62;
+            this.textBoxPredictDays.Text = "20";
             // 
             // label7
             // 
@@ -120,15 +120,15 @@
             this.label7.TabIndex = 61;
             this.label7.Text = "Column Y (index):";
             // 
-            // textBox5
+            // textBoxYIndex
             // 
-            this.textBox5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox5.Location = new System.Drawing.Point(932, 20);
-            this.textBox5.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(35, 26);
-            this.textBox5.TabIndex = 60;
-            this.textBox5.Text = "0";
+            this.textBoxYIndex.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxYIndex.Location = new System.Drawing.Point(932, 20);
+            this.textBoxYIndex.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxYIndex.Name = "textBoxYIndex";
+            this.textBoxYIndex.Size = new System.Drawing.Size(35, 26);
+            this.textBoxYIndex.TabIndex = 60;
+            this.textBoxYIndex.Text = "0";
             // 
             // textBoxCells
             // 
@@ -425,6 +425,7 @@
             this.listView1.TabIndex = 42;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
             // 
             // VIXAL2Form
             // 
@@ -434,9 +435,9 @@
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
-            this.Controls.Add(this.textBox6);
+            this.Controls.Add(this.textBoxPredictDays);
             this.Controls.Add(this.label7);
-            this.Controls.Add(this.textBox5);
+            this.Controls.Add(this.textBoxYIndex);
             this.Controls.Add(this.textBoxCells);
             this.Controls.Add(this.textBoxHidden);
             this.Controls.Add(this.label6);
@@ -472,9 +473,9 @@
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.TextBox textBoxPredictDays;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.TextBox textBoxYIndex;
         private System.Windows.Forms.TextBox textBoxCells;
         private System.Windows.Forms.TextBox textBoxHidden;
         private System.Windows.Forms.Label label6;

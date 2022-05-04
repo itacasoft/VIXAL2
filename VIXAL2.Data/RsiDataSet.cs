@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
 {
-    public class RsiDataSet : StocksDataset
+    public class RsiDataSet : StocksDataset, IAverageRangeDataSet
     {
         private int range = 14;
 

@@ -1,10 +1,11 @@
 ﻿using SharpML.Types;
 using System;
 using System.Collections.Generic;
+using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
 {
-    public class MovingAverageDataSet : StocksDataset
+    public class MovingAverageDataSet : StocksDataset, IAverageRangeDataSet
     {
         protected int range = 20;
 

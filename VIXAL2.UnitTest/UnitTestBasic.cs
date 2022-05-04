@@ -340,6 +340,79 @@ namespace VIXAL2.UnitTest
             Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
             Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
         }
+
+
+        [TestMethod]
+        public void TestMovingForwardDataSet()
+        {
+            const int RANGE = 14;
+            const int FIRST_PREDICT = 0;
+            const int PREDICT_DAYS = 10;
+            const int EXPECTED_TRAINCOUNT = 52;
+            const int EXPECTED_VALIDCOUNT = 17;
+            const int EXPECTED_TESTCOUNT = 8;
+            const int DATA_LENGHT = 100;
+
+            double[][] data = new double[DATA_LENGHT][];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = new double[2];
+                data[i][0] = EnergyData.Eni[i];
+                data[i][1] = EnergyData.Brent[i];
+            }
+
+            Assert.AreEqual(data.Length, DATA_LENGHT);
+
+            DateTime[] DD = new DateTime[data.Length];
+            //fill date array
+            DD[0] = DateTime.Parse("01/01/2010");
+            for (int i = 1; i < data.Length; i++)
+            {
+                DD[i] = DD[i - 1].AddDays(1);
+            }
+
+            string[] stocks =
+            {
+                "COMPANY_A",
+                "COMPANY_B"
+            };
+
+
+            MovingForwardDataSet ds = new MovingForwardDataSet(stocks, DD, data, FIRST_PREDICT, 1);
+            ds.PredictDays = PREDICT_DAYS;
+            ds.Range = RANGE;
+            ds.Prepare();
+
+            //train count
+            Assert.AreEqual(EXPECTED_TRAINCOUNT, Math.Floor((data.Length - (RANGE - 1)) * ds.TrainPercent));
+            //valid count
+            Assert.AreEqual(EXPECTED_VALIDCOUNT, Math.Floor((data.Length - (RANGE - 1)) * ds.ValidPercent));
+            //test count
+            Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
+
+            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
+            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
+            Assert.IsTrue(ds.TestDataY[2][0] > 0.70 && ds.TestDataY[2][0] < 0.72);
+
+            //assert FeatureLabel structure is equal to the original one
+            var fl = ds.GetFeatureLabelDataSet();
+            Assert.AreEqual(fl["features"].train.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(fl["features"].valid.Length, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(fl["features"].test.Length, EXPECTED_TESTCOUNT);
+            Assert.AreEqual(fl["label"].train.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
+
+            //assert FeatureLabel values are the same of the original ones
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
+        }
+
     }
 }
 

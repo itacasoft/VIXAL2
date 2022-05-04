@@ -59,7 +59,7 @@ namespace VIXAL2.Data
 
         public void PredictedAlloc(int rows)
         {
-            predicted = new TimeSerieArray(rows, testCount);// Training[0].Steps[0].TargetOutput.Rows);
+            predicted = new TimeSerieArray(rows, TestCount);// Training[0].Steps[0].TargetOutput.Rows);
         }
 
         public void PredictedDecode()

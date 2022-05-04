@@ -15,8 +15,8 @@ namespace VIXAL2.Data
         private float trainPercent = 0.60F;
         private float validPercent = 0.20F;
         private int predictDays = 20;
-
-        protected int validCount = -1, testCount = -1, trainCount = -1;
+        private bool prepared = false;
+        //protected int validCount = -1, testCount = -1, trainCount = -1;
         protected int firstColumnToPredict;
         protected int columnsToPredict;
 
@@ -33,26 +33,20 @@ namespace VIXAL2.Data
         {
             NormalizeAllData();
 
-            int trainTo = Convert.ToInt32(dataList.Count * trainPercent);
-            trainCount = trainTo;
-            int validFrom = trainTo + 1;
-            int validTo = Convert.ToInt32(dataList.Count * validPercent) + validFrom;
-            validCount = validTo - validFrom;
-            testCount = dataList.Count - validCount - trainCount - predictDays;
-
             SplitData(dataList.ToArray());
 
-//            NormalizeData(trainDataX, validDataX, testDataX, true);
-//            NormalizeData(trainDataY, validDataY, testDataY);
+            //            NormalizeData(trainDataX, validDataX, testDataX, true);
+            //            NormalizeData(trainDataY, validDataY, testDataY);
 
-/*            Training = CreateSequencesTraining();
-            Validation = CreateSequencesValidation();
-            Testing = CreateSequencesTesting();
-            InputDimension = Training[0].Steps[0].Input.Rows;
-            OutputDimension = Training[0].Steps[0].TargetOutput.Rows;
-            LossTraining = new LossSumOfSquares();
-            LossReporting = new LossSumOfSquares();
-*/
+            /*            Training = CreateSequencesTraining();
+                        Validation = CreateSequencesValidation();
+                        Testing = CreateSequencesTesting();
+                        InputDimension = Training[0].Steps[0].Input.Rows;
+                        OutputDimension = Training[0].Steps[0].TargetOutput.Rows;
+                        LossTraining = new LossSumOfSquares();
+                        LossReporting = new LossSumOfSquares();
+            */
+            prepared = true;
         }
 
         /// <summary>
@@ -60,7 +54,7 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayExtendedX()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount, dataList[0].Length);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount, dataList[0].Length);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
@@ -77,7 +71,7 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayX()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount - predictDays, dataList[0].Length);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - predictDays, dataList[0].Length);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
@@ -95,12 +89,12 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetExtendedArrayX()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount - testCount, dataList[0].Length);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - TestCount, dataList[0].Length);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount + testCount], dataList[row + TrainCount + ValidCount + testCount][col]);
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount + TestCount], dataList[row + TrainCount + ValidCount + TestCount][col]);
                 }
             }
 
@@ -112,7 +106,7 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayY()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - validCount - predictDays, columnsToPredict);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - predictDays, columnsToPredict);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < columnsToPredict; col++)
@@ -142,21 +136,8 @@ namespace VIXAL2.Data
             extendedTestDataX = extendedTestDataX.Stack<float>(exte);
 #endif
 
-            var xxx = (Utils.ToFloatArray(trainDataX), Utils.ToFloatArray(validDataX), extendedTestDataX);
+            var xxx = (Utils.ToFloatArray(trainDataX), Utils.ToFloatArray(validDataX), Utils.ToFloatArray(testDataX));
             var yyy = (Utils.ToFloatArray(trainDataY), Utils.ToFloatArray(validDataY), Utils.ToFloatArray(testDataY));
-            retVal.Add("features", xxx);
-            retVal.Add("label", yyy);
-
-            return retVal;
-        }
-
-        [Obsolete]
-        public Dictionary<string, (double[][] train, double[][] valid, double[][] test)> GetFeatureLabelDataSet0()
-        {
-            var retVal = new Dictionary<string, (double[][] train, double[][] valid, double[][] test)>();
-
-            var xxx = (trainDataX, validDataX, testDataX);
-            var yyy = (trainDataY, validDataY, testDataY);
             retVal.Add("features", xxx);
             retVal.Add("label", yyy);
 
@@ -176,7 +157,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return validCount;
+                return validDataX.Length;
             }
         }
 
@@ -184,7 +165,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return trainCount;
+                return trainDataX.Length;
             }
         }
 
@@ -192,7 +173,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return testCount;
+                return testDataX.Length;
             }
         }
 
@@ -206,6 +187,9 @@ namespace VIXAL2.Data
             {
                 if ((value > 1) || (value < 0))
                     throw new ArgumentOutOfRangeException("TrainPercent must be between 0 and 1");
+                if (prepared)
+                    throw new InvalidOperationException("TrainPercent cannot be changed when DataSet is prepared");
+
                 trainPercent = value;
             }
         }
@@ -220,6 +204,10 @@ namespace VIXAL2.Data
             {
                 if ((value > 1) || (value < 0))
                     throw new ArgumentOutOfRangeException("ValidPercent must be between 0 and 1");
+
+                if (prepared)
+                    throw new InvalidOperationException("ValidPercent cannot be changed when DataSet is prepared");
+
                 validPercent = value;
             }
 
@@ -242,7 +230,14 @@ namespace VIXAL2.Data
 
         protected void SplitData(double[][] input)
         {
-            trainDataX = new double[TrainCount][];
+            int trainTo = Convert.ToInt32(dataList.Count * trainPercent);
+            int trainCount = trainTo;
+            int validFrom = trainTo + 1;
+            int validTo = Convert.ToInt32(dataList.Count * validPercent) + validFrom;
+            int validCount = validTo - validFrom;
+            int testCount = dataList.Count - validCount - trainCount - predictDays;
+
+            trainDataX = new double[trainCount][];
             for (int row = 0; row < trainDataX.Length; row++)
             {
                 trainDataX[row] = new double[input[row].Length];
@@ -252,7 +247,7 @@ namespace VIXAL2.Data
                 }
             }
 
-            trainDataY = new double[TrainCount][];
+            trainDataY = new double[trainCount][];
             for (int row = 0; row < trainDataY.Length; row++)
             {
                 trainDataY[row] = new double[columnsToPredict];
@@ -262,7 +257,7 @@ namespace VIXAL2.Data
                 }
             }
 
-            validDataX = new double[ValidCount][];
+            validDataX = new double[validCount][];
             for (int row = 0; row < validDataX.Length; row++)
             {
                 validDataX[row] = new double[input[row].Length];
@@ -272,7 +267,7 @@ namespace VIXAL2.Data
                 }
             }
 
-            validDataY = new double[ValidCount][];
+            validDataY = new double[validCount][];
             for (int row = 0; row < validDataY.Length; row++)
             {
                 validDataY[row] = new double[columnsToPredict];
@@ -282,7 +277,7 @@ namespace VIXAL2.Data
                 }
             }
 
-            testDataX = new double[TestCount][];
+            testDataX = new double[testCount][];
             for (int row = 0; row < testDataX.Length; row++)
             {
                 testDataX[row] = new double[input[row].Length];
@@ -292,7 +287,7 @@ namespace VIXAL2.Data
                 }
             }
 
-            testDataY = new double[TestCount][];
+            testDataY = new double[testCount][];
             for (int row = 0; row < testDataY.Length; row++)
             {
                 testDataY[row] = new double[columnsToPredict];

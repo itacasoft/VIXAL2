@@ -131,11 +131,9 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
-            //cache data for next iteration
-            if (ds.Obj2 == null)
-                ds.Obj2 = ds.GetTestArrayY();
+            DrawTestSeparationLine(ds);
 
-            TimeSerieArray testDataY = (TimeSerieArray)ds.Obj2;
+            TimeSerieArray testDataY = ds.GetTestArrayY();
 
             separationline.Clear();
             var p1 = new PointPair(sample, -1);
@@ -156,6 +154,20 @@ namespace VIXAL2.GUI
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
 
+        }
+
+        private void DrawTestSeparationLine(StocksDataset ds)
+        {
+            int sample = ds.TrainCount + 1;
+            TimeSerieArray testDataY = ds.GetTestArrayY();
+
+            separationline.Clear();
+            var p1 = new PointPair(sample, -1);
+            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            separationline.AddPoint(p1);
+            p1 = new PointPair(sample, 1);
+            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            separationline.AddPoint(p1);
         }
 
         private void loadListView(StocksDataset ds)
@@ -270,13 +282,32 @@ namespace VIXAL2.GUI
             int ouDim = DataSet.TrainDataY[0].Length;
             int inDim = DataSet.ColNames.Length;
 
-            //            Task.Run(() =>
-            //            train(DataSet, hiDim, cellDim, iteration, batchSize, progressReport, DeviceDescriptor.CPUDevice));
-
             currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
-            Task.Run(() =>
+
+            Task taskA = Task.Run(() =>
             currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
 
+            if (checkBox1.Checked)
+                taskA.ContinueWith(antecedent => IterateCalculation(hiddenLayersDim, cellsNumber, iteration));
+        }
+
+
+        public void IterateCalculation(int hiddenLayersDim, int cellsNumber, int iteration)
+        {
+            bool result = DataSet.Forward(1);
+            if (!result) return;
+
+            DrawTestSeparationLine(DataSet);
+
+            int ouDim = DataSet.TrainDataY[0].Length;
+            int inDim = DataSet.ColNames.Length;
+
+            currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
+
+            Task taskA = Task.Run(() =>
+            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
+
+            taskA.ContinueWith(antecedent => IterateCalculation(hiddenLayersDim, cellsNumber, iteration));
         }
 
         void progressReport(int iteration)

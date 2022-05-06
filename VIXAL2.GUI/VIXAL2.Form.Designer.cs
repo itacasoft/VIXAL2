@@ -59,6 +59,7 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.zedGraphControl3 = new ZedGraph.ZedGraphControl();
             this.listView1 = new System.Windows.Forms.ListView();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -261,7 +262,7 @@
             this.textBox2.Location = new System.Drawing.Point(1068, 145);
             this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(48, 26);
+            this.textBox2.Size = new System.Drawing.Size(50, 26);
             this.textBox2.TabIndex = 48;
             this.textBox2.Text = "100";
             // 
@@ -427,11 +428,22 @@
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(1068, 183);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(144, 24);
+            this.checkBox1.TabIndex = 66;
+            this.checkBox1.Text = "Forward Iterate";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
@@ -500,6 +512,7 @@
         private System.Windows.Forms.TabPage tabPage3;
         private ZedGraph.ZedGraphControl zedGraphControl3;
         private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 

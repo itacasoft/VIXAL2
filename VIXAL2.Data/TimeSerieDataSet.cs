@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
+using Accord.Math;
 
 namespace VIXAL2.Data
 {
@@ -423,6 +424,31 @@ namespace VIXAL2.Data
                     mydates.RemoveAt(row);
                 }
             }
+        }
+
+        public bool Forward(int steps = 1)
+        {
+            if (ValidCount > 0)
+            {
+                throw new InvalidOperationException("Forward cannot be used if ValidCount > 0");
+            }
+
+            if (steps >= TestCount)
+                return false;
+
+            for (int i = 0; i < steps; i++)
+            {
+                //take first row of test if any
+                double[] dataXToMove = TestDataX[0];
+                trainDataX = trainDataX.InsertRow(dataXToMove);
+                testDataX = testDataX.RemoveAt(0);
+
+                double[] dataYToMove = TestDataY[0];
+                trainDataY = trainDataY.InsertRow(dataYToMove);
+                testDataY = testDataY.RemoveAt(0);
+            }
+
+            return true;
         }
     }
 }

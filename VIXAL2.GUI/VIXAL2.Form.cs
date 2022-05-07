@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VIXAL2.Data;
@@ -22,6 +21,7 @@ namespace VIXAL2.GUI
         LineItem modelLine;
         LineItem trainingDataLine;
         LineItem separationline;
+        LineItem forwardModellLine;
 
         LineItem lossDataLine;
         LineItem performanceDataLine;

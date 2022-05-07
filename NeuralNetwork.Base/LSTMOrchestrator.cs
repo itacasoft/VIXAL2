@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VIXAL2.Data;
+using VIXAL2.Data.Base;
 
 namespace NeuralNetwork.Base
 {
@@ -25,6 +26,7 @@ namespace NeuralNetwork.Base
         public static string featuresName = "feature";
         public static string labelsName = "label";
 
+        private TimeSerieArray originalTestArrayY;
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays)
         {
@@ -35,6 +37,7 @@ namespace NeuralNetwork.Base
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
                 ((MovingAverageDataSet)DataSet).PredictDays = predictDays;
             DataSet.Prepare();
+            originalTestArrayY = DataSet.GetTestArrayY();
         }
 
         public void StartTraining(int iterations, int hiddenLayersDim, int cellsNumber, bool reiterate)
@@ -72,6 +75,11 @@ namespace NeuralNetwork.Base
         public void StopTrainingNow()
         {
             currentLSTMTrainer.StopNow = true;
+        }
+
+        public float CompareForwardWithDataY(List<Tuple<DateTime, float>> forwardModelList)
+        {
+            return LSTMUtils.Compare2(originalTestArrayY, forwardModelList);
         }
 
         public double GetPreviousLossAverage()

@@ -113,6 +113,10 @@ namespace VIXAL2.UnitTest
             TimeSerieArray current = ds.GetTestArrayExtendedX();
             TimeSerieArray future = ds.GetTestArrayY();
             Assert.AreEqual(current.Length, future.Length + PREDICT_DAYS);
+            Assert.AreEqual(future.Length, ds.TestDataY.Length);
+            Assert.AreEqual(future.Values[0][0], ds.TestDataY[0][0]);
+            Assert.AreEqual(future.Values[3][0], ds.TestDataY[3][0]);
+            Assert.AreEqual(future.Values[future.Length-1][0], ds.TestDataY[future.Length-1][0]);
 
             ds.PredictedAlloc(current.Length);
 

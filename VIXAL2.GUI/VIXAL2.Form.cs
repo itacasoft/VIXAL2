@@ -21,6 +21,7 @@ namespace VIXAL2.GUI
         LineItem trainingDataLine;
         LineItem separationline;
         LineItem forwardModellLine;
+        List<Tuple<DateTime,float>> forwardModelList = new List<Tuple<DateTime, float>>();
 
         LineItem lossDataLine;
         LineItem performanceDataLine;
@@ -32,6 +33,9 @@ namespace VIXAL2.GUI
 
         private void InitiGraphs()
         {
+            label2.Tag = null;
+            label2.Text = "Performance (first): ";
+
             ///Fitness simulation chart
             zedGraphControl1.GraphPane.Title.Text = "Model evaluation";
             zedGraphControl1.GraphPane.XAxis.Title.Text = "Samples";
@@ -48,6 +52,12 @@ namespace VIXAL2.GUI
                 modelLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
             modelLine.Symbol.Fill = new Fill(Color.Red);
             modelLine.Symbol.Size = 1;
+
+            if (forwardModellLine != null) forwardModellLine.Clear();
+            else forwardModellLine = new LineItem("Forward Prediction", null, null, Color.MediumVioletRed, ZedGraph.SymbolType.Diamond, 2);
+            forwardModelList.Clear();
+            forwardModellLine.Symbol.Fill = new Fill(Color.MediumVioletRed);
+            forwardModellLine.Symbol.Size = 2;
 
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Training Loss";
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Iteration";
@@ -71,6 +81,7 @@ namespace VIXAL2.GUI
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
+            this.zedGraphControl1.GraphPane.CurveList.Add(forwardModellLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
             this.zedGraphControl2.GraphPane.CurveList.Clear();
@@ -316,6 +327,7 @@ namespace VIXAL2.GUI
         private void currentModelTest(int iteration, ref int sample)
         {
             var testDataX = orchestrator.DataSet.GetTestArrayX();
+            bool forwardPointAdded = false;
 
             //get the next minibatch amount of data
             int mydateIndex = 0;
@@ -328,6 +340,17 @@ namespace VIXAL2.GUI
                 //show on graph
                 foreach (var y in oData)
                 {
+                    if (!forwardPointAdded)
+                    {
+                        var p1 = new PointPair(sample++, y[0]);
+                        p1.Tag = "(FF " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                        forwardModellLine.AddPoint(p1);
+
+                        var tu = Tuple.Create(testDataX.GetDate(mydateIndex), y[0]);
+                        forwardModelList.Add(tu); ;
+                        forwardPointAdded = true;
+                    }
+
                     var p = new PointPair(sample++, y[0]);
                     p.Tag = "(TEST " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                     modelLine.AddPoint(p);
@@ -336,10 +359,16 @@ namespace VIXAL2.GUI
                 }
             }
 
-            double[] dataYList = Utils.GetVectorFromArray(orchestrator.DataSet.TestDataY, 0);
+            if (label2.Tag == null)
+            {
+                double[] dataYList = Utils.GetVectorFromArray(orchestrator.DataSet.TestDataY, 0);
+                float performance = LSTMUtils.Compare(dataYList, predictectList.ToArray());
+                label2.Text = "Performance (first): " + performance.ToString();
+                label2.Tag = true;
+            }
 
-            float performance = LSTMUtils.Compare(dataYList, predictectList.ToArray());
-            label2.Text = "Performance: " + performance.ToString();
+            float performance2 = orchestrator.CompareForwardWithDataY(forwardModelList);
+            label10.Text = "Performance (forward): " + performance2.ToString();
         }
 
 

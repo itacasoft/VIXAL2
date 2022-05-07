@@ -60,6 +60,7 @@
             this.zedGraphControl3 = new ZedGraph.ZedGraphControl();
             this.listView1 = new System.Windows.Forms.ListView();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -430,7 +431,10 @@
             // 
             // checkBox1
             // 
+            this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = true;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox1.Location = new System.Drawing.Point(1068, 183);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(144, 24);
@@ -438,11 +442,23 @@
             this.checkBox1.Text = "Forward Iterate";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // label10
+            // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(648, 213);
+            this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(161, 20);
+            this.label10.TabIndex = 67;
+            this.label10.Text = "Performance forward:";
+            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.label10);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.label9);
@@ -513,6 +529,7 @@
         private ZedGraph.ZedGraphControl zedGraphControl3;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Label label10;
     }
 }
 

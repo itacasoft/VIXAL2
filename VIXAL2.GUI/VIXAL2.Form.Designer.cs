@@ -47,7 +47,7 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBoxIterations = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.buttonStart = new System.Windows.Forms.Button();
@@ -266,15 +266,15 @@
             this.textBox2.TabIndex = 48;
             this.textBox2.Text = "100";
             // 
-            // textBox1
+            // textBoxIterations
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(1068, 120);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(50, 26);
-            this.textBox1.TabIndex = 47;
-            this.textBox1.Text = "10";
+            this.textBoxIterations.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxIterations.Location = new System.Drawing.Point(1068, 120);
+            this.textBoxIterations.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxIterations.Name = "textBoxIterations";
+            this.textBoxIterations.Size = new System.Drawing.Size(50, 26);
+            this.textBoxIterations.TabIndex = 47;
+            this.textBoxIterations.Text = "10";
             // 
             // label1
             // 
@@ -462,7 +462,7 @@
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.textBoxIterations);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.buttonStart);
@@ -500,7 +500,7 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textBoxIterations;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Button buttonStart;

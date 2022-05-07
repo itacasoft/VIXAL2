@@ -1,4 +1,5 @@
-﻿using SharpML.Types;
+﻿using NeuralNetwork.Base;
+using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -13,10 +14,8 @@ namespace VIXAL2.GUI
     public partial class VIXAL2Form : Form
     {
         int batchSize = 100;
-        string featuresName = "feature";
-        string labelsName = "label";
 
-        StocksDataset DataSet;
+        LSTMOrchestrator orchestrator;
 
         LineItem modelLine;
         LineItem trainingDataLine;
@@ -25,8 +24,6 @@ namespace VIXAL2.GUI
 
         LineItem lossDataLine;
         LineItem performanceDataLine;
-
-        NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
 
         public VIXAL2Form()
         {
@@ -112,7 +109,7 @@ namespace VIXAL2.GUI
 
         private void loadGraphs(StocksDataset ds)
         {
-            double[] traindDataYList = Utils.GetVectorFromArray(DataSet.TrainDataY, 0);
+            double[] traindDataYList = Utils.GetVectorFromArray(ds.TrainDataY, 0);
             int sample = 1;
 
             for (int i = 0; i < traindDataYList.Length; i++)
@@ -122,7 +119,7 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
-            double[] validDataYList = Utils.GetVectorFromArray(DataSet.ValidDataY, 0);
+            double[] validDataYList = Utils.GetVectorFromArray(ds.ValidDataY, 0);
 
             for (int i = 0; i < validDataYList.Length; i++)
             {
@@ -153,7 +150,6 @@ namespace VIXAL2.GUI
 
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
-
         }
 
         private void DrawTestSeparationLine(StocksDataset ds)
@@ -232,83 +228,18 @@ namespace VIXAL2.GUI
             }
         }
 
-
-        /// <summary>
-        /// Iteration method for enumerating data during iteration process of training
-        /// </summary>
-        /// <param name="X"></param>
-        /// <param name="Y"></param>
-        /// <param name="mMSize"></param>
-        /// <returns></returns>
-        private static IEnumerable<(float[] X, float[] Y)> nextBatch(float[][] X, float[][] Y, int mMSize)
-        {
-
-            float[] asBatch(float[][] data, int start, int count)
-            {
-                var lst = new List<float>();
-                for (int i = start; i < start + count; i++)
-                {
-                    if (i >= data.Length)
-                        break;
-
-                    lst.AddRange(data[i]);
-                }
-                return lst.ToArray();
-            }
-
-            for (int i = 0; i <= X.Length - 1; i += mMSize)
-            {
-                var size = X.Length - i;
-                if (size > 0 && size > mMSize)
-                    size = mMSize;
-
-                var x = asBatch(X, i, size);
-                var y = asBatch(Y, i, size);
-
-                yield return (x, y);
-            }
-
-        }
-
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            int iteration = int.Parse(textBox1.Text);
+            int iterations = int.Parse(textBoxIterations.Text);
             batchSize = int.Parse(textBox2.Text);
             int hiddenLayersDim = Convert.ToInt32(textBoxHidden.Text);
             int cellsNumber = Convert.ToInt32(textBoxCells.Text);
-            progressBar1.Maximum = iteration;
+            progressBar1.Maximum = iterations;
             progressBar1.Value = 1;
 
-            int ouDim = DataSet.TrainDataY[0].Length;
-            int inDim = DataSet.ColNames.Length;
-
-            currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
-
-            Task taskA = Task.Run(() =>
-            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
-
-            if (checkBox1.Checked)
-                taskA.ContinueWith(antecedent => IterateCalculation(hiddenLayersDim, cellsNumber, iteration));
+            orchestrator.StartTraining(iterations, hiddenLayersDim, cellsNumber, checkBox1.Checked);
         }
 
-
-        public void IterateCalculation(int hiddenLayersDim, int cellsNumber, int iteration)
-        {
-            bool result = DataSet.Forward(1);
-            if (!result) return;
-
-            DrawTestSeparationLine(DataSet);
-
-            int ouDim = DataSet.TrainDataY[0].Length;
-            int inDim = DataSet.ColNames.Length;
-
-            currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
-
-            Task taskA = Task.Run(() =>
-            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, batchSize, progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
-
-            taskA.ContinueWith(antecedent => IterateCalculation(hiddenLayersDim, cellsNumber, iteration));
-        }
 
         void progressReport(int iteration)
         {
@@ -322,7 +253,7 @@ namespace VIXAL2.GUI
                         {
                             //output training process
                             textBox3.Text = iteration.ToString();
-                            textBox4.Text = currentLSTMTrainer.PreviousMinibatchLossAverage.ToString();
+                            textBox4.Text = orchestrator.GetPreviousLossAverage().ToString();
                             progressBar1.Value = iteration;
 
                             reportOnGraphs(iteration);
@@ -334,7 +265,7 @@ namespace VIXAL2.GUI
             {
                 //output training process
                 textBox3.Text = iteration.ToString();
-                textBox4.Text = currentLSTMTrainer.PreviousMinibatchLossAverage.ToString();
+                textBox4.Text =  orchestrator.GetPreviousLossAverage().ToString();
                 progressBar1.Value = iteration;
 
                 reportOnGraphs(iteration);
@@ -343,21 +274,24 @@ namespace VIXAL2.GUI
 
         private void reportOnGraphs(int iteration)
         {
-            int sample = 1;
-            modelLine.Clear();
+            if (iteration == Convert.ToInt32(textBoxIterations.Text))
+            {
+                int sample = 1;
+                modelLine.Clear();
 
-            currentModelEvaluation(iteration, ref sample);
-            currentModelTest(iteration, ref sample);
-            currentModelTestExtreme(ref sample);
+                currentModelEvaluation(iteration, ref sample);
+                currentModelTest(iteration, ref sample);
+                currentModelTestExtreme(ref sample);
 
-            zedGraphControl1.Refresh();
-            //zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
+                zedGraphControl1.Refresh();
+                //zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
+            }
         }
 
         private void currentModelTestExtreme(ref int sample)
         {
             //predico anche l'estremo
-            var dad = DataSet.GetExtendedArrayX();
+            var dad = orchestrator.DataSet.GetExtendedArrayX();
 
             float[] batch = new float[dad.Length * dad.Columns];
             int sss = 0;
@@ -366,7 +300,7 @@ namespace VIXAL2.GUI
                 for (int j = 0; j < dad.Columns; j++)
                     batch[sss++] = (float)dad.Values[i][j];
             }
-            var oDataExt = currentLSTMTrainer.CurrentModelTest(batch);
+            var oDataExt = orchestrator.CurrentModelTest(batch);
 
             int mydateIndex = 0;
             foreach (var y in oDataExt)
@@ -381,16 +315,16 @@ namespace VIXAL2.GUI
 
         private void currentModelTest(int iteration, ref int sample)
         {
-            var testDataX = DataSet.GetTestArrayX();
+            var testDataX = orchestrator.DataSet.GetTestArrayX();
 
             //get the next minibatch amount of data
             int mydateIndex = 0;
 
             List<double> predictectList = new List<double>();
 
-            foreach (var miniBatchData in nextBatch(DataSet["features"].test, DataSet["label"].test, batchSize))
+            foreach (var miniBatchData in orchestrator.GetBatchesForTest())
             {
-                var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X);
+                var oData = orchestrator.CurrentModelTest(miniBatchData.X);
                 //show on graph
                 foreach (var y in oData)
                 {
@@ -402,51 +336,22 @@ namespace VIXAL2.GUI
                 }
             }
 
-            double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, 0);
+            double[] dataYList = Utils.GetVectorFromArray(orchestrator.DataSet.TestDataY, 0);
 
-            float performance = Compare(dataYList, predictectList.ToArray());
+            float performance = LSTMUtils.Compare(dataYList, predictectList.ToArray());
             label2.Text = "Performance: " + performance.ToString();
         }
 
-        public virtual float Compare(double[] dataY, double[] dataPredicted)
-        {
-            float result;
-
-            float guessed = 0, failed = 0;
-            double predicted0 = dataPredicted[0];
-            double future0 = dataY[0];
-
-            for (int row = 1; row < dataY.Length; row++)
-            {
-                double future1 = dataY[row];
-                bool futurePositiveTrend = (future1 > future0);
-
-                double predicted1 = dataPredicted[row];
-                bool predictedPositiveTrend = (predicted1 > predicted0);
-
-                if (predictedPositiveTrend == futurePositiveTrend)
-                    guessed++;
-                else
-                    failed++;
-
-                predicted0 = predicted1;
-                future0 = future1;
-            }
-
-            result = guessed / (guessed + failed);
-
-            return result;
-        }
 
 
         private void currentModelEvaluation(int iteration, ref int sample)
         {
-            lossDataLine.AddPoint(new PointPair(iteration, currentLSTMTrainer.PreviousMinibatchLossAverage));
+            lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
 
             //get the next minibatch amount of data
-            foreach (var miniBatchData in nextBatch(DataSet["features"].train, DataSet["label"].train, batchSize))
+            foreach (var miniBatchData in orchestrator.GetBatchesForTraining())
             {
-                var oData = currentLSTMTrainer.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y);
+                var oData = orchestrator.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y);
                 foreach (var y in oData)
                     modelLine.AddPoint(new PointPair(sample++, y[0]));
             }
@@ -457,26 +362,20 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1);
-            DataSet.TrainPercent = 0.96F;
-            DataSet.ValidPercent = 0.0F;
-            DataSet.PredictDays = Convert.ToInt32(textBoxPredictDays.Text);
-            if (DataSet.GetType() == typeof(MovingAverageDataSet))
-                ((MovingAverageDataSet)DataSet).PredictDays = Convert.ToInt32(textBoxPredictDays.Text);
-            DataSet.Prepare();
+            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, Convert.ToInt32(textBox2.Text));
+            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text));
 
-            loadListView(DataSet);
-            loadGraphs(DataSet);
+            loadListView(orchestrator.DataSet);
+            loadGraphs(orchestrator.DataSet);
 
             buttonStart.Enabled = true;
-            label9.Text = "Dataset: " + DataSet.DataList[0].Length + " cols, " + DataSet.DataList.Count + " rows";
+            label9.Text = "Dataset: " + orchestrator.DataSet.DataList[0].Length + " cols, " + orchestrator.DataSet.DataList.Count + " rows";
             //            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
-
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            currentLSTMTrainer.StopNow = true;
+            orchestrator.StopTrainingNow();
         }
 
         private void listView1_ColumnClick(object sender, ColumnClickEventArgs e)

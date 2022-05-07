@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("VIXAL2.UnitTest")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("YOOX NET-A-PORTER GROUP")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("VIXAL2.UnitTest")]
-[assembly: AssemblyCopyright("Copyright © YOOX NET-A-PORTER GROUP 2022")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

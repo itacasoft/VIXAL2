@@ -143,14 +143,6 @@ namespace VIXAL2.GUI
 
             TimeSerieArray testDataY = ds.GetTestArrayY();
 
-            separationline.Clear();
-            var p1 = new PointPair(sample, -1);
-            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
-            separationline.AddPoint(p1);
-            p1 = new PointPair(sample, 1);
-            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
-            separationline.AddPoint(p1);
-
             for (int i = 0; i < testDataY.Length; i++)
             {
                 var p = new PointPair(sample, testDataY.Values[i][0]);
@@ -169,10 +161,10 @@ namespace VIXAL2.GUI
             TimeSerieArray testDataY = ds.GetTestArrayY();
 
             separationline.Clear();
-            var p1 = new PointPair(sample, -1);
+            var p1 = new PointPair(sample, ds.MinYValue);
             p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
             separationline.AddPoint(p1);
-            p1 = new PointPair(sample, 1);
+            p1 = new PointPair(sample, ds.MaxYValue);
             p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
             separationline.AddPoint(p1);
         }
@@ -187,7 +179,7 @@ namespace VIXAL2.GUI
                 return;
 
             //add features
-            listView1.Columns.Add(new ColumnHeader() { Width = 20 });
+            listView1.Columns.Add(new ColumnHeader() { Width = 20, Text = "Sample" }); 
             for (int i = 0; i < ds.ColNames.Length; i++)
             {
                 var col1 = new ColumnHeader();
@@ -205,10 +197,11 @@ namespace VIXAL2.GUI
                 listView1.Columns.Add(col);
             }
 
+            int mydateIndex = 0;
 
-            for (int i = 0; i < ds.TrainDataX.Length; i++)
+            for (int i = 0; i < ds.TrainDataX.Length; i++, mydateIndex++)
             {
-                var itm = listView1.Items.Add($"{(i + 1).ToString()}");
+                var itm = listView1.Items.Add((mydateIndex+1) + " [" + ds.Dates[mydateIndex].ToShortDateString() + "]");
                 for (int j = 0; j < ds.TrainDataX[i].Length; j++)
                     itm.SubItems.Add(ds.TrainDataX[i][j].ToString());
 
@@ -216,9 +209,9 @@ namespace VIXAL2.GUI
                     itm.SubItems.Add(ds.TrainDataY[i][j].ToString());
             }
 
-            for (int i = 0; i < ds.ValidDataX.Length; i++)
+            for (int i = 0; i < ds.ValidDataX.Length; i++, mydateIndex++)
             {
-                var itm = listView1.Items.Add($"{(i + 1).ToString()}");
+                var itm = listView1.Items.Add((mydateIndex + 1) + " [" + ds.Dates[mydateIndex].ToShortDateString() + "]");
                 itm.BackColor = Color.Yellow;
                 for (int j = 0; j < ds.ValidDataX[i].Length; j++)
                     itm.SubItems.Add(ds.ValidDataX[i][j].ToString());
@@ -227,9 +220,9 @@ namespace VIXAL2.GUI
                     itm.SubItems.Add(ds.ValidDataY[i][j].ToString());
             }
 
-            for (int i = 0; i < ds.TestDataX.Length; i++)
+            for (int i = 0; i < ds.TestDataX.Length; i++, mydateIndex++)
             {
-                var itm = listView1.Items.Add($"{(i + 1).ToString()}");
+                var itm = listView1.Items.Add((mydateIndex + 1) + " [" + ds.Dates[mydateIndex].ToShortDateString() + "]");
                 itm.BackColor = Color.LightCoral;
                 for (int j = 0; j < ds.TestDataX[i].Length; j++)
                     itm.SubItems.Add(ds.TestDataX[i][j].ToString());
@@ -289,13 +282,18 @@ namespace VIXAL2.GUI
             {
                 int sample = 1;
                 modelLine.Clear();
+                lossDataLine.Clear();
 
                 currentModelEvaluation(iteration, ref sample);
                 currentModelTest(iteration, ref sample);
                 currentModelTestExtreme(ref sample);
 
                 zedGraphControl1.Refresh();
-                //zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
+            }
+            else
+            {
+                lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
+                zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
             }
         }
 
@@ -375,8 +373,6 @@ namespace VIXAL2.GUI
 
         private void currentModelEvaluation(int iteration, ref int sample)
         {
-            lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
-
             //get the next minibatch amount of data
             foreach (var miniBatchData in orchestrator.GetBatchesForTraining())
             {

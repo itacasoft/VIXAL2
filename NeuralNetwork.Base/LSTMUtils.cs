@@ -40,17 +40,17 @@ namespace NeuralNetwork.Base
             return result;
         }
 
-        public static float Compare2(TimeSerieArray dataY, List<Tuple<DateTime, float>> dataPredicted)
+        public static float Compare2(TimeSerieArray dataY, int IndexColumnToPredict, List<Tuple<DateTime, float>> dataPredicted)
         {
             float result;
 
             float guessed = 0, failed = 0;
             double predicted0 = dataPredicted[0].Item2;
-            double future0 = dataY.Values[0][0];
+            double future0 = dataY.Values[0][IndexColumnToPredict];
 
             for (int row = 1; row < dataPredicted.Count; row++)
             {
-                double future1 = dataY.Values[row][0];
+                double future1 = dataY.Values[row][IndexColumnToPredict];
                 bool futurePositiveTrend = (future1 > future0);
 
                 double predicted1 = dataPredicted[row].Item2;

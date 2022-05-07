@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
 using Accord.Math;
+using System.Linq;
 
 namespace VIXAL2.Data
 {
@@ -17,7 +18,6 @@ namespace VIXAL2.Data
         private float validPercent = 0.20F;
         private int predictDays = 20;
         private bool prepared = false;
-        //protected int validCount = -1, testCount = -1, trainCount = -1;
         protected int firstColumnToPredict;
         protected int columnsToPredict;
 
@@ -390,6 +390,51 @@ namespace VIXAL2.Data
                 return dates[dates.Count - 1];
             }
         }
+
+        public double MinYValue
+        {
+            get
+            {
+                double result1 = double.MaxValue;
+                double result2 = double.MaxValue;
+                double result3 = double.MaxValue;
+
+                if (trainDataY.Length > 0)
+                    result1 = trainDataY.Min<double>();
+                
+                if (validDataY.Length > 0)
+                    result2 = validDataY.Min<double>();
+
+                if (testDataY.Length > 0)
+                    result3 = testDataY.Min<double>();
+
+                if ((result1 < result2) && (result1 < result3)) return result1;
+                if ((result2 < result1) && (result2 < result3)) return result2;
+                return result3;
+            }
+        }
+
+        public double MaxYValue
+        {
+            get
+            {
+                double result1 = double.MinValue;
+                double result2 = double.MinValue;
+                double result3 = double.MinValue;
+
+                if (trainDataY.Length > 0)
+                    result1 = trainDataY.Max<double>();
+                if (validDataY.Length > 0)
+                    result2 = validDataY.Max<double>();
+                if (testDataY.Length > 0)
+                    result3 = testDataY.Max<double>();
+
+                if ((result1 > result2) && (result1 > result3)) return result1;
+                if ((result2 > result1) && (result2 > result3)) return result2;
+                return result3;
+            }
+        }
+
 
         public List<DateTime> Dates
         {

@@ -27,9 +27,11 @@ namespace NeuralNetwork.Base
         public static string labelsName = "label";
 
         private TimeSerieArray originalTestArrayY;
+        public int IndexColumnToPredict;
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays)
         {
+            IndexColumnToPredict = firstColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
             DataSet.TrainPercent = 0.96F;
             DataSet.ValidPercent = 0.0F;
@@ -79,7 +81,7 @@ namespace NeuralNetwork.Base
 
         public float CompareForwardWithDataY(List<Tuple<DateTime, float>> forwardModelList)
         {
-            return LSTMUtils.Compare2(originalTestArrayY, forwardModelList);
+            return LSTMUtils.Compare2(originalTestArrayY, 0, forwardModelList);
         }
 
         public double GetPreviousLossAverage()

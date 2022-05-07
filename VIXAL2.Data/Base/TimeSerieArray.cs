@@ -1,6 +1,8 @@
-﻿using SharpML.Types;
+﻿using Accord.Math;
+using SharpML.Types;
 using SharpML.Types.Normalization;
 using System;
+using System.Linq;
 
 namespace VIXAL2.Data.Base
 {
@@ -104,6 +106,22 @@ namespace VIXAL2.Data.Base
             get
             {
                 return dates[dates.Length - 1];
+            }
+        }
+
+        public Double MaxValue
+        {
+            get
+            {
+                return values.GetColumn<double>(0).Max();
+            }
+        }
+
+        public Double MinValue
+        {
+            get
+            {
+                return values.GetColumn<double>(0).Min();
             }
         }
 

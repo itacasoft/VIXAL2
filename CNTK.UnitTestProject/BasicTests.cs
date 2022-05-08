@@ -155,6 +155,7 @@ namespace CNTK.UnitTestProject
             var data = Data.IWDA.AsEnumerable<float>();
             var ndata = GetNormalized(data);
 
+            //copy to doubla array
             double[] data2 = new double[data.Count()];
             int i = 0;
             foreach (var feature in data)
@@ -165,7 +166,9 @@ namespace CNTK.UnitTestProject
 
             var _instance = new ModernNormalizer();
             _instance.Initialize(data2);
-            var data3 = _instance.Normalize(data2,0);
+            var data2n = _instance.Normalize(data2,0);
+
+            Assert.AreEqual(data.Count(), data2n.Count());
         }
 
         private static Function calculateStd(Variable features)

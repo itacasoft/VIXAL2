@@ -16,9 +16,9 @@ namespace VIXAL2.UnitTest
         {
             int[] dates = EnergyData.OaDates;
 
-            Assert.AreEqual(dates.Length, EnergyData.Dates.Length);
-            Assert.AreEqual(EnergyData.Dates[0], "2020-03-08");
-            Assert.AreEqual(EnergyData.Dates[dates.Length - 1], "2022-03-08");
+            Assert.AreEqual(dates.Length, EnergyData.SDates.Length);
+            Assert.AreEqual(EnergyData.SDates[0], "2020-03-08");
+            Assert.AreEqual(EnergyData.SDates[dates.Length - 1], "2022-03-08");
             Assert.AreEqual(dates[0], 43898);
             Assert.AreEqual(dates[dates.Length - 1], 44628);
         }

@@ -56,6 +56,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SharpML.Types\SharpML.Types.csproj">
+      <Project>{2C004EEF-C37F-4057-889C-9E20318D7E5A}</Project>
+      <Name>SharpML.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VIXAL2.Data\VIXAL2.Data.csproj">
       <Project>{5276D76D-DB76-4E23-A0B6-E8FFF569FE32}</Project>
       <Name>VIXAL2.Data</Name>

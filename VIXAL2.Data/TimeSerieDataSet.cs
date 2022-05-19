@@ -9,8 +9,8 @@ namespace VIXAL2.Data
 {
     public class TimeSerieDataSet : NormalizedDataSet
     {
-        private List<DateTime> dates;
-        private string[] colNames;
+        protected List<DateTime> dates;
+        protected string[] colNames;
         private double[][] trainDataX, trainDataY;
         private double[][] validDataX, validDataY;
         private double[][] testDataX, testDataY;
@@ -107,7 +107,7 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayY()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - predictDays, columnsToPredict);
+            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - predictDays, columnsToPredict, predictDays);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < columnsToPredict; col++)

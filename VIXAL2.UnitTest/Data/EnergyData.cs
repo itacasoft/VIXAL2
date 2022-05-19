@@ -4,7 +4,7 @@ namespace VIXAL2.UnitTest.Data
 {
     public class EnergyData
     {
-        public static readonly string[] Dates =
+        public static readonly string[] SDates =
         {
             "2020-03-08",
             "2020-03-09",
@@ -2935,11 +2935,58 @@ namespace VIXAL2.UnitTest.Data
         {
             get
             {
-                int[] result = new int[Dates.Length];
+                int[] result = new int[SDates.Length];
 
-                for (int i = 0; i < Dates.Length; i++)
+                for (int i = 0; i < SDates.Length; i++)
                 {
-                    result[i] = Convert.ToInt32(Convert.ToDateTime(Dates[i]).ToOADate());
+                    result[i] = Convert.ToInt32(Convert.ToDateTime(SDates[i]).ToOADate());
+                }
+
+                return result;
+            }
+        }
+
+        public static DateTime[] Dates
+        {
+            get
+            {
+                DateTime[] result = new DateTime[SDates.Length];
+
+                for (int i = 0; i < SDates.Length; i++)
+                {
+                    result[i] = Convert.ToDateTime(SDates[i]);
+                }
+
+                return result;
+            }
+        }
+
+        public static string[] StockNames
+        {
+            get
+            {
+                string[] result = new string[4];
+                result[0] = "EurDolX";
+                result[1] = "Eni";
+                result[2] = "ICLN";
+                result[3] = "Brent";
+                return result;
+            }
+        }
+
+        public static double[][] AllData
+        {
+            get
+            {
+                double[][] result = new double[EurDolX.Length][];
+
+                for (int i = 0; i < result.Length; i++)
+                {
+                    result[i] = new double[4];
+                    result[i][0] = EurDolX[i];
+                    result[i][1] = Eni[i];
+                    result[i][2] = ICLN[i];
+                    result[i][3] = Brent[i];
                 }
 
                 return result;

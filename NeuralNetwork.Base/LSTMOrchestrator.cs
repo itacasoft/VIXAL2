@@ -25,9 +25,8 @@ namespace NeuralNetwork.Base
 
         public static string featuresName = "feature";
         public static string labelsName = "label";
-
-        private TimeSerieArray originalTestArrayY;
         public int IndexColumnToPredict;
+        private TimeSerieArray originalTestArrayY;
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays)
         {
@@ -79,9 +78,10 @@ namespace NeuralNetwork.Base
             currentLSTMTrainer.StopNow = true;
         }
 
-        public float CompareForwardWithDataY(List<Tuple<DateTime, float>> forwardModelList)
+        public Tuple<float, float, float> CompareForwardWithDataY()
         {
-            return LSTMUtils.Compare2(originalTestArrayY, 0, forwardModelList);
+            var result = LSTMUtils.Compare(originalTestArrayY, 0, DataSet.ForwardPredicted);
+            return result;
         }
 
         public double GetPreviousLossAverage()
@@ -145,5 +145,15 @@ namespace NeuralNetwork.Base
             }
         }
 
+        public void AdjustWithModel(ref IList<IList<float>> input)
+        {
+            var arrayY = DataSet.GetTestArrayY();
+            double delta = arrayY.Values[0][0] - input[0][0];
+
+            for (int i=0; i<input.Count; i++)
+            {
+//                input[i][0] += (float)delta;
+            }
+        }
     }
 }

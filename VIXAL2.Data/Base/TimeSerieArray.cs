@@ -11,9 +11,11 @@ namespace VIXAL2.Data.Base
         double[][] values;
         DateTime[] dates;
         string[] colNames;
+        private int gapDays;
 
-        public TimeSerieArray(int rows, int cols)
+        public TimeSerieArray(int rows, int cols, int gapDays = 0)
         {
+            this.gapDays = gapDays;
             values = new double[rows][];
             for (int i = 0; i < rows; i++)
             {
@@ -65,6 +67,23 @@ namespace VIXAL2.Data.Base
                 return values;
             }
         }
+
+        internal DateTime[] Dates
+        {
+            get
+            {
+                return dates;
+            }
+        }
+
+        internal string[] ColNames
+        {
+            get
+            {
+                return colNames;
+            }
+        }
+
 
         public int Length
         {
@@ -140,12 +159,23 @@ namespace VIXAL2.Data.Base
             values = normalizer.Decode(values);
         }
 
+        /// <summary>
+        /// Returns an array of a single column
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public double[] GetColumnValues(int column = 0)
         {
             return Utils.GetVectorFromArray(values, column);
         }
 
-        public double GetValue(DateTime date, int column = 0)
+        /// <summary>
+        /// Returns the value at a given date
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public double GetValue(DateTime date, int column)
         {
             for (int row = 0; row < dates.Length; row++)
             {
@@ -158,6 +188,21 @@ namespace VIXAL2.Data.Base
             return Double.NaN;
         }
 
+        public double[] GetPreviousValuesFromColumn(DateTime date, int lenght, int column)
+        {
+            double[] result = new double[lenght];
+
+            //int i = 0;
+            DateTime mydate = this.GetPreviousDate(date, lenght-1).Value;
+
+            for (int i=0; i<lenght; i++)
+            {
+                result[i] = this.GetValue(mydate, column);
+                mydate = this.GetNextDate(mydate).Value;
+            }
+            return result;
+        }
+
         public void SetColName(int col, string name)
         {
             colNames[col] = name;
@@ -166,6 +211,77 @@ namespace VIXAL2.Data.Base
         public string GetColName(int col)
         {
             return colNames[col];
+        }
+
+        /// <summary>
+        /// Returns get next date present in the date list
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="shift"></param>
+        /// <returns></returns>
+        public DateTime? GetNextDate(DateTime date, int shift = 1)
+        {
+            for (int row = 0; row < dates.Length; row++)
+            {
+                if (dates[row] == date)
+                {
+                    if ((row + shift) < dates.Length)
+                        return dates[row + shift];
+                    else
+                        return null;
+                }
+            }
+
+            return null;
+        }
+
+        public int? DateToSampleIndex(DateTime date)
+        {
+            for (int row = 0; row < dates.Length; row++)
+            {
+                if (dates[row] == date)
+                {
+                    return row;
+                }
+            }
+
+            return null;
+        }
+
+        public DateTime? SampleIndexToDate(int sampleIndex)
+        {
+            return dates[sampleIndex];
+        }
+
+
+        /// <summary>
+        /// Returns the previous date present in the date list
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="shift"></param>
+        /// <returns></returns>
+        public DateTime? GetPreviousDate(DateTime date, int shift = 1)
+        {
+            for (int row = 0; row < dates.Length; row++)
+            {
+                if (dates[row] == date)
+                {
+                    if ((row - shift) >= 0)
+                        return dates[row - shift];
+                    else
+                        return null;
+                }
+            }
+
+            return null;
+        }
+
+        public int GapDays
+        {
+            get
+            {
+                return gapDays;
+            }
         }
     }
 }

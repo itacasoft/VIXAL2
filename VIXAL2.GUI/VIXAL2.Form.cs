@@ -3,7 +3,6 @@ using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
@@ -21,7 +20,7 @@ namespace VIXAL2.GUI
         LineItem trainingDataLine;
         LineItem separationline;
         LineItem forwardModellLine;
-        List<Tuple<DateTime,float>> forwardModelList = new List<Tuple<DateTime, float>>();
+        LineItem realLine;
 
         LineItem lossDataLine;
         LineItem performanceDataLine;
@@ -53,9 +52,18 @@ namespace VIXAL2.GUI
             modelLine.Symbol.Fill = new Fill(Color.Red);
             modelLine.Symbol.Size = 1;
 
+            if (realLine != null) realLine.Clear();
+            else
+                realLine = new LineItem("Real Data", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
+            realLine.Symbol.Fill = new Fill(Color.Black);
+            realLine.Symbol.Size = 1;
+            realLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
+
+
             if (forwardModellLine != null) forwardModellLine.Clear();
             else forwardModellLine = new LineItem("Forward Prediction", null, null, Color.MediumVioletRed, ZedGraph.SymbolType.Diamond, 2);
-            forwardModelList.Clear();
+            if (orchestrator != null)
+                orchestrator.DataSet.ForwardPredicted.Clear();
             forwardModellLine.Symbol.Fill = new Fill(Color.MediumVioletRed);
             forwardModellLine.Symbol.Size = 2;
 
@@ -82,6 +90,7 @@ namespace VIXAL2.GUI
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
             this.zedGraphControl1.GraphPane.CurveList.Add(forwardModellLine);
+            this.zedGraphControl1.GraphPane.CurveList.Add(realLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
             this.zedGraphControl2.GraphPane.CurveList.Clear();
@@ -149,6 +158,25 @@ namespace VIXAL2.GUI
                 p.Tag = "( " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
+            }
+
+            var sample1 = 1; //-ds.PredictDays
+            var realData = ds.OriginalNormalizedData;
+            int sampleIndex = 0;
+
+            if (ds.GetType() == typeof(MovingAverageDataSet))
+            {
+                int range = ((MovingAverageDataSet)ds).Range;
+                DateTime mydate = realData.GetNextDate(realData.MinDate, range).Value;
+                sampleIndex = realData.DateToSampleIndex(mydate).Value-1;
+            }
+
+            for (int i = sampleIndex; i < realData.Length; i++)
+            {
+                var p = new PointPair(sample1, realData.Values[i][0]);
+                p.Tag = "( " + realData.GetDate(i).ToShortDateString() + ", " + realData.Values[i][0] + " )";
+                realLine.AddPoint(p);
+                sample1++;
             }
 
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
@@ -335,6 +363,9 @@ namespace VIXAL2.GUI
             foreach (var miniBatchData in orchestrator.GetBatchesForTest())
             {
                 var oData = orchestrator.CurrentModelTest(miniBatchData.X);
+
+                orchestrator.AdjustWithModel(ref oData);
+
                 //show on graph
                 foreach (var y in oData)
                 {
@@ -344,8 +375,7 @@ namespace VIXAL2.GUI
                         p1.Tag = "(FF " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                         forwardModellLine.AddPoint(p1);
 
-                        var tu = Tuple.Create(testDataX.GetDate(mydateIndex), y[0]);
-                        forwardModelList.Add(tu); ;
+                        orchestrator.DataSet.ForwardPredicted.Add(new DatedValueF(testDataX.GetDate(mydateIndex), y[0]));
                         forwardPointAdded = true;
                     }
 
@@ -365,8 +395,11 @@ namespace VIXAL2.GUI
                 label2.Tag = true;
             }
 
-            float performance2 = orchestrator.CompareForwardWithDataY(forwardModelList);
-            label10.Text = "Performance (forward): " + performance2.ToString();
+            if (forwardPointAdded)
+            {
+                Tuple<float, float, float> performance2 = orchestrator.CompareForwardWithDataY();
+                label10.Text = "Performance (forward): " + performance2.ToString();
+            }
         }
 
 

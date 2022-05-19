@@ -6,8 +6,7 @@ namespace VIXAL2.Data
 {
     public class StocksDataset : TimeSerieDataSet
     {
-        List<double> predictionResults;
-        TimeSerieArray predicted;
+        List<DatedValueF> _forwardPredicted;
         TimeSerieArray originalData;
 
         public Object Obj1;
@@ -16,7 +15,6 @@ namespace VIXAL2.Data
         public StocksDataset(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) :
             base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
-            predictionResults = new List<double>();
             originalData = new TimeSerieArray(stockNames, dates, allData);
 
             if (allData.Length != dates.Length)
@@ -27,6 +25,8 @@ namespace VIXAL2.Data
 
             if (predictCount > allData[0].Length)
                 throw new ArgumentException("Columns to predict is larger than input columns");
+
+            _forwardPredicted = new List<DatedValueF>();
         }
 
         public override string ClassShortName
@@ -37,79 +37,29 @@ namespace VIXAL2.Data
             }
         }
 
-        public double GetPredictionResult(int col)
+        public List<DatedValueF> ForwardPredicted
         {
-            return predictionResults[col];
+            get { return _forwardPredicted; }
         }
 
-        public void PredictedSetValue(int row, int col, DateTime date, double value)
+        public TimeSerieArray OriginalData
         {
-            predicted.SetValue(row, col, date, value);
-        }
-
-        public double PredictedGetValue(int row, int col)
-        {
-            return predicted.Values[row][col];
-        }
-
-        public double PredictedGetValue(DateTime date, int col)
-        {
-            return predicted.GetValue(date, col);
-        }
-
-        public void PredictedAlloc(int rows)
-        {
-            predicted = new TimeSerieArray(rows, TestCount);// Training[0].Steps[0].TargetOutput.Rows);
-        }
-
-        public void PredictedDecode()
-        {
-            predicted.DecodeValues(normalizer);
-        }
-
-        public TimeSerieArray PredictedGetVector(int col)
-        {
-            TimeSerieArray result = new TimeSerieArray(predicted.Length, 1);
-
-            for (int row = 0; row < result.Length; row++)
+            get
             {
-                result.SetValue(row, 0, predicted.GetDate(row), predicted.Values[row][col]);
+
+                return originalData;
             }
-            return result;
         }
 
-        public virtual double[] CompareAgainstPredicted(TimeSerieArray future)
+
+        public TimeSerieArray OriginalNormalizedData
         {
-            for (int col = 0; col < Math.Min(columnsToPredict, ColNames.Length); col++)
+            get
             {
-                double guessed = 0, failed = 0;
-                double predicted0 = predicted.Values[0][col];
-                double future0 = future.GetValue(predicted.GetDate(0));
-
-                for (int row = 1; row < future.Length; row++)
-                {
-                    //get the date
-                    DateTime mydate = future.GetDate(row);
-                    //get the real value
-                    double future1 = future.Values[row][col];
-                    bool futurePositiveTrend = (future1 > future0);
-
-                    double predicted1 = predicted.GetValue(mydate, col);
-                    bool predictedPositiveTrend = (predicted1 > predicted0);
-
-                    if (predictedPositiveTrend == futurePositiveTrend)
-                        guessed++;
-                    else
-                        failed++;
-
-                    predicted0 = predicted1;
-                    future0 = future1;
-                }
-
-                predictionResults.Add(guessed / (guessed + failed));
+                double[][] data1 = normalizer.Normalize(originalData.Values);
+                TimeSerieArray result = new TimeSerieArray(originalData.ColNames, originalData.Dates, data1);
+                return result;
             }
-
-            return predictionResults.ToArray();
         }
     }
 }

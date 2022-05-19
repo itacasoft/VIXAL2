@@ -41,5 +41,36 @@ namespace VIXAL2.Data.Base
             normalizer.Initialize(dataList);
             normalizer.NormalizeByRef(dataList);
         }
+
+        public double Normalize(double value, int col)
+        {
+            return normalizer.Normalize(value, col);
+        }
+
+        public double[] Normalize(double[] values, int col)
+        {
+            return normalizer.Normalize(values, col);
+        }
+
+        public double[][] Normalize(double[][] values)
+        {
+            return normalizer.Normalize(values);
+        }
+
+
+        public double Decode(double value, int col)
+        {
+            return normalizer.Decode(value, col);
+        }
+
+        public double[] Decode(double[] values, int col)
+        {
+            return normalizer.Decode(values, col);
+        }
+
+        public double[][] Decode(double[][] values)
+        {
+            return normalizer.Decode(values);
+        }
     }
 }

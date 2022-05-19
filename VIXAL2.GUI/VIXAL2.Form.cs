@@ -129,8 +129,29 @@ namespace VIXAL2.GUI
 
         private void loadGraphs(StocksDataset ds)
         {
+            //disegno il grafico dei prezzi reale normalizzato
+            var sample1 = 1; //-ds.PredictDays
+            var realData = ds.OriginalNormalizedData;
+            int sampleIndex = 0;
+
+            if (ds.GetType() == typeof(MovingAverageDataSet))
+            {
+                int range = ((MovingAverageDataSet)ds).Range;
+                DateTime mydate = realData.GetNextDate(realData.MinDate, range).Value;
+                sampleIndex = realData.DateToSampleIndex(mydate).Value - 1;
+            }
+
+            for (int i = sampleIndex; i < realData.Length; i++)
+            {
+                var p = new PointPair(sample1, realData.Values[i][0]);
+                p.Tag = "( " + realData.GetDate(i).ToShortDateString() + ", " + realData.Values[i][0] + " )";
+                realLine.AddPoint(p);
+                sample1++;
+            }
+
+
             double[] traindDataYList = Utils.GetVectorFromArray(ds.TrainDataY, 0);
-            int sample = 1;
+            int sample = ds.PredictDays+1;
 
             for (int i = 0; i < traindDataYList.Length; i++)
             {
@@ -160,32 +181,13 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
-            var sample1 = 1; //-ds.PredictDays
-            var realData = ds.OriginalNormalizedData;
-            int sampleIndex = 0;
-
-            if (ds.GetType() == typeof(MovingAverageDataSet))
-            {
-                int range = ((MovingAverageDataSet)ds).Range;
-                DateTime mydate = realData.GetNextDate(realData.MinDate, range).Value;
-                sampleIndex = realData.DateToSampleIndex(mydate).Value-1;
-            }
-
-            for (int i = sampleIndex; i < realData.Length; i++)
-            {
-                var p = new PointPair(sample1, realData.Values[i][0]);
-                p.Tag = "( " + realData.GetDate(i).ToShortDateString() + ", " + realData.Values[i][0] + " )";
-                realLine.AddPoint(p);
-                sample1++;
-            }
-
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
 
         private void DrawTestSeparationLine(StocksDataset ds)
         {
-            int sample = ds.TrainCount + 1;
+            int sample = ds.TrainCount + ds.PredictDays + 1;
             TimeSerieArray testDataY = ds.GetTestArrayY();
 
             separationline.Clear();
@@ -308,7 +310,7 @@ namespace VIXAL2.GUI
         {
             if (iteration == Convert.ToInt32(textBoxIterations.Text))
             {
-                int sample = 1;
+                int sample = orchestrator.DataSet.PredictDays + 1;
                 modelLine.Clear();
                 lossDataLine.Clear();
 
@@ -342,10 +344,11 @@ namespace VIXAL2.GUI
             int mydateIndex = 0;
             foreach (var y in oDataExt)
             {
-                var p = new PointPair(sample++, y[0]);
+                var p = new PointPair(sample, y[0]);
                 p.Tag = "(EXT_TEST " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                 modelLine.AddPoint(p);
                 mydateIndex++;
+                sample++;
             }
 
         }
@@ -364,14 +367,12 @@ namespace VIXAL2.GUI
             {
                 var oData = orchestrator.CurrentModelTest(miniBatchData.X);
 
-                orchestrator.AdjustWithModel(ref oData);
-
                 //show on graph
                 foreach (var y in oData)
                 {
                     if (!forwardPointAdded)
                     {
-                        var p1 = new PointPair(sample++, y[0]);
+                        var p1 = new PointPair(sample, y[0]);
                         p1.Tag = "(FF " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                         forwardModellLine.AddPoint(p1);
 
@@ -379,18 +380,19 @@ namespace VIXAL2.GUI
                         forwardPointAdded = true;
                     }
 
-                    var p = new PointPair(sample++, y[0]);
+                    var p = new PointPair(sample, y[0]);
                     p.Tag = "(TEST " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                     modelLine.AddPoint(p);
                     predictectList.Add(y[0]);
                     mydateIndex++;
+                    sample++;
                 }
             }
 
             if (label2.Tag == null)
             {
                 double[] dataYList = Utils.GetVectorFromArray(orchestrator.DataSet.TestDataY, 0);
-                float performance = LSTMUtils.Compare(dataYList, predictectList.ToArray());
+                var performance = LSTMUtils.Compare(dataYList, predictectList.ToArray());
                 label2.Text = "Performance (first): " + performance.ToString();
                 label2.Tag = true;
             }
@@ -411,7 +413,10 @@ namespace VIXAL2.GUI
             {
                 var oData = orchestrator.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y);
                 foreach (var y in oData)
-                    modelLine.AddPoint(new PointPair(sample++, y[0]));
+                {
+                    modelLine.AddPoint(new PointPair(sample, y[0]));
+                    sample++;
+                }
             }
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }

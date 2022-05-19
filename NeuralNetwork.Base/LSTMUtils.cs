@@ -11,10 +11,8 @@ namespace NeuralNetwork.Base
 {
     public static class LSTMUtils
     {
-        public static float Compare(double[] dataY, double[] dataPredicted)
+        public static Tuple<float, float, float> Compare(double[] dataY, double[] dataPredicted)
         {
-            float result;
-
             float guessed = 0, failed = 0;
             double predicted0 = dataPredicted[0];
             double future0 = dataY[0];
@@ -36,9 +34,9 @@ namespace NeuralNetwork.Base
                 future0 = future1;
             }
 
-            result = guessed / (guessed + failed);
+            float result = guessed / (guessed + failed);
 
-            return result;
+            return Tuple.Create<float, float, float>(guessed, guessed + failed, result);
         }
 
         public static Tuple<float,float,float> Compare(TimeSerieArray dataY, int IndexColumnToPredict, List<DatedValueF> dataPredicted)

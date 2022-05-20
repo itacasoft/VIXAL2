@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpML.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,7 @@ namespace NeuralNetwork.Base
         public static string labelsName = "label";
         public int IndexColumnToPredict;
         private TimeSerieArray originalTestArrayY;
+        private List<Performance> performances;
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays)
         {
@@ -39,6 +41,7 @@ namespace NeuralNetwork.Base
                 ((MovingAverageDataSet)DataSet).PredictDays = predictDays;
             DataSet.Prepare();
             originalTestArrayY = DataSet.GetTestArrayY();
+            performances = new List<Performance>();
         }
 
         public void StartTraining(int iterations, int hiddenLayersDim, int cellsNumber, bool reiterate)
@@ -83,6 +86,14 @@ namespace NeuralNetwork.Base
             var result = LSTMUtils.Compare(originalTestArrayY, 0, DataSet.ForwardPredicted);
             return result;
         }
+
+        public List<Performance> ComparePredictedAgainstDataY(double[] predicted, int columnToPredict)
+        {
+            double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, columnToPredict);
+            LSTMUtils.Compare(dataYList, predicted, ref performances);
+            return performances;
+        }
+
 
         public double GetPreviousLossAverage()
         {

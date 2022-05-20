@@ -1,9 +1,5 @@
-﻿using SharpML.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
 
@@ -11,11 +7,11 @@ namespace NeuralNetwork.Base
 {
     public static class LSTMUtils
     {
-        public static Tuple<float, float, float> Compare(double[] dataY, double[] dataPredicted)
+        public static void Compare(double[] dataY, double[] dataPredicted, ref List<Performance> performances)
         {
-            float guessed = 0, failed = 0;
             double predicted0 = dataPredicted[0];
             double future0 = dataY[0];
+            if (performances.Count == 0) performances.Add(new Performance());
 
             for (int row = 1; row < dataY.Length; row++)
             {
@@ -25,21 +21,23 @@ namespace NeuralNetwork.Base
                 double predicted1 = dataPredicted[row];
                 bool predictedPositiveTrend = (predicted1 > predicted0);
 
+                if (performances.Count <= row) performances.Add(new Performance());
+
                 if (predictedPositiveTrend == futurePositiveTrend)
-                    guessed++;
+                {
+                    performances[row].Guessed++;
+                }
                 else
-                    failed++;
+                {
+                    performances[row].Failed++;
+                }
 
                 predicted0 = predicted1;
                 future0 = future1;
             }
-
-            float result = guessed / (guessed + failed);
-
-            return Tuple.Create<float, float, float>(guessed, guessed + failed, result);
         }
 
-        public static Tuple<float,float,float> Compare(TimeSerieArray dataY, int IndexColumnToPredict, List<DatedValueF> dataPredicted)
+        public static Tuple<float, float, float> Compare(TimeSerieArray dataY, int IndexColumnToPredict, List<DatedValueF> dataPredicted)
         {
             float guessed = 0, failed = 0;
             double predicted0 = dataPredicted[0].Value;

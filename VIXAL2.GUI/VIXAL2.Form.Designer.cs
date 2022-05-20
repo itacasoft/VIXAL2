@@ -61,6 +61,7 @@
             this.listView1 = new System.Windows.Forms.ListView();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
+            this.checkBoxRealValuesVisible = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -392,7 +393,7 @@
             this.tabPage3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabPage3.Size = new System.Drawing.Size(655, 399);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Test Data";
+            this.tabPage3.Text = "Performances";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // zedGraphControl3
@@ -453,11 +454,25 @@
             this.label10.TabIndex = 67;
             this.label10.Text = "Performance forward:";
             // 
+            // checkBoxRealValuesVisible
+            // 
+            this.checkBoxRealValuesVisible.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBoxRealValuesVisible.AutoSize = true;
+            this.checkBoxRealValuesVisible.Checked = true;
+            this.checkBoxRealValuesVisible.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxRealValuesVisible.Location = new System.Drawing.Point(1068, 224);
+            this.checkBoxRealValuesVisible.Name = "checkBoxRealValuesVisible";
+            this.checkBoxRealValuesVisible.Size = new System.Drawing.Size(163, 24);
+            this.checkBoxRealValuesVisible.TabIndex = 68;
+            this.checkBoxRealValuesVisible.Text = "Real values visible";
+            this.checkBoxRealValuesVisible.UseVisualStyleBackColor = true;
+            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.checkBoxRealValuesVisible);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.btnStop);
@@ -530,6 +545,7 @@
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.CheckBox checkBoxRealValuesVisible;
     }
 }
 

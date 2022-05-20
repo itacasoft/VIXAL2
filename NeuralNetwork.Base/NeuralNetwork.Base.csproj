@@ -49,6 +49,7 @@
     <Compile Include="LSTMHelper.cs" />
     <Compile Include="LSTMOrchestrator.cs" />
     <Compile Include="LSTMTrainer.cs" />
+    <Compile Include="Performance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LSTMUtils.cs" />
   </ItemGroup>

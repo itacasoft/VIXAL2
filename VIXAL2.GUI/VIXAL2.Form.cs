@@ -95,25 +95,25 @@ namespace VIXAL2.GUI
 
             this.zedGraphControl2.GraphPane.CurveList.Clear();
             this.zedGraphControl2.GraphPane.CurveList.Add(lossDataLine);
-            this.zedGraphControl2.GraphPane.CurveList.Add(performanceDataLine);
             this.zedGraphControl2.GraphPane.AxisChange(this.CreateGraphics());
 
-
-            zedGraphControl3.GraphPane.Title.Text = "Model testing";
-            zedGraphControl3.GraphPane.XAxis.Title.Text = "Samples";
-            zedGraphControl3.GraphPane.YAxis.Title.Text = "Observer/Predicted";
+            zedGraphControl3.GraphPane.CurveList.Clear();
+            zedGraphControl3.GraphPane.Title.Text = "Performances";
+            zedGraphControl3.GraphPane.XAxis.Title.Text = "Days from start";
+            zedGraphControl3.GraphPane.YAxis.Title.Text = "Success Percentage";
+            zedGraphControl3.GraphPane.CurveList.Add(performanceDataLine);
+            zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
 
             if (separationline != null) separationline.Clear();
             else separationline = new LineItem("");
             separationline.Symbol.Fill = new Fill(Color.Black);
             separationline.Line.Style = System.Drawing.Drawing2D.DashStyle.Dot;
             separationline.Symbol.Size = 1;
-            this.zedGraphControl1.GraphPane.CurveList.Add(separationline);
+            zedGraphControl1.GraphPane.CurveList.Add(separationline);
 
             zedGraphControl1.IsShowPointValues = true;
             zedGraphControl1.PointValueFormat = "0.0000";
             zedGraphControl1.PointDateFormat = "d";
-
 
             zedGraphControl3.IsShowPointValues = true;
             zedGraphControl3.PointValueFormat = "0.0000";
@@ -176,7 +176,7 @@ namespace VIXAL2.GUI
             for (int i = 0; i < testDataY.Length; i++)
             {
                 var p = new PointPair(sample, testDataY.Values[i][0]);
-                p.Tag = "( " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
+                p.Tag = "(TESTDATAY - FORESEEN ON " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
@@ -345,7 +345,7 @@ namespace VIXAL2.GUI
             foreach (var y in oDataExt)
             {
                 var p = new PointPair(sample, y[0]);
-                p.Tag = "(EXT_TEST " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                p.Tag = "(EXTTEST - PREDICTED_ON " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                 modelLine.AddPoint(p);
                 mydateIndex++;
                 sample++;
@@ -373,7 +373,7 @@ namespace VIXAL2.GUI
                     if (!forwardPointAdded)
                     {
                         var p1 = new PointPair(sample, y[0]);
-                        p1.Tag = "(FF " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                        p1.Tag = "(FF - PREDICTED ON " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                         forwardModellLine.AddPoint(p1);
 
                         orchestrator.DataSet.ForwardPredicted.Add(new DatedValueF(testDataX.GetDate(mydateIndex), y[0]));
@@ -381,7 +381,7 @@ namespace VIXAL2.GUI
                     }
 
                     var p = new PointPair(sample, y[0]);
-                    p.Tag = "(TEST " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                    p.Tag = "(PREDICTEDY - PREDICTED ON " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                     modelLine.AddPoint(p);
                     predictectList.Add(y[0]);
                     mydateIndex++;
@@ -389,13 +389,9 @@ namespace VIXAL2.GUI
                 }
             }
 
-            if (label2.Tag == null)
-            {
-                double[] dataYList = Utils.GetVectorFromArray(orchestrator.DataSet.TestDataY, 0);
-                var performance = LSTMUtils.Compare(dataYList, predictectList.ToArray());
-                label2.Text = "Performance (first): " + performance.ToString();
-                label2.Tag = true;
-            }
+            var performances = orchestrator.ComparePredictedAgainstDataY(predictectList.ToArray(),0);
+            label2.Text = "Performance (first): " + performances[1].ToString();
+            DrawPerfomances(performances);
 
             if (forwardPointAdded)
             {
@@ -404,7 +400,15 @@ namespace VIXAL2.GUI
             }
         }
 
-
+        private void DrawPerfomances(List<Performance> performances)
+        {
+            performanceDataLine.Clear();
+            for (int i=1; i< performances.Count; i++)
+            {
+                performanceDataLine.AddPoint(new PointPair(i, performances[i].SuccessPercentage));
+            }
+            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
+        }
 
         private void currentModelEvaluation(int iteration, ref int sample)
         {

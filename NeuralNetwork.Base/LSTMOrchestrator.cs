@@ -30,7 +30,7 @@ namespace NeuralNetwork.Base
         private TimeSerieArray originalTestArrayY;
         private List<Performance> performances;
 
-        public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays)
+        public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays, int range = 20)
         {
             IndexColumnToPredict = firstColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
@@ -38,7 +38,18 @@ namespace NeuralNetwork.Base
             DataSet.ValidPercent = 0.0F;
             DataSet.PredictDays = predictDays;
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
-                ((MovingAverageDataSet)DataSet).PredictDays = predictDays;
+            {
+                ((MovingAverageDataSet)DataSet).Range = range;
+            }
+            else if (DataSet.GetType() == typeof(RsiDataSet))
+            {
+                ((RsiDataSet)DataSet).Range = range;
+            }
+            else if (DataSet.GetType() == typeof(MovingEnhancedAverageDataSet))
+            {
+                ((MovingEnhancedAverageDataSet)DataSet).Range = range;
+            }
+
             DataSet.Prepare();
             originalTestArrayY = DataSet.GetTestArrayY();
             performances = new List<Performance>();

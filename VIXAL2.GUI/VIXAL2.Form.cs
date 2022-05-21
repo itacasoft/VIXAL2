@@ -286,8 +286,8 @@ namespace VIXAL2.GUI
                         if (!this.IsDisposed)
                         {
                             //output training process
-                            textBox3.Text = iteration.ToString();
-                            textBox4.Text = orchestrator.GetPreviousLossAverage().ToString();
+                            label3.Text = "Current iteration: " + iteration.ToString();
+                            label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString();
                             progressBar1.Value = iteration;
 
                             reportOnGraphs(iteration);
@@ -298,8 +298,8 @@ namespace VIXAL2.GUI
             else
             {
                 //output training process
-                textBox3.Text = iteration.ToString();
-                textBox4.Text =  orchestrator.GetPreviousLossAverage().ToString();
+                label3.Text = "Current iteration: " + iteration.ToString();
+                label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString();
                 progressBar1.Value = iteration;
 
                 reportOnGraphs(iteration);
@@ -430,7 +430,7 @@ namespace VIXAL2.GUI
             InitiGraphs();
 
             orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, Convert.ToInt32(textBox2.Text));
-            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text));
+            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
 
             loadListView(orchestrator.DataSet);
             loadGraphs(orchestrator.DataSet);

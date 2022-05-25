@@ -28,7 +28,7 @@ namespace NeuralNetwork.Base
 
         public override string ToString()
         {
-            return "guessed " + Guessed + "/" + Total + " (" + SuccessPercentage.ToString() + ")";
+            return "guessed " + Guessed + "/" + Total + " (" + SuccessPercentage.ToString("F2") + ")";
         }
     }
 }

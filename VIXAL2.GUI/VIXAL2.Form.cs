@@ -137,7 +137,7 @@ namespace VIXAL2.GUI
             for (int i = sampleIndex; i < realData.Length; i++)
             {
                 var p = new PointPair(sample1, realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)]);
-                p.Tag = "[" + sample1.ToString() + "] " + realData.GetDate(i).ToShortDateString() + ", " + realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
+                p.Tag = "[" + sample1.ToString() + "] " + realData.GetDate(i).ToShortDateString() + ": " + realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
                 realLine.AddPoint(p);
                 sample1++;
             }
@@ -159,7 +159,7 @@ namespace VIXAL2.GUI
             for (int i = 0; i < trainDataY.Length; i++)
             {
                 var p = new PointPair(sample, trainDataY[i][COL_TO_DRAW]);
-                p.Tag = "(TRAINDATAY - " + trainDataY.GetDate(i).ToShortDateString() + " (value of " + trainDataY.GetFutureDate(i).ToShortDateString() + "), " + trainDataY[i][0] + " )";
+                p.Tag = "(TRAINDATAY - " + trainDataY.GetDate(i).ToShortDateString() + " (value of " + trainDataY.GetFutureDate(i).ToShortDateString() + "): " + trainDataY[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
@@ -169,7 +169,7 @@ namespace VIXAL2.GUI
             for (int i = 0; i < validDataY.Length; i++)
             {
                 var p = new PointPair(sample, validDataY[i][COL_TO_DRAW]);
-                p.Tag = "(VALIDATAY - " + validDataY.GetDate(i).ToShortDateString() + " (value of " + validDataY.GetFutureDate(i).ToShortDateString() + "), " + validDataY[i][0] + " )";
+                p.Tag = "(VALIDATAY - " + validDataY.GetDate(i).ToShortDateString() + " (value of " + validDataY.GetFutureDate(i).ToShortDateString() + "): " + validDataY[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
@@ -181,7 +181,7 @@ namespace VIXAL2.GUI
             for (int i = 0; i < testDataY.Length; i++)
             {
                 var p = new PointPair(sample, testDataY[i][COL_TO_DRAW]);
-                p.Tag = "(TESTDATAY - " + testDataY.GetDate(i).ToShortDateString() + " (value of " + testDataY.GetFutureDate(i).ToShortDateString() + "), " + testDataY[i][0] + " )";
+                p.Tag = "(TESTDATAY - " + testDataY.GetDate(i).ToShortDateString() + " (value of " + testDataY.GetFutureDate(i).ToShortDateString() + "): " + testDataY[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
@@ -354,7 +354,7 @@ namespace VIXAL2.GUI
             foreach (var y in oDataExt)
             {
                 var p = new PointPair(sample, y[0]);
-                p.Tag = "(EXTTEST - prediction for " + dad.GetFutureDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                p.Tag = "(EXTTEST - prediction for " + dad.GetFutureDate(mydateIndex).ToShortDateString() + ": " + y[0] + " )";
                 modelLine.AddPoint(p);
                 mydateIndex++;
                 sample++;
@@ -384,7 +384,7 @@ namespace VIXAL2.GUI
                     if (!forwardPointAdded)
                     {
                         var p1 = new PointPair(sample, y[0]);
-                        p1.Tag = "(FF - " + testDataY.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                        p1.Tag = "(FF - " + testDataY.GetDate(mydateIndex).ToShortDateString() + " (value of " + testDataY.GetFutureDate(mydateIndex).ToShortDateString() + "): " + y[0] + " )";
                         forwardModellLine.AddPoint(p1);
 
                         orchestrator.DataSet.ForwardPredicted.Add(new DatedValueF(testDataY.GetDate(mydateIndex), y[0]));
@@ -392,7 +392,7 @@ namespace VIXAL2.GUI
                     }
 
                     var p = new PointPair(sample, y[0]);
-                    p.Tag = "(PREDICTEDY - " + testDataY.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                    p.Tag = "(PREDICTEDY - " + testDataY.GetDate(mydateIndex).ToShortDateString() + " (value of " + testDataY.GetFutureDate(mydateIndex).ToShortDateString() + "): " + y[0] + " )";
                     modelLine.AddPoint(p);
                     predictectList.Add(y[0]);
                     mydateIndex++;
@@ -416,7 +416,9 @@ namespace VIXAL2.GUI
             performanceDataLine.Clear();
             for (int i=1; i< performances.Count; i++)
             {
-                performanceDataLine.AddPoint(new PointPair(i, performances[i].SuccessPercentage));
+                var p = new PointPair(i, performances[i].SuccessPercentage);
+                p.Tag = performances[i].ToString();
+                performanceDataLine.AddPoint(p);
             }
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }

@@ -161,7 +161,7 @@ namespace LSTMTimeSeriesDemo
             for (int i = 0; i < testDataX.Length; i++)
             {
                 var p = new PointPair(i + 1, testDataX.Values[i][0]);
-                p.Tag = "( " + testDataX.GetDate(i).ToShortDateString() + ", " + testDataX.Values[i][0] + " )";
+                p.Tag = "( " + testDataX.GetDate(i).ToShortDateString() + ": " + testDataX.Values[i][0] + " )";
                 testDataXLine.AddPoint(p);
             }
 
@@ -174,7 +174,7 @@ namespace LSTMTimeSeriesDemo
             for (int i = 0; i < testDataY.Length; i++)
             {
                 var p = new PointPair(i + 1, testDataY.Values[i][0]);
-                p.Tag = "( " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
+                p.Tag = "( " + testDataY.GetDate(i).ToShortDateString() + ": " + testDataY.Values[i][0] + " )";
                 testDataYLine.AddPoint(p);
             }
 
@@ -368,7 +368,7 @@ namespace LSTMTimeSeriesDemo
             foreach (var y in oDataExt)
             {
                 var p = new PointPair(sample++, y[0]);
-                p.Tag = "( " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                p.Tag = "( " + dad.GetDate(mydateIndex).ToShortDateString() + ": " + y[0] + " )";
                 predictedLineExtreme.AddPoint(p);
                 mydateIndex++;
             }
@@ -392,7 +392,7 @@ namespace LSTMTimeSeriesDemo
                 foreach (var y in oData)
                 {
                     var p = new PointPair(sample++, y[0]);
-                    p.Tag = "( " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                    p.Tag = "( " + testDataX.GetDate(mydateIndex).ToShortDateString() + ": " + y[0] + " )";
                     predictedLine.AddPoint(p);
                     predictectList.Add(y[0]);
                     mydateIndex++;

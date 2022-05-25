@@ -19,7 +19,8 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 10;
             const int FIRST_PREDICT = 0;
             const int PREDICT_COUNT = 1;
-            const int TESTXEXTENDED_COUNT = 20;
+            const int TEST_COUNT = 10;
+
 
             List<DateTime> dates = new List<DateTime>();
             DateTime firstDate = Convert.ToDateTime("2022-01-05", CultureInfo.InvariantCulture);
@@ -52,25 +53,21 @@ namespace VIXAL2.UnitTest
 
             Assert.AreEqual(ds.TrainCount, 61);
             Assert.AreEqual(ds.ValidCount, 20);
-            Assert.AreEqual(ds.TestCount, 10);
+            Assert.AreEqual(ds.TestCount, TEST_COUNT);
 
-            double[][] x = ds.GetTestArrayExtendedX().Values;
-            Assert.AreEqual(x.Length, TESTXEXTENDED_COUNT);
+            double[][] x = ds.GetTestArrayX().Values; //ds.GetTestArrayExtendedX_ForUnitTest().Values;
+            Assert.AreEqual(x.Length, TEST_COUNT);
 
             Assert.AreEqual(x[0][0], 0.81);
             Assert.AreEqual(x[0][1], 0.81);
             Assert.IsTrue(0.62 < x[0][2] && x[0][2] < 0.63);
 
-            Assert.AreEqual(x[12][0], 0.93);
-            Assert.AreEqual(x[12][1], 0.93);
-            Assert.IsTrue(0.73 < x[12][2] && x[12][2] < 0.74);
-
-            Assert.AreEqual(x[TESTXEXTENDED_COUNT-1][0], 1);
-            Assert.AreEqual(x[TESTXEXTENDED_COUNT-1][1], 1);
-            Assert.IsTrue(0.68 < x[TESTXEXTENDED_COUNT-1][2] && x[TESTXEXTENDED_COUNT-1][2] < 0.69);
+            Assert.AreEqual(x[TEST_COUNT-1][0], 0.9);
+            Assert.AreEqual(x[TEST_COUNT-1][1], 0.9);
+            Assert.IsTrue(0.63 < x[9][2] && x[9][2] < 0.64);
 
             TimeSerieArray current = ds.GetColumnData(0);
-            TimeSerieArray future = ds.GetColumnData(0, 10);
+            TimeSerieArray future = ds.GetColumnData(0, PREDICT_DAYS);
 
             Assert.AreEqual(future.Length, current.Length - PREDICT_DAYS);
             Assert.AreEqual(future.MinDate, current.MinDate.AddDays(PREDICT_DAYS));
@@ -125,9 +122,9 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.ValidCount, 105);
             Assert.AreEqual(ds.TestCount, 95);
 
-            TimeSerieArray current = ds.GetTestArrayExtendedX();
+            TimeSerieArray current = ds.GetTestArrayX();
             TimeSerieArray future = ds.GetTestArrayY();
-            Assert.AreEqual(current.Length, future.Length + PREDICT_DAYS);
+            Assert.AreEqual(current.Length, future.Length);
             Assert.AreEqual(future.Length, ds.TestDataY.Length);
             Assert.AreEqual(future.Values[0][0], ds.TestDataY[0][0]);
             Assert.AreEqual(future.Values[3][0], ds.TestDataY[3][0]);
@@ -156,7 +153,7 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.ValidCount, 105);
             Assert.AreEqual(ds.TestCount, 95);
 
-            TimeSerieArray current = ds.GetTestArrayExtendedX();
+            TimeSerieArray current = ds.GetTestArrayX();
 
             DateTime mydate = current.MaxDate.AddDays(-15);
             double value1 = current.GetValue(mydate, COLUMN_TO_CHECK);
@@ -165,15 +162,140 @@ namespace VIXAL2.UnitTest
             double value2 = ds.OriginalData.GetValue(mydate, COLUMN_TO_CHECK);
             Assert.AreEqual(value1, value2);
 
-            Assert.AreEqual(ds.OriginalData.MaxDate, current.MaxDate);
-
             double[] data1 = ds.OriginalData.GetPreviousValuesFromColumn(mydate, 1, COLUMN_TO_CHECK);
             Assert.AreEqual(value1, data1[0]);
 
             double[] data2 = ds.OriginalData.GetPreviousValuesFromColumn(mydate, 10, COLUMN_TO_CHECK);
             Assert.AreEqual(value1, data2[9]);
-            Assert.AreEqual(13.470000, data2[8]);
+            Assert.AreEqual(13.480000, data2[8]);
         }
+
+        [TestMethod]
+        public void Test_StockDataset_ExtendedArrayX()
+        {
+            const int PREDICT_DAYS = 10;
+            const int COLUMN_TO_CHECK = 1;
+
+            StocksDataset ds = GetDataset(PREDICT_DAYS);
+            ds.Prepare();
+
+            Assert.AreEqual(ds.TrainCount, 314);
+            Assert.AreEqual(ds.ValidCount, 105);
+            Assert.AreEqual(ds.TestCount, 95);
+
+            TimeSerieArray current = ds.GetTestArrayX();
+            TimeSerieArray extended = ds.GetExtendedArrayX();
+            Assert.AreEqual(current.MaxDate.AddDays(1), extended.MinDate);
+        }
+
+
+        [TestMethod]
+        public void Test_StockDataset_GetTrainArrayY()
+        {
+            const int PREDICT_DAYS = 10;
+
+            StocksDataset ds = GetDataset(PREDICT_DAYS);
+            ds.Prepare();
+
+            Assert.AreEqual(ds.TrainCount, 314);
+            Assert.AreEqual(ds.ValidCount, 105);
+            Assert.AreEqual(ds.TestCount, 95);
+
+            //checks lenght of 2 arrays are the same
+            var futureTrain1 = ds.TrainDataY;
+            var futureTrain2 = ds.GetTrainArrayY();
+            Assert.AreEqual(futureTrain1.Length, futureTrain2.Length);
+            //checks first, last and a middle values are the same
+            Assert.AreEqual(futureTrain1[0][0], futureTrain2.Values[0][0]);
+            Assert.AreEqual(futureTrain1[3][0], futureTrain2.Values[3][0]);
+            Assert.AreEqual(futureTrain1[futureTrain1.Length-1][0], futureTrain2.Values[futureTrain1.Length - 1][0]);
+            Assert.AreEqual(futureTrain1[0][1], futureTrain2.Values[0][1]);
+            Assert.AreEqual(futureTrain1[4][1], futureTrain2.Values[4][1]);
+            Assert.AreEqual(futureTrain1[futureTrain1.Length - 1][1], futureTrain2.Values[futureTrain1.Length - 1][1]);
+            //checks first, last and a middle dates are correct
+            Assert.AreEqual(ds.Dates[0], futureTrain2.GetDate(0));
+            Assert.AreEqual(ds.Dates[5], futureTrain2.GetDate(5));
+            Assert.AreEqual(ds.Dates[ds.TrainCount-1], futureTrain2.GetDate(futureTrain2.Length-1));
+
+            //checks lenght of 2 arrays are the same
+            var futureValidate1 = ds.ValidDataY;
+            var futureValidate2 = ds.GetValidArrayY();
+            Assert.AreEqual(futureValidate1.Length, futureValidate2.Length);
+            //checks first, last and a middle value are the same
+            Assert.AreEqual(futureValidate1[0][0], futureValidate2.Values[0][0]);
+            Assert.AreEqual(futureValidate1[3][0], futureValidate2.Values[3][0]);
+            Assert.AreEqual(futureValidate1[futureValidate1.Length - 1][0], futureValidate2.Values[futureValidate2.Length - 1][0]);
+            Assert.AreEqual(futureValidate1[0][1], futureValidate2.Values[0][1]);
+            Assert.AreEqual(futureValidate1[4][1], futureValidate2.Values[4][1]);
+            Assert.AreEqual(futureValidate1[futureValidate1.Length - 1][1], futureValidate2.Values[futureValidate2.Length - 1][1]);
+            //checks first, last and a middle dates are correct
+            Assert.AreEqual(ds.Dates[0 + ds.TrainCount], futureValidate2.GetDate(0));
+            Assert.AreEqual(ds.Dates[5 + ds.TrainCount], futureValidate2.GetDate(5));
+            Assert.AreEqual(ds.Dates[ds.TrainCount+ds.ValidCount - 1], futureValidate2.GetDate(futureValidate2.Length - 1));
+            //checks that train and validate arrays dates are continguos
+            DateTime dateLastTrain = futureTrain2.MaxDate;
+            DateTime dateFirstValidate = futureValidate2.MinDate;
+            Assert.AreEqual(dateLastTrain.AddDays(1), dateFirstValidate);
+        }
+
+        [TestMethod]
+        public void Test_MovingAverageDataset_GetTrainArrayY()
+        {
+            const int PREDICT_DAYS = 10;
+
+            MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
+            ds.Prepare();
+
+            Assert.AreEqual(ds.TrainCount, 303);
+            Assert.AreEqual(ds.ValidCount, 101);
+            Assert.AreEqual(ds.TestCount, 91);
+
+            //checks lenght of 2 arrays are the same
+            var futureTrain1 = ds.TrainDataY;
+            var futureTrain2 = ds.GetTrainArrayY();
+            Assert.AreEqual(futureTrain1.Length, futureTrain2.Length);
+            //checks first, last and a middle values are the same
+            Assert.AreEqual(futureTrain1[0][0], futureTrain2.Values[0][0]);
+            Assert.AreEqual(futureTrain1[3][0], futureTrain2.Values[3][0]);
+            Assert.AreEqual(futureTrain1[futureTrain1.Length - 1][0], futureTrain2.Values[futureTrain1.Length - 1][0]);
+            Assert.AreEqual(futureTrain1[0][1], futureTrain2.Values[0][1]);
+            Assert.AreEqual(futureTrain1[4][1], futureTrain2.Values[4][1]);
+            Assert.AreEqual(futureTrain1[futureTrain1.Length - 1][1], futureTrain2.Values[futureTrain1.Length - 1][1]);
+            //checks first, last and a middle dates are correct
+            Assert.AreEqual(ds.Dates[0], futureTrain2.GetDate(0));
+            Assert.AreEqual(ds.Dates[5], futureTrain2.GetDate(5));
+            Assert.AreEqual(ds.Dates[ds.TrainCount - 1], futureTrain2.GetDate(futureTrain2.Length - 1));
+
+            //checks lenght of 2 arrays are the same
+            var futureValidate1 = ds.ValidDataY;
+            var futureValidate2 = ds.GetValidArrayY();
+            Assert.AreEqual(futureValidate1.Length, futureValidate2.Length);
+            //checks first, last and a middle value are the same
+            Assert.AreEqual(futureValidate1[0][0], futureValidate2.Values[0][0]);
+            Assert.AreEqual(futureValidate1[3][0], futureValidate2.Values[3][0]);
+            Assert.AreEqual(futureValidate1[futureValidate1.Length - 1][0], futureValidate2.Values[futureValidate2.Length - 1][0]);
+            Assert.AreEqual(futureValidate1[0][1], futureValidate2.Values[0][1]);
+            Assert.AreEqual(futureValidate1[4][1], futureValidate2.Values[4][1]);
+            Assert.AreEqual(futureValidate1[futureValidate1.Length - 1][1], futureValidate2.Values[futureValidate2.Length - 1][1]);
+            //checks first, last and a middle dates are correct
+            Assert.AreEqual(ds.Dates[0 + ds.TrainCount], futureValidate2.GetDate(0));
+            Assert.AreEqual(ds.Dates[5 + ds.TrainCount], futureValidate2.GetDate(5));
+            Assert.AreEqual(ds.Dates[ds.TrainCount + ds.ValidCount - 1], futureValidate2.GetDate(futureValidate2.Length - 1));
+            //checks that train and validate arrays dates are continguos
+            DateTime dateLastTrain = futureTrain2.MaxDate;
+            DateTime dateFirstValidate = futureValidate2.MinDate;
+
+            if (dateLastTrain.DayOfWeek == DayOfWeek.Friday)
+            {
+                //if last of train is Friday, the first of validate must be monday
+                Assert.AreEqual(dateLastTrain.AddDays(3), dateFirstValidate);
+            }
+            else
+            {
+                Assert.AreEqual(dateLastTrain.AddDays(1), dateFirstValidate);
+            }
+        }
+
 
         [TestMethod]
         public void Test_MovingAverageDataset_OriginalData()
@@ -188,9 +310,11 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.ValidCount, 101);
             Assert.AreEqual(ds.TestCount, 91);
 
-            TimeSerieArray current = ds.GetTestArrayExtendedX();
-
+            TimeSerieArray current = ds.GetTestArrayX();
             TimeSerieArray future = ds.GetTestArrayY();
+
+            //arrayX e arrayY hanno la stessa lunghezza
+            Assert.AreEqual(current.Length, future.Length);
 
             DateTime mydate = current.MaxDate.AddDays(-15);
             double value1 = current.GetValue(mydate, 1);
@@ -201,11 +325,12 @@ namespace VIXAL2.UnitTest
             //assert the moving average calculated at date "mydate" is correctly found
             //on original data
             Assert.AreEqual(value1, Utils.Mean(data1));
+            //verifico che il decimo valore del current è uguale al primo del future
+            Assert.AreEqual(current.Values[10][0], future.Values[0][0]);
 
-            double value2 = future.GetValue(mydate, COLUMN_TO_CHECK);
-            DateTime myfuturedate = current.GetNextDate(mydate, PREDICT_DAYS).Value;
-
-            double value3 = current.GetValue(myfuturedate, COLUMN_TO_CHECK);
+            DateTime mynextdate = current.GetNextDate(mydate, PREDICT_DAYS).Value;
+            double value2 = current.GetValue(mynextdate, COLUMN_TO_CHECK);
+            double value3 = future.GetValue(mydate, COLUMN_TO_CHECK);
             Assert.AreEqual(value2, value3);
         }
     }

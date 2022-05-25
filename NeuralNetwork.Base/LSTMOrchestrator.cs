@@ -34,20 +34,20 @@ namespace NeuralNetwork.Base
         {
             IndexColumnToPredict = firstColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
-            DataSet.TrainPercent = 0.96F;
+            DataSet.TrainPercent = 0.90F;
             DataSet.ValidPercent = 0.0F;
             DataSet.PredictDays = predictDays;
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
             {
-                ((MovingAverageDataSet)DataSet).Range = range;
+                ((MovingAverageDataSet)DataSet).SetRange(range);
             }
             else if (DataSet.GetType() == typeof(RsiDataSet))
             {
-                ((RsiDataSet)DataSet).Range = range;
+                ((RsiDataSet)DataSet).SetRange(range);
             }
             else if (DataSet.GetType() == typeof(MovingEnhancedAverageDataSet))
             {
-                ((MovingEnhancedAverageDataSet)DataSet).Range = range;
+                ((MovingEnhancedAverageDataSet)DataSet).SetRange(range);
             }
 
             DataSet.Prepare();
@@ -73,6 +73,8 @@ namespace NeuralNetwork.Base
         {
             bool result = DataSet.Forward(1);
             if (!result) return;
+
+            if (currentLSTMTrainer.StopNow) return;
 
             _reloadReport(DataSet);
 

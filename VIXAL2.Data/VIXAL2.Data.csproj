@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="Base\DatedValue.cs" />
     <Compile Include="Base\IAverageRangeDataSet.cs" />
+    <Compile Include="Base\TimeSerieArrayExt.cs" />
     <Compile Include="DiscontinuousDataSet.cs" />
     <Compile Include="MovingEnhancedAverageDataSet.cs" />
     <Compile Include="MovingAverageDataSet.cs" />

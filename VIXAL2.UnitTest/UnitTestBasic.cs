@@ -309,7 +309,7 @@ namespace VIXAL2.UnitTest
 
             RsiDataSet ds = new RsiDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
-            ds.Range = RANGE;
+            ds.SetRange(RANGE);
             ds.Prepare();
 
             //train count
@@ -382,7 +382,7 @@ namespace VIXAL2.UnitTest
 
             MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
-            ds.Range = RANGE;
+            ds.SetRange(RANGE);
             ds.Prepare();
 
 
@@ -454,7 +454,7 @@ namespace VIXAL2.UnitTest
 
             MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
-            ds.Range = RANGE;
+            ds.SetRange(RANGE);
             ds.ValidPercent = 0;
             ds.TrainPercent = 0.8F;
             ds.Prepare();

@@ -127,67 +127,73 @@ namespace VIXAL2.GUI
             InitiGraphs();
         }
 
-        private void loadGraphs(StocksDataset ds)
+        private void LoadOriginalLine(StocksDataset ds)
         {
-            //disegno il grafico dei prezzi reale normalizzato
+            //disegno il grafico dei prezzi reali normalizzato
             var sample1 = 1; //-ds.PredictDays
             var realData = ds.OriginalNormalizedData;
             int sampleIndex = 0;
 
-            if (ds.GetType() == typeof(MovingAverageDataSet))
-            {
-                int range = ((MovingAverageDataSet)ds).Range;
-                DateTime mydate = realData.GetNextDate(realData.MinDate, range).Value;
-                sampleIndex = realData.DateToSampleIndex(mydate).Value - 1;
-            }
-
             for (int i = sampleIndex; i < realData.Length; i++)
             {
-                var p = new PointPair(sample1, realData.Values[i][0]);
-                p.Tag = "( " + realData.GetDate(i).ToShortDateString() + ", " + realData.Values[i][0] + " )";
+                var p = new PointPair(sample1, realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)]);
+                p.Tag = "[" + sample1.ToString() + "] " + realData.GetDate(i).ToShortDateString() + ", " + realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
                 realLine.AddPoint(p);
                 sample1++;
             }
 
+            zedGraphControl1.GraphPane.Title.Text = realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + " - Model evaluation";
+            zedGraphControl1.GraphPane.XAxis.Scale.Min = -20;
+            zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
+        }
 
-            double[] traindDataYList = Utils.GetVectorFromArray(ds.TrainDataY, 0);
-            int sample = ds.PredictDays+1;
+        private void LoadGraphs(StocksDataset ds)
+        {
+            const int COL_TO_DRAW = 0;
+            var trainDataY = ds.GetTrainArrayY();
 
-            for (int i = 0; i < traindDataYList.Length; i++)
+            //disegno il trainingDataY dal giorno PredictDay così mi ritrovo allineato con i
+            //prezzi reali (non sono sicuro che vada bene così però)
+            int sample = ds.PredictDays + ds.Range;
+
+            for (int i = 0; i < trainDataY.Length; i++)
             {
-                var p = new PointPair(sample, traindDataYList[i]);
+                var p = new PointPair(sample, trainDataY[i][COL_TO_DRAW]);
+                p.Tag = "(TRAINDATAY - " + trainDataY.GetDate(i).ToShortDateString() + " (value of " + trainDataY.GetFutureDate(i).ToShortDateString() + "), " + trainDataY[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
 
-            double[] validDataYList = Utils.GetVectorFromArray(ds.ValidDataY, 0);
+            var validDataY = ds.GetValidArrayY();
 
-            for (int i = 0; i < validDataYList.Length; i++)
+            for (int i = 0; i < validDataY.Length; i++)
             {
-                var p = new PointPair(sample, validDataYList[i]);
+                var p = new PointPair(sample, validDataY[i][COL_TO_DRAW]);
+                p.Tag = "(VALIDATAY - " + validDataY.GetDate(i).ToShortDateString() + " (value of " + validDataY.GetFutureDate(i).ToShortDateString() + "), " + validDataY[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
 
             DrawTestSeparationLine(ds);
 
-            TimeSerieArray testDataY = ds.GetTestArrayY();
+            TimeSerieArrayExt testDataY = ds.GetTestArrayY();
 
             for (int i = 0; i < testDataY.Length; i++)
             {
-                var p = new PointPair(sample, testDataY.Values[i][0]);
-                p.Tag = "(TESTDATAY - FORESEEN ON " + testDataY.GetDate(i).ToShortDateString() + ", " + testDataY.Values[i][0] + " )";
+                var p = new PointPair(sample, testDataY[i][COL_TO_DRAW]);
+                p.Tag = "(TESTDATAY - " + testDataY.GetDate(i).ToShortDateString() + " (value of " + testDataY.GetFutureDate(i).ToShortDateString() + "), " + testDataY[i][0] + " )";
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
 
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
+            zedGraphControl1.GraphPane.XAxis.Scale.Min = -2;
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
 
         private void DrawTestSeparationLine(StocksDataset ds)
         {
-            int sample = ds.TrainCount + ds.PredictDays + 1;
+            int sample = ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.Range;
             TimeSerieArray testDataY = ds.GetTestArrayY();
 
             separationline.Clear();
@@ -287,7 +293,7 @@ namespace VIXAL2.GUI
                         {
                             //output training process
                             label3.Text = "Current iteration: " + iteration.ToString();
-                            label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString();
+                            label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString("F2");
                             progressBar1.Value = iteration;
 
                             reportOnGraphs(iteration);
@@ -310,7 +316,10 @@ namespace VIXAL2.GUI
         {
             if (iteration == Convert.ToInt32(textBoxIterations.Text))
             {
-                int sample = orchestrator.DataSet.PredictDays + 1;
+                //disegno il modello calcolato dallo stesso primo valore del trainingLine
+                //int sample = orchestrator.DataSet.PredictDays + 1;
+                int sample = orchestrator.DataSet.PredictDays + orchestrator.DataSet.Range;
+
                 modelLine.Clear();
                 lossDataLine.Clear();
 
@@ -345,7 +354,7 @@ namespace VIXAL2.GUI
             foreach (var y in oDataExt)
             {
                 var p = new PointPair(sample, y[0]);
-                p.Tag = "(EXTTEST - PREDICTED_ON " + dad.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                p.Tag = "(EXTTEST - prediction for " + dad.GetFutureDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                 modelLine.AddPoint(p);
                 mydateIndex++;
                 sample++;
@@ -355,7 +364,9 @@ namespace VIXAL2.GUI
 
         private void currentModelTest(int iteration, ref int sample)
         {
-            var testDataX = orchestrator.DataSet.GetTestArrayX();
+            //get testdatay so I have the correct dates
+            var testDataY = orchestrator.DataSet.GetTestArrayY();
+
             bool forwardPointAdded = false;
 
             //get the next minibatch amount of data
@@ -373,15 +384,15 @@ namespace VIXAL2.GUI
                     if (!forwardPointAdded)
                     {
                         var p1 = new PointPair(sample, y[0]);
-                        p1.Tag = "(FF - PREDICTED ON " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                        p1.Tag = "(FF - " + testDataY.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                         forwardModellLine.AddPoint(p1);
 
-                        orchestrator.DataSet.ForwardPredicted.Add(new DatedValueF(testDataX.GetDate(mydateIndex), y[0]));
+                        orchestrator.DataSet.ForwardPredicted.Add(new DatedValueF(testDataY.GetDate(mydateIndex), y[0]));
                         forwardPointAdded = true;
                     }
 
                     var p = new PointPair(sample, y[0]);
-                    p.Tag = "(PREDICTEDY - PREDICTED ON " + testDataX.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
+                    p.Tag = "(PREDICTEDY - " + testDataY.GetDate(mydateIndex).ToShortDateString() + ", " + y[0] + " )";
                     modelLine.AddPoint(p);
                     predictectList.Add(y[0]);
                     mydateIndex++;
@@ -433,7 +444,10 @@ namespace VIXAL2.GUI
             orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
 
             loadListView(orchestrator.DataSet);
-            loadGraphs(orchestrator.DataSet);
+            //disegno il grafico dei prezzi reali
+            LoadOriginalLine(orchestrator.DataSet);
+
+            LoadGraphs(orchestrator.DataSet);
 
             buttonStart.Enabled = true;
             label9.Text = "Dataset: " + orchestrator.DataSet.DataList[0].Length + " cols, " + orchestrator.DataSet.DataList.Count + " rows";

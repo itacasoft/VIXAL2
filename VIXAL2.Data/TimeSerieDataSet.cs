@@ -1,4 +1,5 @@
-﻿using SharpML.Types;
+﻿//#define SET_PREDICTED_ON_DATE
+using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
@@ -51,23 +52,6 @@ namespace VIXAL2.Data
         }
 
         /// <summary>
-        /// This method returns a copy of testDataX array, including the latest PredictGap days
-        /// </summary>
-        public TimeSerieArray GetTestArrayExtendedX()
-        {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount, dataList[0].Length);
-            for (int row = 0; row < result.Length; row++)
-            {
-                for (int col = 0; col < result.Columns; col++)
-                {
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], dataList[row + TrainCount + ValidCount][col]);
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// This method returns a copy of testDataX array, excluding the latest PredictGap days
         /// </summary>
         public TimeSerieArray GetTestArrayX()
@@ -78,6 +62,8 @@ namespace VIXAL2.Data
                 for (int col = 0; col < result.Columns; col++)
                 {
                     result.SetValue(row, col, dates[row + TrainCount + ValidCount], dataList[row + TrainCount + ValidCount][col]);
+                    //try to set real date
+                    //result.SetValue(row, col, dates[row + TrainCount + ValidCount + predictDays], dataList[row + TrainCount + ValidCount][col]);
                 }
             }
 
@@ -88,14 +74,17 @@ namespace VIXAL2.Data
         /// <summary>
         /// This method returns a copy of dataX for latest PredictGap days 
         /// </summary>
-        public TimeSerieArray GetExtendedArrayX()
+        public TimeSerieArrayExt GetExtendedArrayX()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - TestCount, dataList[0].Length);
+            TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - TestCount, dataList[0].Length);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount + TestCount], dataList[row + TrainCount + ValidCount + TestCount][col]);
+                    DateTime date = dates[row + TrainCount + ValidCount + TestCount];
+                    DateTime futureDate = Utils.AddBusinessDays(dates[row + TrainCount + ValidCount + TestCount], predictDays+1);
+                    var currentValue = dataList[row + TrainCount + ValidCount + TestCount][col];
+                    result.SetValue(row, col, date, futureDate, currentValue);
                 }
             }
 
@@ -105,15 +94,61 @@ namespace VIXAL2.Data
         /// <summary>
         /// This method returns a copy of testDataY array
         /// </summary>
-        public TimeSerieArray GetTestArrayY()
+        public TimeSerieArrayExt GetTestArrayY()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - predictDays, columnsToPredict, predictDays);
+            TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - predictDays, columnsToPredict);
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < columnsToPredict; col++)
                 {
-                    //save the future value (+ gap), but with current date
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], dataList[row + TrainCount + ValidCount + predictDays][firstColumnToPredict+col]);
+                    DateTime date = dates[row + TrainCount + ValidCount];
+                    DateTime futureDate = dates[row + TrainCount + ValidCount + predictDays];
+                    var futureValue = dataList[row + TrainCount + ValidCount + predictDays][firstColumnToPredict + col];
+                    result.SetValue(row, col, date, futureDate, futureValue);
+                }
+            }
+
+            for (int col = 0; col < columnsToPredict; col++)
+            {
+                result.SetColName(col, colNames[firstColumnToPredict + col]);
+            }
+
+            return result;
+        }
+
+        public TimeSerieArrayExt GetTrainArrayY()
+        {
+            TimeSerieArrayExt result = new TimeSerieArrayExt(TrainCount, columnsToPredict);
+            for (int row = 0; row < result.Length; row++)
+            {
+                for (int col = 0; col < columnsToPredict; col++)
+                {
+                    DateTime date = dates[row];
+                    DateTime futureDate = dates[row + predictDays];
+                    var futureValue = dataList[row + predictDays][firstColumnToPredict + col];
+                    result.SetValue(row, col, date, futureDate, futureValue);
+                }
+            }
+
+            for (int col = 0; col < columnsToPredict; col++)
+            {
+                result.SetColName(col, colNames[firstColumnToPredict + col]);
+            }
+
+            return result;
+        }
+
+        public TimeSerieArrayExt GetValidArrayY()
+        {
+            TimeSerieArrayExt result = new TimeSerieArrayExt(ValidCount, columnsToPredict);
+            for (int row = 0; row < result.Length; row++)
+            {
+                for (int col = 0; col < columnsToPredict; col++)
+                {
+                    DateTime date = dates[row + TrainCount];
+                    DateTime futureDate = dates[row + TrainCount + predictDays];
+                    var futureValue = dataList[row + TrainCount + predictDays][firstColumnToPredict + col];
+                    result.SetValue(row, col, date, futureDate, futureValue);
                 }
             }
 
@@ -237,6 +272,9 @@ namespace VIXAL2.Data
             int validTo = Convert.ToInt32(dataList.Count * validPercent) + validFrom;
             int validCount = validTo - validFrom;
             int testCount = dataList.Count - validCount - trainCount - predictDays;
+
+            if (testCount <= 0)
+                throw new InvalidProgramException("TestCount cannot be < 0");
 
             trainDataX = new double[trainCount][];
             for (int row = 0; row < trainDataX.Length; row++)

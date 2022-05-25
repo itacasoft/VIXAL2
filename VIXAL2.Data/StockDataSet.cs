@@ -61,5 +61,10 @@ namespace VIXAL2.Data
                 return result;
             }
         }
+
+        public virtual int Range
+        {
+            get { return 1; }
+        }
     }
 }

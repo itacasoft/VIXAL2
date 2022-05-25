@@ -15,10 +15,14 @@ namespace VIXAL2.Data
             
         }
 
-        public int Range 
-        { 
-            get { return range; } 
-            set { range = value; }
+        public override int Range
+        {
+            get { return range; }
+        }
+
+        public void SetRange(int value)
+        {
+            range = value;
         }
 
         public override void Prepare()

@@ -11,11 +11,9 @@ namespace VIXAL2.Data.Base
         double[][] values;
         DateTime[] dates;
         string[] colNames;
-        private int gapDays;
 
-        public TimeSerieArray(int rows, int cols, int gapDays = 0)
+        public TimeSerieArray(int rows, int cols)
         {
-            this.gapDays = gapDays;
             values = new double[rows][];
             for (int i = 0; i < rows; i++)
             {
@@ -141,6 +139,14 @@ namespace VIXAL2.Data.Base
             get
             {
                 return values.GetColumn<double>(0).Min();
+            }
+        }
+
+        public double[] this[int index]
+        {
+            get
+            {
+                return this.Values[index];
             }
         }
 
@@ -274,14 +280,6 @@ namespace VIXAL2.Data.Base
             }
 
             return null;
-        }
-
-        public int GapDays
-        {
-            get
-            {
-                return gapDays;
-            }
         }
     }
 }

@@ -10,8 +10,9 @@ namespace VIXAL2.Data.Base
     {
         int Range
         {
-            get; set;
+            get;
         }
 
+        void SetRange(int value);
     }
 }

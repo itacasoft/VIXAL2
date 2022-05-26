@@ -18,7 +18,6 @@ namespace VIXAL2.Data.Base
             }
         }
 
-
         public TimeSerieArrayExt(int rows, int cols) : base(rows, cols)
         {
             this.futureDates = new DateTime[rows];
@@ -41,5 +40,18 @@ namespace VIXAL2.Data.Base
             return futureDates[row];
         }
 
+        public int PredictDays
+        {
+            get;set;
+        }
+        public int Range
+        {
+            get; set;
+        }
+
+        public string ToStringExt()
+        {
+            return GetColName(0) + ", PD:" + this.PredictDays + ", R:" + this.Range + "";
+        }
     }
 }

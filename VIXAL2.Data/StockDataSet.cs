@@ -66,5 +66,33 @@ namespace VIXAL2.Data
         {
             get { return 1; }
         }
+
+        public override TimeSerieArrayExt GetTrainArrayY()
+        {
+            var result = base.GetTrainArrayY();
+            result.Range = this.Range;
+            return result;
+        }
+
+        public override TimeSerieArrayExt GetValidArrayY()
+        {
+            var result = base.GetValidArrayY();
+            result.Range = this.Range;
+            return result;
+        }
+
+        public override TimeSerieArrayExt GetTestArrayY()
+        {
+            var result = base.GetTestArrayY();
+            result.Range = this.Range;
+            return result;
+        }
+
+        public override TimeSerieArrayExt GetExtendedArrayX()
+        {
+            var result = base.GetExtendedArrayX();
+            result.Range = this.Range;
+            return result;
+        }
     }
 }

@@ -57,6 +57,7 @@ namespace VIXAL2.Data
         public TimeSerieArray GetTestArrayX()
         {
             TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - predictDays, dataList[0].Length);
+
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
@@ -74,9 +75,11 @@ namespace VIXAL2.Data
         /// <summary>
         /// This method returns a copy of dataX for latest PredictGap days 
         /// </summary>
-        public TimeSerieArrayExt GetExtendedArrayX()
+        public virtual TimeSerieArrayExt GetExtendedArrayX()
         {
             TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - TestCount, dataList[0].Length);
+            result.PredictDays = predictDays;
+
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
@@ -94,9 +97,11 @@ namespace VIXAL2.Data
         /// <summary>
         /// This method returns a copy of testDataY array
         /// </summary>
-        public TimeSerieArrayExt GetTestArrayY()
+        public virtual TimeSerieArrayExt GetTestArrayY()
         {
             TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - predictDays, columnsToPredict);
+            result.PredictDays = predictDays;
+
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < columnsToPredict; col++)
@@ -116,9 +121,11 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public TimeSerieArrayExt GetTrainArrayY()
+        public virtual TimeSerieArrayExt GetTrainArrayY()
         {
             TimeSerieArrayExt result = new TimeSerieArrayExt(TrainCount, columnsToPredict);
+            result.PredictDays = predictDays;
+
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < columnsToPredict; col++)
@@ -138,9 +145,11 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public TimeSerieArrayExt GetValidArrayY()
+        public virtual TimeSerieArrayExt GetValidArrayY()
         {
             TimeSerieArrayExt result = new TimeSerieArrayExt(ValidCount, columnsToPredict);
+            result.PredictDays = predictDays;
+
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < columnsToPredict; col++)

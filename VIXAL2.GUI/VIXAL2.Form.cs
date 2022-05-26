@@ -142,6 +142,8 @@ namespace VIXAL2.GUI
                 sample1++;
             }
 
+            realLine.Label.Text = "Close Price (" + realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + ")";
+
             zedGraphControl1.GraphPane.Title.Text = realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + " - Model evaluation";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -20;
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
@@ -185,6 +187,10 @@ namespace VIXAL2.GUI
                 trainingDataLine.AddPoint(p);
                 sample++;
             }
+
+            trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ")";
+            modelLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ")";
+            forwardModellLine.Label.Text = "FFModel (I:" + textBoxIterations.Text + ")"; 
 
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -2;

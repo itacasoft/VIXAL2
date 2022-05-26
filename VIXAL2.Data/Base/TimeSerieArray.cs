@@ -281,5 +281,10 @@ namespace VIXAL2.Data.Base
 
             return null;
         }
+
+        public override string ToString()
+        {
+            return GetColName(0);
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using NeuralNetwork.Base;
-using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,7 +20,6 @@ namespace VIXAL2.GUI
         LineItem separationline;
         LineItem forwardModellLine;
         LineItem realLine;
-
         LineItem lossDataLine;
         LineItem performanceDataLine;
 

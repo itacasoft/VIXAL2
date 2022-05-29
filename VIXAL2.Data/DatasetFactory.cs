@@ -77,11 +77,11 @@ namespace VIXAL2.Data
             }
             else if (dataSetType == 4)
             {
-                ds = new DiscontinuousDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
+                ds = new MovingEnhancedAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == 5)
             {
-                ds = new MovingEnhancedAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
+                ds = new MovingEnhancedAverageDataSet2(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
             else
             {

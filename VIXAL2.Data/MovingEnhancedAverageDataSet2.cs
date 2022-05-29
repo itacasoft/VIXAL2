@@ -3,29 +3,25 @@ using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
+
 namespace VIXAL2.Data
 {
-    public class MovingEnhancedAverageDataSet : StocksDataset, IAverageRangeDataSet
+    public class MovingEnhancedAverageDataSet2: StocksDataset
     {
-        protected int range = 3;
+        protected int halfRange = 3;
 
-        public MovingEnhancedAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
+        public MovingEnhancedAverageDataSet2(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
         }
 
-        public override int Range
+        public void SetHalfRange(int value)
         {
-            get { return range; }
-        }
-
-        public void SetRange(int value)
-        {
-            range = value;
+            halfRange = value;
         }
 
         public override void Prepare()
         {
-            this.Data = GetMovingEnhancedAverage(Data, range);
+            this.Data = GetMovingEnhancedAverage(Data, halfRange);
             RemoveNaNs(dataList, Dates);
 
             base.Prepare();
@@ -35,7 +31,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return "MovingEnhancedAverageDs";
+                return "MovingEnhancedAverageDs2";
             }
         }
 
@@ -45,23 +41,20 @@ namespace VIXAL2.Data
         /// <param name="values"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public static double[] GetFutureMovingAverage(double[] values, int range)
+        public static double[] GetFutureMovingAverage(double[] values, int halfrange)
         {
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
             {
                 List<double> pieces = new List<double>();
                 //add the previous and future values
-                for (int j = i - (range-1); j <= i + (range-1); j++)
+                for (int j = i - (halfrange - 1); j <= i + (halfrange - 1); j++)
                 {
-                    if ((j >= 0) && (j<values.Length))
+                    if ((j >= 0) && (j < values.Length))
                         pieces.Add(values[j]);
                 }
 
-                if (pieces.Count == (range*2-1))
-                    result[i] = Utils.Mean(pieces.ToArray());
-                else
-                    result[i] = double.NaN;
+                result[i] = Utils.Mean(pieces.ToArray());
             }
 
             return result;
@@ -90,3 +83,6 @@ namespace VIXAL2.Data
         }
     }
 }
+
+
+

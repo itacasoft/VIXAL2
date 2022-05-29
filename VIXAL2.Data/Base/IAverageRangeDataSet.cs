@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VIXAL2.Data.Base
 {
-    internal interface IAverageRangeDataSet
+    public interface IAverageRangeDataSet
     {
         int Range
         {

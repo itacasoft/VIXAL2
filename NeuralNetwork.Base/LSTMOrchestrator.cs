@@ -34,20 +34,17 @@ namespace NeuralNetwork.Base
         {
             IndexColumnToPredict = firstColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
-            DataSet.TrainPercent = 0.90F;
+            DataSet.TrainPercent = 0.95F;
             DataSet.ValidPercent = 0.0F;
             DataSet.PredictDays = predictDays;
-            if (DataSet.GetType() == typeof(MovingAverageDataSet))
+
+            if (DataSet is IAverageRangeDataSet)
             {
-                ((MovingAverageDataSet)DataSet).SetRange(range);
+                ((IAverageRangeDataSet)DataSet).SetRange(range);
             }
-            else if (DataSet.GetType() == typeof(RsiDataSet))
+            else if (DataSet.GetType() == typeof(MovingEnhancedAverageDataSet2))
             {
-                ((RsiDataSet)DataSet).SetRange(range);
-            }
-            else if (DataSet.GetType() == typeof(MovingEnhancedAverageDataSet))
-            {
-                ((MovingEnhancedAverageDataSet)DataSet).SetRange(range);
+                ((MovingEnhancedAverageDataSet2)DataSet).SetHalfRange(range);
             }
 
             DataSet.Prepare();

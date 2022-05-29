@@ -70,9 +70,10 @@
             // btnStop
             // 
             this.btnStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnStop.Location = new System.Drawing.Point(769, 67);
+            this.btnStop.Location = new System.Drawing.Point(1154, 103);
+            this.btnStop.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(69, 23);
+            this.btnStop.Size = new System.Drawing.Size(104, 35);
             this.btnStop.TabIndex = 65;
             this.btnStop.Text = "Stop";
             this.btnStop.UseVisualStyleBackColor = true;
@@ -82,9 +83,10 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(432, 97);
+            this.label9.Location = new System.Drawing.Point(648, 149);
+            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(47, 13);
+            this.label9.Size = new System.Drawing.Size(70, 20);
             this.label9.TabIndex = 64;
             this.label9.Text = "Dataset:";
             // 
@@ -92,18 +94,20 @@
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(655, 16);
+            this.label8.Location = new System.Drawing.Point(982, 25);
+            this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(68, 13);
+            this.label8.Size = new System.Drawing.Size(99, 20);
             this.label8.TabIndex = 63;
             this.label8.Text = "Predict days:";
             // 
             // textBoxPredictDays
             // 
             this.textBoxPredictDays.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxPredictDays.Location = new System.Drawing.Point(723, 14);
+            this.textBoxPredictDays.Location = new System.Drawing.Point(1084, 22);
+            this.textBoxPredictDays.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxPredictDays.Name = "textBoxPredictDays";
-            this.textBoxPredictDays.Size = new System.Drawing.Size(25, 20);
+            this.textBoxPredictDays.Size = new System.Drawing.Size(36, 26);
             this.textBoxPredictDays.TabIndex = 62;
             this.textBoxPredictDays.Text = "40";
             // 
@@ -111,36 +115,40 @@
             // 
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(529, 15);
+            this.label7.Location = new System.Drawing.Point(794, 23);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(89, 13);
+            this.label7.Size = new System.Drawing.Size(133, 20);
             this.label7.TabIndex = 61;
             this.label7.Text = "Column Y (index):";
             // 
             // textBoxYIndex
             // 
             this.textBoxYIndex.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxYIndex.Location = new System.Drawing.Point(621, 13);
+            this.textBoxYIndex.Location = new System.Drawing.Point(932, 20);
+            this.textBoxYIndex.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxYIndex.Name = "textBoxYIndex";
-            this.textBoxYIndex.Size = new System.Drawing.Size(25, 20);
+            this.textBoxYIndex.Size = new System.Drawing.Size(36, 26);
             this.textBoxYIndex.TabIndex = 60;
             this.textBoxYIndex.Text = "0";
             // 
             // textBoxCells
             // 
             this.textBoxCells.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxCells.Location = new System.Drawing.Point(589, 77);
+            this.textBoxCells.Location = new System.Drawing.Point(884, 118);
+            this.textBoxCells.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxCells.Name = "textBoxCells";
-            this.textBoxCells.Size = new System.Drawing.Size(25, 20);
+            this.textBoxCells.Size = new System.Drawing.Size(36, 26);
             this.textBoxCells.TabIndex = 59;
             this.textBoxCells.Text = "30";
             // 
             // textBoxHidden
             // 
             this.textBoxHidden.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxHidden.Location = new System.Drawing.Point(571, 77);
+            this.textBoxHidden.Location = new System.Drawing.Point(856, 118);
+            this.textBoxHidden.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxHidden.Name = "textBoxHidden";
-            this.textBoxHidden.Size = new System.Drawing.Size(18, 20);
+            this.textBoxHidden.Size = new System.Drawing.Size(25, 26);
             this.textBoxHidden.TabIndex = 58;
             this.textBoxHidden.Text = "1";
             // 
@@ -148,9 +156,10 @@
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(432, 79);
+            this.label6.Location = new System.Drawing.Point(648, 122);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(135, 13);
+            this.label6.Size = new System.Drawing.Size(201, 20);
             this.label6.TabIndex = 57;
             this.label6.Text = "Network Dim (hidden|cells):";
             // 
@@ -158,18 +167,20 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(432, 117);
+            this.label2.Location = new System.Drawing.Point(648, 180);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(70, 13);
+            this.label2.Size = new System.Drawing.Size(104, 20);
             this.label2.TabIndex = 56;
             this.label2.Text = "Performance:";
             // 
             // btnLoad
             // 
             this.btnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLoad.Location = new System.Drawing.Point(769, 8);
+            this.btnLoad.Location = new System.Drawing.Point(1154, 12);
+            this.btnLoad.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(69, 23);
+            this.btnLoad.Size = new System.Drawing.Size(104, 35);
             this.btnLoad.TabIndex = 55;
             this.btnLoad.Text = "Load";
             this.btnLoad.UseVisualStyleBackColor = true;
@@ -179,9 +190,10 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(432, 15);
+            this.label5.Location = new System.Drawing.Point(648, 23);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(34, 13);
+            this.label5.Size = new System.Drawing.Size(47, 20);
             this.label5.TabIndex = 54;
             this.label5.Text = "Type:";
             // 
@@ -193,20 +205,22 @@
             "Normal",
             "MovingAverage",
             "RSI",
-            "Discontinuous",
-            "MovingEnhancedAverage"});
-            this.comboBox1.Location = new System.Drawing.Point(467, 14);
+            "MovingEnhancedAverage",
+            "MovingEnhancedAverage2"});
+            this.comboBox1.Location = new System.Drawing.Point(700, 22);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(58, 21);
+            this.comboBox1.Size = new System.Drawing.Size(85, 28);
             this.comboBox1.TabIndex = 53;
             // 
             // label4
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(655, 38);
+            this.label4.Location = new System.Drawing.Point(982, 58);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(42, 13);
+            this.label4.Size = new System.Drawing.Size(61, 20);
             this.label4.TabIndex = 51;
             this.label4.Text = "Range:";
             // 
@@ -214,27 +228,30 @@
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(432, 47);
+            this.label3.Location = new System.Drawing.Point(648, 72);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(84, 13);
+            this.label3.Size = new System.Drawing.Size(127, 20);
             this.label3.TabIndex = 49;
             this.label3.Text = "Current iteration:";
             // 
             // textBox2
             // 
             this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Location = new System.Drawing.Point(712, 94);
+            this.textBox2.Location = new System.Drawing.Point(1068, 145);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(35, 20);
+            this.textBox2.Size = new System.Drawing.Size(50, 26);
             this.textBox2.TabIndex = 48;
             this.textBox2.Text = "100";
             // 
             // textBoxIterations
             // 
             this.textBoxIterations.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxIterations.Location = new System.Drawing.Point(712, 78);
+            this.textBoxIterations.Location = new System.Drawing.Point(1068, 120);
+            this.textBoxIterations.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxIterations.Name = "textBoxIterations";
-            this.textBoxIterations.Size = new System.Drawing.Size(35, 20);
+            this.textBoxIterations.Size = new System.Drawing.Size(50, 26);
             this.textBoxIterations.TabIndex = 47;
             this.textBoxIterations.Text = "10";
             // 
@@ -242,9 +259,10 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(626, 78);
+            this.label1.Location = new System.Drawing.Point(939, 120);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(88, 13);
+            this.label1.Size = new System.Drawing.Size(133, 20);
             this.label1.TabIndex = 46;
             this.label1.Text = "Iterations | batch:";
             // 
@@ -252,17 +270,19 @@
             // 
             this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(10, 454);
+            this.progressBar1.Location = new System.Drawing.Point(15, 698);
+            this.progressBar1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(884, 23);
+            this.progressBar1.Size = new System.Drawing.Size(1326, 35);
             this.progressBar1.TabIndex = 45;
             // 
             // buttonStart
             // 
             this.buttonStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonStart.Location = new System.Drawing.Point(769, 38);
+            this.buttonStart.Location = new System.Drawing.Point(1154, 58);
+            this.buttonStart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonStart.Name = "buttonStart";
-            this.buttonStart.Size = new System.Drawing.Size(69, 23);
+            this.buttonStart.Size = new System.Drawing.Size(104, 35);
             this.buttonStart.TabIndex = 44;
             this.buttonStart.Text = "Start";
             this.buttonStart.UseVisualStyleBackColor = true;
@@ -276,19 +296,21 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Location = new System.Drawing.Point(401, 166);
+            this.tabControl1.Location = new System.Drawing.Point(602, 255);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(442, 281);
+            this.tabControl1.Size = new System.Drawing.Size(663, 432);
             this.tabControl1.TabIndex = 43;
             // 
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.zedGraphControl1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Location = new System.Drawing.Point(4, 29);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(434, 255);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.tabPage1.Size = new System.Drawing.Size(655, 399);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Training Data";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -296,8 +318,8 @@
             // zedGraphControl1
             // 
             this.zedGraphControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.zedGraphControl1.Location = new System.Drawing.Point(3, 3);
-            this.zedGraphControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.zedGraphControl1.Location = new System.Drawing.Point(4, 5);
+            this.zedGraphControl1.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.zedGraphControl1.Name = "zedGraphControl1";
             this.zedGraphControl1.ScrollGrace = 0D;
             this.zedGraphControl1.ScrollMaxX = 0D;
@@ -306,17 +328,18 @@
             this.zedGraphControl1.ScrollMinX = 0D;
             this.zedGraphControl1.ScrollMinY = 0D;
             this.zedGraphControl1.ScrollMinY2 = 0D;
-            this.zedGraphControl1.Size = new System.Drawing.Size(428, 249);
+            this.zedGraphControl1.Size = new System.Drawing.Size(647, 389);
             this.zedGraphControl1.TabIndex = 0;
             this.zedGraphControl1.UseExtendedPrintDialog = true;
             // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.zedGraphControl2);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Location = new System.Drawing.Point(4, 29);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(434, 255);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.tabPage2.Size = new System.Drawing.Size(655, 399);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Loss Value";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -324,8 +347,8 @@
             // zedGraphControl2
             // 
             this.zedGraphControl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.zedGraphControl2.Location = new System.Drawing.Point(3, 3);
-            this.zedGraphControl2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.zedGraphControl2.Location = new System.Drawing.Point(4, 5);
+            this.zedGraphControl2.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.zedGraphControl2.Name = "zedGraphControl2";
             this.zedGraphControl2.ScrollGrace = 0D;
             this.zedGraphControl2.ScrollMaxX = 0D;
@@ -334,17 +357,18 @@
             this.zedGraphControl2.ScrollMinX = 0D;
             this.zedGraphControl2.ScrollMinY = 0D;
             this.zedGraphControl2.ScrollMinY2 = 0D;
-            this.zedGraphControl2.Size = new System.Drawing.Size(428, 249);
+            this.zedGraphControl2.Size = new System.Drawing.Size(647, 389);
             this.zedGraphControl2.TabIndex = 1;
             this.zedGraphControl2.UseExtendedPrintDialog = true;
             // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.zedGraphControl3);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Location = new System.Drawing.Point(4, 29);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(434, 255);
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.tabPage3.Size = new System.Drawing.Size(655, 399);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Performances";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -352,8 +376,8 @@
             // zedGraphControl3
             // 
             this.zedGraphControl3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.zedGraphControl3.Location = new System.Drawing.Point(3, 3);
-            this.zedGraphControl3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.zedGraphControl3.Location = new System.Drawing.Point(4, 5);
+            this.zedGraphControl3.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.zedGraphControl3.Name = "zedGraphControl3";
             this.zedGraphControl3.ScrollGrace = 0D;
             this.zedGraphControl3.ScrollMaxX = 0D;
@@ -362,7 +386,7 @@
             this.zedGraphControl3.ScrollMinX = 0D;
             this.zedGraphControl3.ScrollMinY = 0D;
             this.zedGraphControl3.ScrollMinY2 = 0D;
-            this.zedGraphControl3.Size = new System.Drawing.Size(428, 249);
+            this.zedGraphControl3.Size = new System.Drawing.Size(647, 389);
             this.zedGraphControl3.TabIndex = 1;
             this.zedGraphControl3.UseExtendedPrintDialog = true;
             // 
@@ -374,9 +398,10 @@
             this.listView1.FullRowSelect = true;
             this.listView1.HideSelection = false;
             this.listView1.HoverSelection = true;
-            this.listView1.Location = new System.Drawing.Point(9, 10);
+            this.listView1.Location = new System.Drawing.Point(14, 15);
+            this.listView1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(383, 437);
+            this.listView1.Size = new System.Drawing.Size(572, 670);
             this.listView1.TabIndex = 42;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -388,10 +413,9 @@
             this.checkBox1.AutoSize = true;
             this.checkBox1.Checked = true;
             this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(704, 119);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBox1.Location = new System.Drawing.Point(1068, 183);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(104, 21);
+            this.checkBox1.Size = new System.Drawing.Size(144, 24);
             this.checkBox1.TabIndex = 66;
             this.checkBox1.Text = "Forward Iterate";
             this.checkBox1.UseVisualStyleBackColor = true;
@@ -400,18 +424,20 @@
             // 
             this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(432, 136);
+            this.label10.Location = new System.Drawing.Point(648, 209);
+            this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(108, 13);
+            this.label10.Size = new System.Drawing.Size(161, 20);
             this.label10.TabIndex = 67;
             this.label10.Text = "Performance forward:";
             // 
             // textBoxRange
             // 
             this.textBoxRange.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxRange.Location = new System.Drawing.Point(723, 38);
+            this.textBoxRange.Location = new System.Drawing.Point(1084, 58);
+            this.textBoxRange.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxRange.Name = "textBoxRange";
-            this.textBoxRange.Size = new System.Drawing.Size(25, 20);
+            this.textBoxRange.Size = new System.Drawing.Size(36, 26);
             this.textBoxRange.TabIndex = 69;
             this.textBoxRange.Text = "10";
             // 
@@ -419,17 +445,18 @@
             // 
             this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(557, 48);
+            this.label11.Location = new System.Drawing.Point(836, 74);
+            this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(61, 13);
+            this.label11.Size = new System.Drawing.Size(88, 20);
             this.label11.TabIndex = 70;
             this.label11.Text = "Loss value:";
             // 
             // VIXAL2Form
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(903, 484);
+            this.ClientSize = new System.Drawing.Size(1354, 745);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.textBoxRange);
             this.Controls.Add(this.label10);
@@ -456,7 +483,6 @@
             this.Controls.Add(this.buttonStart);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.listView1);
-            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "VIXAL2Form";
             this.Text = "VIXAL2.Form";
             this.Load += new System.EventHandler(this.VIXAL2Form_Load);

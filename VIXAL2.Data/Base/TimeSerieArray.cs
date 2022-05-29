@@ -194,12 +194,19 @@ namespace VIXAL2.Data.Base
             return Double.NaN;
         }
 
+        /// <summary>
+        /// Returns an array containing values from "date" for "lenght" days, exluding current
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="lenght"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
         public double[] GetPreviousValuesFromColumn(DateTime date, int lenght, int column)
         {
             double[] result = new double[lenght];
 
             //int i = 0;
-            DateTime mydate = this.GetPreviousDate(date, lenght-1).Value;
+            DateTime mydate = this.GetPreviousDate(date, lenght).Value;
 
             for (int i=0; i<lenght; i++)
             {
@@ -208,6 +215,51 @@ namespace VIXAL2.Data.Base
             }
             return result;
         }
+
+        /// <summary>
+        /// Returns an array containing values from "date" for "lenght" days, including current
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="lenght"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public double[] GetPreviousValuesFromColumnIncludingCurrent(DateTime date, int lenght, int column)
+        {
+            double[] result = new double[lenght];
+
+            //int i = 0;
+            DateTime mydate = this.GetPreviousDate(date, lenght-1).Value;
+
+            for (int i = 0; i < lenght; i++)
+            {
+                result[i] = this.GetValue(mydate, column);
+                mydate = this.GetNextDate(mydate).Value;
+            }
+            return result;
+        }
+
+
+        /// <summary>
+        /// Returns an array containing values from "date" for "lenght" days
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="lenght"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public double[] GetNextValuesFromColumn(DateTime date, int lenght, int column)
+        {
+            double[] result = new double[lenght];
+
+            DateTime mydate = this.GetNextDate(date).Value;
+
+            for (int i = 0; i < lenght; i++)
+            {
+                result[i] = this.GetValue(mydate, column);
+                mydate = this.GetNextDate(mydate).Value;
+            }
+            return result;
+        }
+
 
         public void SetColName(int col, string name)
         {

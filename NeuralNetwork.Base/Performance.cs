@@ -10,6 +10,8 @@ namespace NeuralNetwork.Base
     {
         public int Guessed = 0;
         public int Failed = 0;
+        public DateTime Date; 
+
         public int Total
         {
             get
@@ -28,7 +30,7 @@ namespace NeuralNetwork.Base
 
         public override string ToString()
         {
-            return "guessed " + Guessed + "/" + Total + " (" + SuccessPercentage.ToString("F2") + ")";
+            return Date.ToShortDateString() + "; guessed " + Guessed + "/" + Total + " (" + SuccessPercentage.ToString("F2") + ")";
         }
     }
 }

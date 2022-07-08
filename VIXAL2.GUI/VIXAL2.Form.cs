@@ -186,9 +186,9 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
-            trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ")";
-            modelLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ")";
-            forwardModellLine.Label.Text = "FFModel (I:" + textBoxIterations.Text + ")"; 
+            trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + "" +  ")";
+            modelLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + ")";
+            forwardModellLine.Label.Text = "FFModel (I:" + textBoxIterations.Text + ", Hidden:" + textBoxHidden.Text + ", Cells:" + textBoxCells.Text  + ")"; 
 
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -2;
@@ -316,6 +316,29 @@ namespace VIXAL2.GUI
             }
         }
 
+
+        void endReport(int iteration)
+        {
+            if (this.InvokeRequired)
+            {
+                // Execute the same method, but this time on the GUI thread
+                this.Invoke(
+                    new Action(() =>
+                    {
+                        if (!this.IsDisposed)
+                        {
+                            DrawPerfomances(orchestrator.performances);
+                        }
+                    }
+                    ));
+            }
+            else
+            {
+                DrawPerfomances(orchestrator.performances);
+            }
+        }
+
+
         private void reportOnGraphs(int iteration)
         {
             if (iteration == Convert.ToInt32(textBoxIterations.Text))
@@ -405,6 +428,8 @@ namespace VIXAL2.GUI
             }
 
             var performances = orchestrator.ComparePredictedAgainstDataY(predictectList.ToArray(),0);
+            SetDatesOnPerformances(ref performances);
+
             label2.Text = "Performance (first): " + performances[1].ToString();
             DrawPerfomances(performances);
 
@@ -412,6 +437,15 @@ namespace VIXAL2.GUI
             {
                 Tuple<float, float, float> performance2 = orchestrator.CompareForwardWithDataY();
                 label10.Text = "Performance (forward): " + performance2.ToString();
+            }
+        }
+
+        private void SetDatesOnPerformances(ref List<Performance> performances)
+        {
+            var dad = orchestrator.DataSet.GetExtendedArrayX();
+            for (int i = 0; (i < dad.Length && i < performances.Count); i++)
+            {
+                performances[i].Date = dad.GetFutureDate(i);
             }
         }
 
@@ -446,7 +480,7 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, Convert.ToInt32(textBox2.Text));
+            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, endReport, Convert.ToInt32(textBox2.Text));
             orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
 
             loadListView(orchestrator.DataSet);

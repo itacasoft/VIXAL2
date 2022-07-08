@@ -1,8 +1,6 @@
 ﻿using SharpML.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
@@ -15,12 +13,14 @@ namespace NeuralNetwork.Base
 
         private Action<int> _progressReport;
         private Action<StocksDataset> _reloadReport;
+        private Action<int> _endReport;
         private int _batchSize;
         public StocksDataset DataSet;
-        public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, int batchSize)
+        public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, int batchSize)
         {
             _progressReport = progressReport;
             _reloadReport = reloadReport;
+            _endReport = endReport;
             _batchSize = batchSize;
         }
 
@@ -28,7 +28,7 @@ namespace NeuralNetwork.Base
         public static string labelsName = "label";
         public int IndexColumnToPredict;
         private TimeSerieArray originalTestArrayY;
-        private List<Performance> performances;
+        public List<Performance> performances;
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays, int range = 20)
         {
@@ -69,9 +69,11 @@ namespace NeuralNetwork.Base
         private void ReiterateTrainingAfterForward(int hiddenLayersDim, int cellsNumber, int iteration)
         {
             bool result = DataSet.Forward(1);
-            if (!result) return;
-
-            if (currentLSTMTrainer.StopNow) return;
+            if ((!result) || (currentLSTMTrainer.StopNow))
+            {
+                PerformEnd(iteration);
+                return;
+            }
 
             _reloadReport(DataSet);
 
@@ -84,6 +86,20 @@ namespace NeuralNetwork.Base
             currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, _batchSize, _progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
 
             taskA.ContinueWith(antecedent => ReiterateTrainingAfterForward(hiddenLayersDim, cellsNumber, iteration));
+        }
+
+        private void PerformEnd(int iteration)
+        {
+            int i = 0;
+            while (i < performances.Count)
+            {
+                if (performances[i].Total < 20)
+                    performances.RemoveAt(i);
+                else
+                    i++;
+            }
+
+            _endReport(iteration);
         }
 
         public void StopTrainingNow()
@@ -103,7 +119,6 @@ namespace NeuralNetwork.Base
             LSTMUtils.Compare(dataYList, predicted, ref performances);
             return performances;
         }
-
 
         public double GetPreviousLossAverage()
         {
@@ -163,17 +178,6 @@ namespace NeuralNetwork.Base
                 var y = asBatch(Y, i, size);
 
                 yield return (x, y);
-            }
-        }
-
-        public void AdjustWithModel(ref IList<IList<float>> input)
-        {
-            var arrayY = DataSet.GetTestArrayY();
-            double delta = arrayY.Values[0][0] - input[0][0];
-
-            for (int i=0; i<input.Count; i++)
-            {
-//                input[i][0] += (float)delta;
             }
         }
     }

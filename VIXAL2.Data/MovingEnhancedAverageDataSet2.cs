@@ -81,6 +81,12 @@ namespace VIXAL2.Data
             }
             return result;
         }
+
+        public int HalfRange
+        {
+            get { return halfRange; }
+        }
+
     }
 }
 

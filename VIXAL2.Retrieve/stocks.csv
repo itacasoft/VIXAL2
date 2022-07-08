@@ -7,7 +7,7 @@ YA;SXR8.DE;iShares Core S&P 500 UCITS ETF USD (Acc)
 YA;ISPY.MI;L&G Cyber Security UCITS ETF
 YA;BCHN.MI;Invesco CoinShares Global Blockchain UCITS ETF
 YA;TLT;iShares 20+ Year Treasury Bond ETF
-YA;GISE.MI;Lyxor Core Global Inflation-Linked 1-10Y Bond (DR) UCITS ETF
+//YA;GISE.MI;Lyxor Core Global Inflation-Linked 1-10Y Bond (DR) UCITS ETF
 //Borsa Italiana
 YA;ISP.MI;Intesa Sanpaolo S.p.A.
 YA;STLA.MI;Stellantis N.V.
@@ -83,7 +83,6 @@ YA;ZW=F;Wheat
 YA;ZC=F;Corn
 YA;KC=F;Coffee
 YA;HG=F;Copper
-//YA;^VIX;CBOE Volatility Index
 //Indici
 YA;ES=F;E-Mini S&P 500
 YA;YM=F;Mini Dow Jones Indus.
@@ -92,6 +91,7 @@ YA;FTSEMIB.MI;FTSE MIB Index
 YA;^HSI;HANG SENG INDEX
 YA;^N225;Nikkei 225
 YA;^TNX;Treasury Yield 10 Years
+YA;^VIX;CBOE Volatility Index
 //Valute
 YA;BTC-EUR;Bitcoin EUR
 YA;EURUSD=X;EUR/USD

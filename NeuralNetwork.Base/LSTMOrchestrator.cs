@@ -119,10 +119,28 @@ namespace NeuralNetwork.Base
             return currentLSTMTrainer.PreviousMinibatchLossAverage;
         }
 
+        [Obsolete]
         public IList<IList<float>> CurrentModelEvaluate(IEnumerable<float> miniBatchData_X, IEnumerable<float> miniBatchData_Y)
         {
             return currentLSTMTrainer.CurrentModelEvaluate(miniBatchData_X, miniBatchData_Y);
         }
+
+
+        public List<double> CurrentModelEvaluation()
+        {
+            var result = new List<double>();
+            //get the next minibatch amount of data
+            foreach (var miniBatchData in GetBatchesForTraining())
+            {
+                var oData = currentLSTMTrainer.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y); 
+                foreach (var y in oData)
+                {
+                    result.Add(y[0]);
+                }
+            }
+            return result;
+        }
+
 
         public List<DoubleDatedValue> CurrentModelTest()
         {
@@ -172,18 +190,12 @@ namespace NeuralNetwork.Base
         }
 
 
-        [Obsolete]
-        public IList<IList<float>> CurrentModelTest(IEnumerable<float> miniBatchData_X)
-        {
-            return currentLSTMTrainer.CurrentModelTest(miniBatchData_X);
-        }
-
         public IEnumerable<(float[] X, float[] Y)> GetBatchesForTraining()
         {
             return nextBatch(DataSet["features"].train, DataSet["label"].train, _batchSize);
         }
 
-        public IEnumerable<(float[] X, float[] Y)> GetBatchesForTest()
+        private IEnumerable<(float[] X, float[] Y)> GetBatchesForTest()
         {
             return nextBatch(DataSet["features"].test, DataSet["label"].test, _batchSize);
         }

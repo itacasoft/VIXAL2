@@ -352,33 +352,6 @@ namespace VIXAL2.GUI
             }
         }
 
-        [Obsolete]
-        private void currentModelTestExtreme_old(ref int sample)
-        {
-            //predico anche l'estremo
-            var dad = orchestrator.DataSet.GetExtendedArrayX();
-
-            float[] batch = new float[dad.Length * dad.Columns];
-            int sss = 0;
-            for (int i = 0; i < dad.Length; i++)
-            {
-                for (int j = 0; j < dad.Columns; j++)
-                    batch[sss++] = (float)dad.Values[i][j];
-            }
-            var oDataExt = orchestrator.CurrentModelTest(batch);
-
-            int mydateIndex = 0;
-            foreach (var y in oDataExt)
-            {
-                var p = new PointPair(sample, y[0]);
-                p.Tag = "(EXTTEST - prediction for " + dad.GetFutureDate(mydateIndex).ToShortDateString() + ": " + y[0] + " )";
-                modelLine.AddPoint(p);
-                mydateIndex++;
-                sample++;
-            }
-
-        }
-
         private void currentModelTestExtreme(ref int sample)
         {
             var predictedList = orchestrator.CurrentModelTestExtreme();
@@ -390,41 +363,6 @@ namespace VIXAL2.GUI
                 modelLine.AddPoint(p);
                 sample++;
             }
-        }
-
-
-        [Obsolete]
-        private void currentModelTest_old(int iteration, ref int sample)
-        {
-            //get testdatay so I have the correct dates
-            var testDataY = orchestrator.DataSet.GetTestArrayY();
-
-            //get the next minibatch amount of data
-            int mydateIndex = 0;
-
-            List<double> predictectList = new List<double>();
-
-            foreach (var miniBatchData in orchestrator.GetBatchesForTest())
-            {
-                var oData = orchestrator.CurrentModelTest(miniBatchData.X);
-
-                //show on graph
-                foreach (var y in oData)
-                {
-                    var p = new PointPair(sample, y[0]);
-                    p.Tag = "(PREDICTEDY - " + testDataY.GetDate(mydateIndex).ToShortDateString() + " (value of " + testDataY.GetFutureDate(mydateIndex).ToShortDateString() + "): " + y[0] + " )";
-                    modelLine.AddPoint(p);
-                    predictectList.Add(y[0]);
-                    mydateIndex++;
-                    sample++;
-                }
-            }
-
-            var performances = orchestrator.ComparePredictedAgainstDataY(predictectList.ToArray(),0);
-            SetDatesOnPerformances(ref performances);
-
-            label2.Text = "Performance (first): " + performances[1].ToString();
-            DrawPerfomances(performances);
         }
 
         private void currentModelTest(int iteration, ref int sample)
@@ -468,7 +406,8 @@ namespace VIXAL2.GUI
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 
-        private void currentModelEvaluation(int iteration, ref int sample)
+        [Obsolete]
+        private void currentModelEvaluation_old(int iteration, ref int sample)
         {
             //get the next minibatch amount of data
             foreach (var miniBatchData in orchestrator.GetBatchesForTraining())
@@ -482,6 +421,18 @@ namespace VIXAL2.GUI
             }
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }
+
+        private void currentModelEvaluation(int iteration, ref int sample)
+        {
+            var list = orchestrator.CurrentModelEvaluation();
+            foreach (var y in list)
+            {
+                modelLine.AddPoint(new PointPair(sample, y));
+                sample++;
+            }
+            zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
+        }
+
 
         private void btnLoad_Click(object sender, EventArgs e)
         {

@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\DatedValue.cs" />
+    <Compile Include="Base\DoubleDatedValue.cs" />
     <Compile Include="Base\IAverageRangeDataSet.cs" />
     <Compile Include="Base\TimeSerieArrayExt.cs" />
     <Compile Include="DiscontinuousDataSet.cs" />
@@ -80,7 +81,6 @@
     <Compile Include="MovingAverageDataSet.cs" />
     <Compile Include="Base\NormalizedDataSet.cs" />
     <Compile Include="MovingEnhancedAverageDataSet2.cs" />
-    <Compile Include="MovingForwardDataSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RsiDataSet.cs" />
     <Compile Include="StockDataSet.cs" />

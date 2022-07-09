@@ -30,6 +30,16 @@ namespace VIXAL2.Data.Base
         {
             return _date.ToShortDateString() + " " + _value.ToString("F");
         }
+
+        public static double[] ToDoubleArray(List<DoubleDatedValue> input)
+        {
+            var result = new double[input.Count];
+            for (int i = 0; i < input.Count; i++)
+            {
+                result[i] = input[i].Value;
+            }
+            return result;
+        }
     }
 
     public class DatedValueF

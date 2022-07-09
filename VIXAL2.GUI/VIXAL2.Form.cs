@@ -18,7 +18,6 @@ namespace VIXAL2.GUI
         LineItem modelLine;
         LineItem trainingDataLine;
         LineItem separationline;
-        LineItem forwardModellLine;
         LineItem realLine;
         LineItem lossDataLine;
         LineItem performanceDataLine;
@@ -57,14 +56,6 @@ namespace VIXAL2.GUI
             realLine.Symbol.Size = 1;
             realLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
 
-
-            if (forwardModellLine != null) forwardModellLine.Clear();
-            else forwardModellLine = new LineItem("Forward Prediction", null, null, Color.MediumVioletRed, ZedGraph.SymbolType.Diamond, 2);
-            if (orchestrator != null)
-                orchestrator.DataSet.ForwardPredicted.Clear();
-            forwardModellLine.Symbol.Fill = new Fill(Color.MediumVioletRed);
-            forwardModellLine.Symbol.Size = 2;
-
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Training Loss";
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Iteration";
             zedGraphControl2.GraphPane.YAxis.Title.Text = "Loss value";
@@ -87,7 +78,6 @@ namespace VIXAL2.GUI
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
-            this.zedGraphControl1.GraphPane.CurveList.Add(forwardModellLine);
             this.zedGraphControl1.GraphPane.CurveList.Add(realLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
@@ -128,7 +118,7 @@ namespace VIXAL2.GUI
         private void LoadOriginalLine(StocksDataset ds)
         {
             //disegno il grafico dei prezzi reali normalizzato
-            var sample1 = 1; //-ds.PredictDays
+            var sample1 = 1;// + ds.PredictDays;
             var realData = ds.OriginalNormalizedData;
             int sampleIndex = 0;
 
@@ -188,9 +178,8 @@ namespace VIXAL2.GUI
 
             trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + "" +  ")";
             modelLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + ")";
-            forwardModellLine.Label.Text = "FFModel (I:" + textBoxIterations.Text + ", Hidden:" + textBoxHidden.Text + ", Cells:" + textBoxCells.Text  + ")"; 
 
-            zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - Model evaluation";
+            zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - (I:" + textBoxIterations.Text + ", Hidden:" + textBoxHidden.Text + ", Cells:" + textBoxCells.Text + ")";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -2;
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
@@ -327,14 +316,14 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            DrawPerfomances(orchestrator.performances);
+                            DrawPerfomances(orchestrator.Performances);
                         }
                     }
                     ));
             }
             else
             {
-                DrawPerfomances(orchestrator.performances);
+                DrawPerfomances(orchestrator.Performances);
             }
         }
 
@@ -363,7 +352,8 @@ namespace VIXAL2.GUI
             }
         }
 
-        private void currentModelTestExtreme(ref int sample)
+        [Obsolete]
+        private void currentModelTestExtreme_old(ref int sample)
         {
             //predico anche l'estremo
             var dad = orchestrator.DataSet.GetExtendedArrayX();
@@ -389,12 +379,25 @@ namespace VIXAL2.GUI
 
         }
 
-        private void currentModelTest(int iteration, ref int sample)
+        private void currentModelTestExtreme(ref int sample)
+        {
+            var predictedList = orchestrator.CurrentModelTestExtreme();
+
+            foreach (var predicted in predictedList)
+            {
+                var p = new PointPair(sample, predicted.Value);
+                p.Tag = "(EXTTEST - prediction for " + predicted.Date.ToShortDateString() + ": " + predicted.Value + " )";
+                modelLine.AddPoint(p);
+                sample++;
+            }
+        }
+
+
+        [Obsolete]
+        private void currentModelTest_old(int iteration, ref int sample)
         {
             //get testdatay so I have the correct dates
             var testDataY = orchestrator.DataSet.GetTestArrayY();
-
-            bool forwardPointAdded = false;
 
             //get the next minibatch amount of data
             int mydateIndex = 0;
@@ -408,16 +411,6 @@ namespace VIXAL2.GUI
                 //show on graph
                 foreach (var y in oData)
                 {
-                    if (!forwardPointAdded)
-                    {
-                        var p1 = new PointPair(sample, y[0]);
-                        p1.Tag = "(FF - " + testDataY.GetDate(mydateIndex).ToShortDateString() + " (value of " + testDataY.GetFutureDate(mydateIndex).ToShortDateString() + "): " + y[0] + " )";
-                        forwardModellLine.AddPoint(p1);
-
-                        orchestrator.DataSet.ForwardPredicted.Add(new DatedValueF(testDataY.GetDate(mydateIndex), y[0]));
-                        forwardPointAdded = true;
-                    }
-
                     var p = new PointPair(sample, y[0]);
                     p.Tag = "(PREDICTEDY - " + testDataY.GetDate(mydateIndex).ToShortDateString() + " (value of " + testDataY.GetFutureDate(mydateIndex).ToShortDateString() + "): " + y[0] + " )";
                     modelLine.AddPoint(p);
@@ -432,13 +425,27 @@ namespace VIXAL2.GUI
 
             label2.Text = "Performance (first): " + performances[1].ToString();
             DrawPerfomances(performances);
-
-            if (forwardPointAdded)
-            {
-                Tuple<float, float, float> performance2 = orchestrator.CompareForwardWithDataY();
-                label10.Text = "Performance (forward): " + performance2.ToString();
-            }
         }
+
+        private void currentModelTest(int iteration, ref int sample)
+        {
+            var predictedList = orchestrator.CurrentModelTest();
+
+            foreach (var predicted in predictedList)
+            {
+                var p = new PointPair(sample, predicted.Value);
+                p.Tag = "(PREDICTEDY - on " + predicted.PredictionDate.ToShortDateString() + " (value of " + predicted.Date.ToShortDateString() + "): " + predicted.Value + " )";
+                modelLine.AddPoint(p);
+                sample++;
+            }
+
+            var performances = orchestrator.ComparePredictedAgainstDataY(DoubleDatedValue.ToDoubleArray(predictedList), 0);
+            SetDatesOnPerformances(ref performances);
+
+            label2.Text = "Performance (first): " + performances[1].ToString();
+            DrawPerfomances(performances);
+        }
+
 
         private void SetDatesOnPerformances(ref List<Performance> performances)
         {

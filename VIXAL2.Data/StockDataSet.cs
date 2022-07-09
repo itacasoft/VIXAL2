@@ -6,7 +6,6 @@ namespace VIXAL2.Data
 {
     public class StocksDataset : TimeSerieDataSet
     {
-        List<DatedValueF> _forwardPredicted;
         TimeSerieArray originalData;
 
         public Object Obj1;
@@ -25,8 +24,6 @@ namespace VIXAL2.Data
 
             if (predictCount > allData[0].Length)
                 throw new ArgumentException("Columns to predict is larger than input columns");
-
-            _forwardPredicted = new List<DatedValueF>();
         }
 
         public override string ClassShortName
@@ -35,11 +32,6 @@ namespace VIXAL2.Data
             {
                 return "StockDs";
             }
-        }
-
-        public List<DatedValueF> ForwardPredicted
-        {
-            get { return _forwardPredicted; }
         }
 
         public TimeSerieArray OriginalData

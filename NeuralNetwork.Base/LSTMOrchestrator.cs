@@ -28,7 +28,7 @@ namespace NeuralNetwork.Base
         public static string labelsName = "label";
         public int IndexColumnToPredict;
         private TimeSerieArray originalTestArrayY;
-        public List<Performance> performances;
+        public List<Performance> Performances;
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays, int range = 20)
         {
@@ -49,7 +49,7 @@ namespace NeuralNetwork.Base
 
             DataSet.Prepare();
             originalTestArrayY = DataSet.GetTestArrayY();
-            performances = new List<Performance>();
+            Performances = new List<Performance>();
         }
 
         public void StartTraining(int iterations, int hiddenLayersDim, int cellsNumber, bool reiterate)
@@ -91,10 +91,10 @@ namespace NeuralNetwork.Base
         private void PerformEnd(int iteration)
         {
             int i = 0;
-            while (i < performances.Count)
+            while (i < Performances.Count)
             {
-                if (performances[i].Total < 20)
-                    performances.RemoveAt(i);
+                if (Performances[i].Total < 20)
+                    Performances.RemoveAt(i);
                 else
                     i++;
             }
@@ -107,17 +107,11 @@ namespace NeuralNetwork.Base
             currentLSTMTrainer.StopNow = true;
         }
 
-        public Tuple<float, float, float> CompareForwardWithDataY()
-        {
-            var result = LSTMUtils.Compare(originalTestArrayY, 0, DataSet.ForwardPredicted);
-            return result;
-        }
-
         public List<Performance> ComparePredictedAgainstDataY(double[] predicted, int columnToPredict)
         {
             double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, columnToPredict);
-            LSTMUtils.Compare(dataYList, predicted, ref performances);
-            return performances;
+            LSTMUtils.Compare(dataYList, predicted, ref Performances);
+            return Performances;
         }
 
         public double GetPreviousLossAverage()
@@ -130,6 +124,55 @@ namespace NeuralNetwork.Base
             return currentLSTMTrainer.CurrentModelEvaluate(miniBatchData_X, miniBatchData_Y);
         }
 
+        public List<DoubleDatedValue> CurrentModelTest()
+        {
+            var result = new List<DoubleDatedValue>();
+            //get testdatay so I have the correct dates
+            var testDataY = DataSet.GetTestArrayY();
+
+            //get the next minibatch amount of data
+            int mydateIndex = 0;
+
+            foreach (var miniBatchData in GetBatchesForTest())
+            {
+                var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X);
+
+                foreach (var y in oData)
+                {
+                    result.Add(new DoubleDatedValue(testDataY.GetDate(mydateIndex), testDataY.GetFutureDate(mydateIndex), y[0]));
+                    mydateIndex++;
+                }
+            }
+            return result;
+        }
+
+
+        public List<DoubleDatedValue> CurrentModelTestExtreme()
+        {
+            var result = new List<DoubleDatedValue>();
+            //predico anche l'estremo
+            var dad = DataSet.GetExtendedArrayX();
+
+            float[] batch = new float[dad.Length * dad.Columns];
+            int sss = 0;
+            for (int i = 0; i < dad.Length; i++)
+            {
+                for (int j = 0; j < dad.Columns; j++)
+                    batch[sss++] = (float)dad.Values[i][j];
+            }
+            var oDataExt = currentLSTMTrainer.CurrentModelTest(batch);
+
+            int mydateIndex = 0;
+            foreach (var y in oDataExt)
+            {
+                result.Add(new DoubleDatedValue(dad.GetDate(mydateIndex), dad.GetFutureDate(mydateIndex), y[0]));
+                mydateIndex++;
+            }
+            return result;
+        }
+
+
+        [Obsolete]
         public IList<IList<float>> CurrentModelTest(IEnumerable<float> miniBatchData_X)
         {
             return currentLSTMTrainer.CurrentModelTest(miniBatchData_X);

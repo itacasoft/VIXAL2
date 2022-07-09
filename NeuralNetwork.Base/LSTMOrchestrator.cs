@@ -119,12 +119,6 @@ namespace NeuralNetwork.Base
             return currentLSTMTrainer.PreviousMinibatchLossAverage;
         }
 
-        [Obsolete]
-        public IList<IList<float>> CurrentModelEvaluate(IEnumerable<float> miniBatchData_X, IEnumerable<float> miniBatchData_Y)
-        {
-            return currentLSTMTrainer.CurrentModelEvaluate(miniBatchData_X, miniBatchData_Y);
-        }
-
 
         public List<double> CurrentModelEvaluation()
         {
@@ -189,8 +183,7 @@ namespace NeuralNetwork.Base
             return result;
         }
 
-
-        public IEnumerable<(float[] X, float[] Y)> GetBatchesForTraining()
+        private IEnumerable<(float[] X, float[] Y)> GetBatchesForTraining()
         {
             return nextBatch(DataSet["features"].train, DataSet["label"].train, _batchSize);
         }

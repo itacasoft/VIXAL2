@@ -406,21 +406,6 @@ namespace VIXAL2.GUI
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 
-        [Obsolete]
-        private void currentModelEvaluation_old(int iteration, ref int sample)
-        {
-            //get the next minibatch amount of data
-            foreach (var miniBatchData in orchestrator.GetBatchesForTraining())
-            {
-                var oData = orchestrator.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y);
-                foreach (var y in oData)
-                {
-                    modelLine.AddPoint(new PointPair(sample, y[0]));
-                    sample++;
-                }
-            }
-            zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
-        }
 
         private void currentModelEvaluation(int iteration, ref int sample)
         {

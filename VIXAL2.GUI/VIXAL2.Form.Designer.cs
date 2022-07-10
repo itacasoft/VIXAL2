@@ -44,7 +44,7 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBoxBatchSize = new System.Windows.Forms.TextBox();
             this.textBoxIterations = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
@@ -235,15 +235,15 @@
             this.label3.TabIndex = 49;
             this.label3.Text = "Current iteration:";
             // 
-            // textBox2
+            // textBoxBatchSize
             // 
-            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Location = new System.Drawing.Point(1068, 145);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(50, 26);
-            this.textBox2.TabIndex = 48;
-            this.textBox2.Text = "100";
+            this.textBoxBatchSize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxBatchSize.Location = new System.Drawing.Point(1068, 145);
+            this.textBoxBatchSize.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxBatchSize.Name = "textBoxBatchSize";
+            this.textBoxBatchSize.Size = new System.Drawing.Size(50, 26);
+            this.textBoxBatchSize.TabIndex = 48;
+            this.textBoxBatchSize.Text = "100";
             // 
             // textBoxIterations
             // 
@@ -476,7 +476,7 @@
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.textBoxBatchSize);
             this.Controls.Add(this.textBoxIterations);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.progressBar1);
@@ -512,7 +512,7 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBoxBatchSize;
         private System.Windows.Forms.TextBox textBoxIterations;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ProgressBar progressBar1;

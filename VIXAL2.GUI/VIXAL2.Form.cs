@@ -11,8 +11,8 @@ namespace VIXAL2.GUI
 {
     public partial class VIXAL2Form : Form
     {
-        int batchSize = 100;
-
+        const double MONEY = 10000.00;
+        const double COMMISSION = 0.0019;
         LSTMOrchestrator orchestrator;
 
         LineItem modelLine;
@@ -21,6 +21,8 @@ namespace VIXAL2.GUI
         LineItem realLine;
         LineItem lossDataLine;
         LineItem performanceDataLine;
+        LineItem tradesDataLine;
+        bool tradesDone = false;
 
         public VIXAL2Form()
         {
@@ -29,6 +31,7 @@ namespace VIXAL2.GUI
 
         private void InitiGraphs()
         {
+            tradesDone = false;
             label2.Tag = null;
             label2.Text = "Performance (first): ";
 
@@ -72,6 +75,11 @@ namespace VIXAL2.GUI
             performanceDataLine.Symbol.Fill = new Fill(Color.DarkKhaki);
             performanceDataLine.Symbol.Size = 5;
 
+            if (tradesDataLine != null) tradesDataLine.Clear();
+            else
+                tradesDataLine = new LineItem("Trades", null, null, Color.CadetBlue, ZedGraph.SymbolType.Circle, 1);
+            tradesDataLine.Symbol.Fill = new Fill(Color.CadetBlue);
+            tradesDataLine.Symbol.Size = 5;
 
             //Add line to graph
             this.zedGraphControl1.GraphPane.CurveList.Clear();
@@ -90,6 +98,7 @@ namespace VIXAL2.GUI
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Days from start";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Success Percentage";
             zedGraphControl3.GraphPane.CurveList.Add(performanceDataLine);
+            zedGraphControl3.GraphPane.CurveList.Add(tradesDataLine);
             zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
 
             if (separationline != null) separationline.Clear();
@@ -264,11 +273,13 @@ namespace VIXAL2.GUI
         private void buttonStart_Click(object sender, EventArgs e)
         {
             int iterations = int.Parse(textBoxIterations.Text);
-            batchSize = int.Parse(textBox2.Text);
             int hiddenLayersDim = Convert.ToInt32(textBoxHidden.Text);
             int cellsNumber = Convert.ToInt32(textBoxCells.Text);
             progressBar1.Maximum = iterations;
             progressBar1.Value = 1;
+            
+            tradesDone = false;
+            zedGraphControl3.GraphPane.Title.Text += "Performances";
 
             orchestrator.StartTraining(iterations, hiddenLayersDim, cellsNumber, checkBox1.Checked);
         }
@@ -379,9 +390,45 @@ namespace VIXAL2.GUI
 
             var performances = orchestrator.ComparePredictedAgainstDataY(DoubleDatedValue.ToDoubleArray(predictedList), 0);
             SetDatesOnPerformances(ref performances);
-
             label2.Text = "Performance (first): " + performances[1].ToString();
             DrawPerfomances(performances);
+
+            var tradeResult = LSTMUtils.Trade(orchestrator.DataSet.OriginalData, Convert.ToInt32(textBoxYIndex.Text), predictedList, MONEY, COMMISSION);
+            if (!tradesDone) DrawTrades(tradeResult);
+        }
+
+
+        private void DrawTrades(List<Trade> trades)
+        {
+            tradesDataLine.Clear();
+            int delta = 1;
+
+            for (int i = 0; i < trades.Count; i++)
+            {
+                if (trades[i].Trend == 1)
+                {
+                    var p1 = new PointPair(trades[i].StartIndex+delta, trades[i].StartMoney/(MONEY*2.0D));
+                    p1.Tag = "Trade " + (i + delta).ToString() + " START (" + trades[i].StartMoney.ToString("F") + ")";
+                    var p2 = new PointPair(trades[i].EndIndex+delta, trades[i].EndMoney / (MONEY * 2.0D));
+                    p2.Tag = "Trade " + (i + delta).ToString() + " END (" + trades[i].EndMoney.ToString("F") + ")";
+                    tradesDataLine.AddPoint(p1);
+                    tradesDataLine.AddPoint(p2);
+                }
+                else
+                {
+                    var p1 = new PointPair(trades[i].StartIndex+delta, trades[i].StartMoney / (MONEY * 2.0D));
+                    p1.Tag = "Trade " + (i + delta).ToString() + " START (" + trades[i].StartMoney.ToString("F") + ")";
+                    var p2 = new PointPair(trades[i].EndIndex+delta, trades[i].EndMoney / (MONEY * 2.0D));
+                    p2.Tag = "Trade " + (i + delta).ToString() + " END (" + trades[i].EndMoney.ToString("F") + ")";
+                    tradesDataLine.AddPoint(p1);
+                    tradesDataLine.AddPoint(p2);
+                }
+            }
+
+            double totalGainPerc = (trades[trades.Count - 1].EndMoney - trades[0].StartMoney)/ trades[0].StartMoney;
+            zedGraphControl3.GraphPane.Title.Text = "Performances - Gain% = " + totalGainPerc.ToString("F");
+            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
+            tradesDone = true;
         }
 
 
@@ -423,7 +470,7 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, endReport, Convert.ToInt32(textBox2.Text));
+            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, endReport, Convert.ToInt32(textBoxBatchSize.Text));
             orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
 
             loadListView(orchestrator.DataSet);

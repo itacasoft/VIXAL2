@@ -41,31 +41,4 @@ namespace VIXAL2.Data.Base
             return result;
         }
     }
-
-    public class DatedValueF
-    {
-        DateTime _date;
-        float _value;
-
-        public DatedValueF(DateTime date, float value)
-        {
-            _date = date;
-            _value = value;
-        }
-
-        public DateTime Date
-        {
-            get { return _date; }
-        }
-
-        public float Value
-        {
-            get { return _value; }
-        }
-
-        public override string ToString()
-        {
-            return _date.ToShortDateString() + " " + _value.ToString("F");
-        }
-    }
 }

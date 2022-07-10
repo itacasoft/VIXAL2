@@ -37,7 +37,7 @@ namespace NeuralNetwork.Base
             }
         }
 
-        public static Tuple<float, float, float> Compare(TimeSerieArray dataY, int IndexColumnToPredict, List<DatedValueF> dataPredicted)
+        public static Tuple<float, float, float> Compare(TimeSerieArray dataY, int IndexColumnToPredict, List<DatedValue> dataPredicted)
         {
             float guessed = 0, failed = 0;
             double predicted0 = dataPredicted[0].Value;
@@ -65,31 +65,87 @@ namespace NeuralNetwork.Base
             return Tuple.Create<float, float, float>(guessed, guessed+failed, result);
         }
 
-        public static float Trade(StocksDataset ds, int IndexColumnToPredict, List<DatedValueF> dataPredicted)
+        public static int GetTrend(double value0, double value1)
         {
-            float guessed = 0, failed = 0;
-            DatedValueF predicted0 = dataPredicted[0];
+            if (value0 == value1) return 0;
 
-            for (int row = 1; row < dataPredicted.Count; row++)
+            if (value1 > value0)
             {
-                //assess if the predicted trend is positive or not
-                var predicted1 = dataPredicted[row];
-                bool predictedPositiveTrend = (predicted1.Value > predicted0.Value);
-
-                double valueToday = ds.OriginalData.GetValue(predicted0.Date, IndexColumnToPredict);
-                double valueTomorrow = ds.OriginalData.GetValue(predicted1.Date, IndexColumnToPredict);
-
-
-                if (predictedPositiveTrend == true)
-                    guessed++;
+                if (((value1 - value0) / value0) < 0.05)
+                    return 0;
                 else
-                    failed++;
-
-                predicted0 = predicted1;
-                //                future0 = future1;
+                    return 1;
             }
+            else
+            {
+                if (((value0 - value1) / value0) < 0.05)
+                    return 0;
+                else
+                    return -1;
+            }
+        }
 
-            float result = guessed / (guessed + failed);
+
+        public static List<Trade> Trade(TimeSerieArray originalData, int IndexColumnToPredict, List<DoubleDatedValue> dataPredicted, double money, double commission)
+        {
+            int trades = 0;
+            int i = 0;
+            List<Trade> result = new List<Trade>();
+
+            while (i < dataPredicted.Count)
+            {
+                DoubleDatedValue predicted0 = dataPredicted[i];
+                DoubleDatedValue predicted1;
+                if (i + 10 < dataPredicted.Count)
+                {
+                    predicted1 = dataPredicted[i+10];
+                    //check if the predicted trend is positive, negative or flat
+                    int trend = GetTrend(predicted0.Value, predicted1.Value);
+
+                    double value0 = originalData.GetValue(predicted0.Date, IndexColumnToPredict);
+                    double value1 = originalData.GetValue(predicted1.Date, IndexColumnToPredict);
+
+                    if (trend == 1)
+                    {
+                        //compro
+                        var t = new Trade(1);
+                        t.StartIndex = i;
+                        t.EndIndex = i+10;
+                        trades++;
+                        t.StartMoney = money;
+                        t.EndMoney = (value1 * t.StartMoney) / value0;
+                        //subtract commissions
+                        t.EndMoney = t.EndMoney - commission * t.StartMoney - commission * t.EndMoney;
+                        money = t.EndMoney;
+                        result.Add(t);
+
+                        i += 10;
+                    }
+                    else if (trend == -1)
+                    {
+                        //vendo allo scoperto
+                        var t = new Trade(-1);
+                        t.StartIndex = i;
+                        t.EndIndex = i + 10;
+                        t.StartMoney = money;
+                        t.EndMoney = (value0 * t.StartMoney) / value1;
+                        //subtract commissions
+                        t.EndMoney = t.EndMoney - commission * t.StartMoney - commission * t.EndMoney;
+                        money = t.EndMoney;
+                        result.Add(t);
+
+                        i += 10;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+                else
+                {
+                    i++;
+                }
+            }
 
             return result;
         }

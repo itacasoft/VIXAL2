@@ -9,13 +9,28 @@ namespace NeuralNetwork.Base
 {
     public class LSTMOrchestrator
     {
-        private NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
+        /// <summary>
+        /// Dataset used for the simulation
+        /// </summary>
+        public StocksDataset DataSet;
+        /// <summary>
+        /// Performances of the simulation
+        /// </summary>
+        public List<Performance> Performances;
+        /// <summary>
+        /// Trades of the simulation
+        /// </summary>
+        public List<Trade> Trades;
 
+        private NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
         private Action<int> _progressReport;
         private Action<StocksDataset> _reloadReport;
         private Action<int> _endReport;
         private int _batchSize;
-        public StocksDataset DataSet;
+        private static string featuresName = "feature";
+        private static string labelsName = "label";
+        private int indexColumnToPredict;
+
         public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, int batchSize)
         {
             _progressReport = progressReport;
@@ -24,15 +39,9 @@ namespace NeuralNetwork.Base
             _batchSize = batchSize;
         }
 
-        public static string featuresName = "feature";
-        public static string labelsName = "label";
-        public int IndexColumnToPredict;
-        private TimeSerieArray originalTestArrayY;
-        public List<Performance> Performances;
-
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays, int range = 20)
         {
-            IndexColumnToPredict = firstColumnToPredict;
+            indexColumnToPredict = firstColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
             DataSet.TrainPercent = 0.95F;
             DataSet.ValidPercent = 0.0F;
@@ -48,8 +57,8 @@ namespace NeuralNetwork.Base
             }
 
             DataSet.Prepare();
-            originalTestArrayY = DataSet.GetTestArrayY();
             Performances = new List<Performance>();
+            Trades = new List<Trade>();
         }
 
         public void StartTraining(int iterations, int hiddenLayersDim, int cellsNumber, bool reiterate)
@@ -106,6 +115,16 @@ namespace NeuralNetwork.Base
         {
             currentLSTMTrainer.StopNow = true;
         }
+
+        public List<Trade> SimulateTrades(List<DoubleDatedValue> predictedList, double MONEY, double COMMISSION)
+        {
+            var tradeResult = LSTMUtils.Trade(DataSet.OriginalData, indexColumnToPredict, predictedList, MONEY, COMMISSION);
+            //prendo solo il primo perchè ritengo che sia più affidabile
+            if (tradeResult.Count>0) Trades.Add(tradeResult[0]);
+
+            return Trades;
+        }
+
 
         public List<Performance> ComparePredictedAgainstDataY(double[] predicted, int columnToPredict)
         {

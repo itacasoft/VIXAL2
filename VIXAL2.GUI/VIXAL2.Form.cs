@@ -13,6 +13,7 @@ namespace VIXAL2.GUI
     {
         const double MONEY = 10000.00;
         const double COMMISSION = 0.0019;
+
         LSTMOrchestrator orchestrator;
 
         LineItem modelLine;
@@ -21,8 +22,7 @@ namespace VIXAL2.GUI
         LineItem realLine;
         LineItem lossDataLine;
         LineItem performanceDataLine;
-        LineItem tradesDataLine;
-        bool tradesDone = false;
+        LineItem longTradesLine, shortTradesLine;
 
         public VIXAL2Form()
         {
@@ -31,7 +31,6 @@ namespace VIXAL2.GUI
 
         private void InitiGraphs()
         {
-            tradesDone = false;
             label2.Tag = null;
             label2.Text = "Performance (first): ";
 
@@ -75,11 +74,25 @@ namespace VIXAL2.GUI
             performanceDataLine.Symbol.Fill = new Fill(Color.DarkKhaki);
             performanceDataLine.Symbol.Size = 5;
 
-            if (tradesDataLine != null) tradesDataLine.Clear();
+            if (longTradesLine != null) longTradesLine.Clear();
             else
-                tradesDataLine = new LineItem("Trades", null, null, Color.CadetBlue, ZedGraph.SymbolType.Circle, 1);
-            tradesDataLine.Symbol.Fill = new Fill(Color.CadetBlue);
-            tradesDataLine.Symbol.Size = 5;
+                longTradesLine = new LineItem("Long Trades", null, null, Color.CadetBlue, ZedGraph.SymbolType.Circle, 1);
+            longTradesLine.Symbol.Fill = new Fill(Color.CadetBlue);
+            longTradesLine.Symbol.Size = 5;
+            var p1 = new PointPair(1, 0.5);
+            var p2 = new PointPair(11, 0.5);
+            longTradesLine.AddPoint(p1);
+            longTradesLine.AddPoint(p2);
+
+            if (shortTradesLine != null) shortTradesLine.Clear();
+            else
+                shortTradesLine = new LineItem("Short Trades", null, null, Color.CadetBlue, ZedGraph.SymbolType.Circle, 1);
+            shortTradesLine.Symbol.Fill = new Fill(Color.RosyBrown);
+            shortTradesLine.Symbol.Size = 5;
+            var p3 = new PointPair(1, 0.5);
+            var p4 = new PointPair(11, 0.5);
+            shortTradesLine.AddPoint(p3);
+            shortTradesLine.AddPoint(p4);
 
             //Add line to graph
             this.zedGraphControl1.GraphPane.CurveList.Clear();
@@ -98,7 +111,8 @@ namespace VIXAL2.GUI
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Days from start";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Success Percentage";
             zedGraphControl3.GraphPane.CurveList.Add(performanceDataLine);
-            zedGraphControl3.GraphPane.CurveList.Add(tradesDataLine);
+            zedGraphControl3.GraphPane.CurveList.Add(shortTradesLine);
+            zedGraphControl3.GraphPane.CurveList.Add(longTradesLine);
             zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
 
             if (separationline != null) separationline.Clear();
@@ -278,7 +292,6 @@ namespace VIXAL2.GUI
             progressBar1.Maximum = iterations;
             progressBar1.Value = 1;
             
-            tradesDone = false;
             zedGraphControl3.GraphPane.Title.Text += "Performances";
 
             orchestrator.StartTraining(iterations, hiddenLayersDim, cellsNumber, checkBox1.Checked);
@@ -393,42 +406,68 @@ namespace VIXAL2.GUI
             label2.Text = "Performance (first): " + performances[1].ToString();
             DrawPerfomances(performances);
 
-            var tradeResult = LSTMUtils.Trade(orchestrator.DataSet.OriginalData, Convert.ToInt32(textBoxYIndex.Text), predictedList, MONEY, COMMISSION);
-            if (!tradesDone) DrawTrades(tradeResult);
+            var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
+            DrawTrades(tradeResult);
         }
 
 
         private void DrawTrades(List<Trade> trades)
         {
-            tradesDataLine.Clear();
-            int delta = 1;
+            int longCount = 0, shortCount = 0;
+            double avgGainLong = 0, avgGainShort = 0;
+
+            for (int i=0; i<trades.Count; i++)
+            {
+                if (trades[i].Trend == 1)
+                {
+                    avgGainLong += trades[i].Gain;
+                    longCount++;
+                }
+            }
+            avgGainLong = avgGainLong/longCount;
+            double gainLongPerc = avgGainLong / MONEY;
+
+            for (int i = 0; i < trades.Count; i++)
+            {
+                if (trades[i].Trend == -1)
+                {
+                    avgGainShort += trades[i].Gain;
+                    shortCount++;
+                }
+            }
+            avgGainShort = avgGainShort / shortCount;
+            double gainShortPerc = avgGainShort / MONEY;
 
             for (int i = 0; i < trades.Count; i++)
             {
                 if (trades[i].Trend == 1)
                 {
-                    var p1 = new PointPair(trades[i].StartIndex+delta, trades[i].StartMoney/(MONEY*2.0D));
-                    p1.Tag = "Trade " + (i + delta).ToString() + " START (" + trades[i].StartMoney.ToString("F") + ")";
-                    var p2 = new PointPair(trades[i].EndIndex+delta, trades[i].EndMoney / (MONEY * 2.0D));
-                    p2.Tag = "Trade " + (i + delta).ToString() + " END (" + trades[i].EndMoney.ToString("F") + ")";
-                    tradesDataLine.AddPoint(p1);
-                    tradesDataLine.AddPoint(p2);
+                    var p1 = longTradesLine[0];
+                    p1.Tag = "Long Trade START (" + trades[i].StartMoney.ToString("F") + ")";
+                    var p2 = longTradesLine[1];
+                    p2.Tag = "Long Trade END (count =" + longCount + "; gain % = " + gainLongPerc.ToString("F") + ")";
+                    p2.Y = (avgGainLong + MONEY) / (MONEY * 2.0D);
                 }
                 else
                 {
-                    var p1 = new PointPair(trades[i].StartIndex+delta, trades[i].StartMoney / (MONEY * 2.0D));
-                    p1.Tag = "Trade " + (i + delta).ToString() + " START (" + trades[i].StartMoney.ToString("F") + ")";
-                    var p2 = new PointPair(trades[i].EndIndex+delta, trades[i].EndMoney / (MONEY * 2.0D));
-                    p2.Tag = "Trade " + (i + delta).ToString() + " END (" + trades[i].EndMoney.ToString("F") + ")";
-                    tradesDataLine.AddPoint(p1);
-                    tradesDataLine.AddPoint(p2);
+                    var p1 = shortTradesLine[0];
+                    p1.Tag = "Short Trade START (" + trades[i].StartMoney.ToString("F") + ")";
+                    var p2 = shortTradesLine[1];
+                    p2.Tag = "Short Trade END (count =" + shortCount + "; gain % = " + gainShortPerc.ToString("F") + ")";
+                    p2.Y = (avgGainShort + MONEY) / (MONEY * 2.0D);
                 }
             }
 
-            double totalGainPerc = (trades[trades.Count - 1].EndMoney - trades[0].StartMoney)/ trades[0].StartMoney;
-            zedGraphControl3.GraphPane.Title.Text = "Performances - Gain% = " + totalGainPerc.ToString("F");
+            //calcolo il numero delle volte in cui c'è stato un guadagno
+            double totalGains = 0;
+            for (int i=0; i<trades.Count; i++)
+            {
+                if (trades[i].Gain > 0) totalGains++;
+            }
+            double totalGainPerc = totalGains/trades.Count;
+            
+            zedGraphControl3.GraphPane.Title.Text = "Performances - Success % = " + totalGainPerc.ToString("F");
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
-            tradesDone = true;
         }
 
 

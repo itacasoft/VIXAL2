@@ -118,7 +118,13 @@ namespace NeuralNetwork.Base
 
         public List<Trade> SimulateTrades(List<DoubleDatedValue> predictedList, double MONEY, double COMMISSION)
         {
-            var tradeResult = LSTMUtils.Trade(DataSet.OriginalData, indexColumnToPredict, predictedList, MONEY, COMMISSION);
+            //denormalizzo altrimenti non posso fare calcoli di trading corretti
+            for (int i=0; i<predictedList.Count; i++)
+            {
+                predictedList[i].Value = DataSet.Decode(predictedList[i].Value, indexColumnToPredict);
+            }
+                        
+            var tradeResult = TradesSimulator.Trade(DataSet.OriginalData, indexColumnToPredict, predictedList, MONEY, COMMISSION);
             //prendo solo il primo perchè ritengo che sia più affidabile
             if (tradeResult.Count>0) Trades.Add(tradeResult[0]);
 

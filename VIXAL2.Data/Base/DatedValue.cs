@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VIXAL2.Data.Base
 {
@@ -24,6 +21,7 @@ namespace VIXAL2.Data.Base
 
         public double Value { 
             get { return _value; }
+            set { _value = value; }
         }
 
         public override string ToString()

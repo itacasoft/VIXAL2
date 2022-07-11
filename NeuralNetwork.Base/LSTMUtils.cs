@@ -100,17 +100,15 @@ namespace NeuralNetwork.Base
                 {
                     predicted1 = dataPredicted[i+10];
                     //check if the predicted trend is positive, negative or flat
-                    int trend = GetTrend(predicted0.Value, predicted1.Value);
+                    int predictedTrend = GetTrend(predicted0.Value, predicted1.Value);
 
                     double value0 = originalData.GetValue(predicted0.Date, IndexColumnToPredict);
                     double value1 = originalData.GetValue(predicted1.Date, IndexColumnToPredict);
 
-                    if (trend == 1)
+                    if (predictedTrend == 1)
                     {
                         //compro
-                        var t = new Trade(1);
-                        t.StartIndex = i;
-                        t.EndIndex = i+10;
+                        var t = new Trade(predicted0.Date, value0, predicted1.Date, value1, 1);
                         trades++;
                         t.StartMoney = money;
                         t.EndMoney = (value1 * t.StartMoney) / value0;
@@ -121,12 +119,10 @@ namespace NeuralNetwork.Base
 
                         i += 10;
                     }
-                    else if (trend == -1)
+                    else if (predictedTrend == -1)
                     {
                         //vendo allo scoperto
-                        var t = new Trade(-1);
-                        t.StartIndex = i;
-                        t.EndIndex = i + 10;
+                        var t = new Trade(predicted0.Date, value0, predicted1.Date, value1, -1);
                         t.StartMoney = money;
                         t.EndMoney = (value0 * t.StartMoney) / value1;
                         //subtract commissions

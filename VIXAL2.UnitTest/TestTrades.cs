@@ -38,8 +38,8 @@ namespace VIXAL2.UnitTest
             var tradeResult = LSTMUtils.Trade(originalData, 0, predictedList, 10000, 0.0019);
             Assert.AreEqual(tradeResult.Count, 2);
 
-            Assert.AreEqual(tradeResult[0].Trend, -1);
-            Assert.AreEqual(tradeResult[1].Trend, 1);
+            Assert.AreEqual(tradeResult[0].PredictedTrend, -1);
+            Assert.AreEqual(tradeResult[1].PredictedTrend, 1);
 
             Assert.IsTrue(tradeResult[0].GainPerc > 0.39);
             Assert.IsTrue(tradeResult[0].GainPerc < 0.40);

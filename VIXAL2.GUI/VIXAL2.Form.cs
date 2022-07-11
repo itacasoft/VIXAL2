@@ -76,7 +76,7 @@ namespace VIXAL2.GUI
 
             if (longTradesLine != null) longTradesLine.Clear();
             else
-                longTradesLine = new LineItem("Long Trades", null, null, Color.CadetBlue, ZedGraph.SymbolType.Circle, 1);
+                longTradesLine = new LineItem("Long Trades", null, null, Color.ForestGreen, ZedGraph.SymbolType.Circle, 1);
             longTradesLine.Symbol.Fill = new Fill(Color.CadetBlue);
             longTradesLine.Symbol.Size = 5;
             var p1 = new PointPair(1, 0.5);
@@ -86,7 +86,7 @@ namespace VIXAL2.GUI
 
             if (shortTradesLine != null) shortTradesLine.Clear();
             else
-                shortTradesLine = new LineItem("Short Trades", null, null, Color.CadetBlue, ZedGraph.SymbolType.Circle, 1);
+                shortTradesLine = new LineItem("Short Trades", null, null, Color.PaleVioletRed, ZedGraph.SymbolType.Circle, 1);
             shortTradesLine.Symbol.Fill = new Fill(Color.RosyBrown);
             shortTradesLine.Symbol.Size = 5;
             var p3 = new PointPair(1, 0.5);
@@ -114,6 +114,8 @@ namespace VIXAL2.GUI
             zedGraphControl3.GraphPane.CurveList.Add(shortTradesLine);
             zedGraphControl3.GraphPane.CurveList.Add(longTradesLine);
             zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
+            if (zedGraphControl3.GraphPane.GraphObjList.Count > 0)
+                zedGraphControl3.GraphPane.GraphObjList.Clear();
 
             if (separationline != null) separationline.Clear();
             else separationline = new LineItem("");
@@ -413,15 +415,17 @@ namespace VIXAL2.GUI
 
         private void DrawTrades(List<Trade> trades)
         {
-            int longCount = 0, shortCount = 0;
+            int longCount = 0, shortCount = 0, longSuccessCount = 0, shortSuccessCount = 0;
             double avgGainLong = 0, avgGainShort = 0;
 
             for (int i=0; i<trades.Count; i++)
             {
-                if (trades[i].Trend == 1)
+                if (trades[i].PredictedTrend == 1)
                 {
                     avgGainLong += trades[i].Gain;
                     longCount++;
+                    if (trades[i].Gain > 0)
+                        longSuccessCount++;
                 }
             }
             avgGainLong = avgGainLong/longCount;
@@ -429,10 +433,12 @@ namespace VIXAL2.GUI
 
             for (int i = 0; i < trades.Count; i++)
             {
-                if (trades[i].Trend == -1)
+                if (trades[i].PredictedTrend == -1)
                 {
                     avgGainShort += trades[i].Gain;
                     shortCount++;
+                    if (trades[i].Gain > 0)
+                        shortSuccessCount++;
                 }
             }
             avgGainShort = avgGainShort / shortCount;
@@ -440,12 +446,12 @@ namespace VIXAL2.GUI
 
             for (int i = 0; i < trades.Count; i++)
             {
-                if (trades[i].Trend == 1)
+                if (trades[i].PredictedTrend == 1)
                 {
                     var p1 = longTradesLine[0];
                     p1.Tag = "Long Trade START (" + trades[i].StartMoney.ToString("F") + ")";
                     var p2 = longTradesLine[1];
-                    p2.Tag = "Long Trade END (count =" + longCount + "; gain % = " + gainLongPerc.ToString("F") + ")";
+                    p2.Tag = "Long (success =" + longSuccessCount + "/" + longCount + "; gain % = " + gainLongPerc.ToString("F") + ")";
                     p2.Y = (avgGainLong + MONEY) / (MONEY * 2.0D);
                 }
                 else
@@ -453,7 +459,7 @@ namespace VIXAL2.GUI
                     var p1 = shortTradesLine[0];
                     p1.Tag = "Short Trade START (" + trades[i].StartMoney.ToString("F") + ")";
                     var p2 = shortTradesLine[1];
-                    p2.Tag = "Short Trade END (count =" + shortCount + "; gain % = " + gainShortPerc.ToString("F") + ")";
+                    p2.Tag = "Short (success =" + shortSuccessCount + "/" + shortCount + "; gain % = " + gainShortPerc.ToString("F") + ")";
                     p2.Y = (avgGainShort + MONEY) / (MONEY * 2.0D);
                 }
             }
@@ -466,7 +472,36 @@ namespace VIXAL2.GUI
             }
             double totalGainPerc = totalGains/trades.Count;
             
-            zedGraphControl3.GraphPane.Title.Text = "Performances - Success % = " + totalGainPerc.ToString("F");
+            zedGraphControl3.GraphPane.Title.Text = "Performance - Trade Success % = " + totalGainPerc.ToString("F");
+
+            if (zedGraphControl3.GraphPane.GraphObjList.Count > 0)
+                zedGraphControl3.GraphPane.GraphObjList.Clear();
+
+
+            //aggiungo il testo
+            var pp1 = shortTradesLine[1];
+            var pp2 = longTradesLine[1];
+            double spaziaturaGrafica;
+            if (pp1.Y >= pp2.Y)
+                spaziaturaGrafica = 0.02;
+            else spaziaturaGrafica = -0.02;
+
+            TextObj text = new TextObj((string)pp1.Tag, pp1.X, pp1.Y + spaziaturaGrafica);
+            text.FontSpec.FontColor = Color.Black;
+            text.Location.AlignH = AlignH.Left;
+            text.Location.AlignV = AlignV.Center;
+            text.FontSpec.Fill.IsVisible = false;
+            text.FontSpec.Border.IsVisible = false;
+            zedGraphControl3.GraphPane.GraphObjList.Add(text);
+
+            text = new TextObj((string)pp2.Tag, pp2.X, pp2.Y - spaziaturaGrafica);
+            text.FontSpec.FontColor = Color.Black;
+            text.Location.AlignH = AlignH.Left;
+            text.Location.AlignV = AlignV.Center;
+            text.FontSpec.Fill.IsVisible = false;
+            text.FontSpec.Border.IsVisible = false;
+            zedGraphControl3.GraphPane.GraphObjList.Add(text);
+
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 

@@ -1,16 +1,24 @@
-﻿namespace VIXAL2.Data.Base
+﻿using System;
+
+namespace VIXAL2.Data.Base
 {
     public class Trade
     {
-        public int StartIndex;
-        public int EndIndex;
+        public DateTime StartDate;
+        public DateTime EndDate;
         public double StartMoney;
         public double EndMoney;
-        public int Trend = 0;
+        public double StartPrice;
+        public double EndPrice;
+        public int PredictedTrend = 0;
 
-        public Trade(int trend)
+        public Trade(DateTime startDate, double startPrice, DateTime endDate, double endPrice, int predictedTrend)
         {
-            Trend = trend;
+            PredictedTrend = predictedTrend;
+            StartDate = startDate;
+            EndDate = endDate;
+            StartPrice = startPrice;
+            EndPrice = endPrice;
         }
 
         public double Gain

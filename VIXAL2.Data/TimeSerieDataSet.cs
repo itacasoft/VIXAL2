@@ -33,8 +33,11 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
-            //NormalizeAllData();
+#if NORMALIZE_FIRST
+            NormalizeAllData();
+#else
             base.Prepare();
+#endif
 
             SplitData(dataList.ToArray());
             prepared = true;
@@ -169,15 +172,27 @@ namespace VIXAL2.Data
         {
             var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
 
+#if NORMALIZE_FIRST
+            //normalize data before return
+            var trainX1 = Utils.ToFloatArray(trainDataX);
+            var validX1 = Utils.ToFloatArray(validDataX);
+            var testX1 = Utils.ToFloatArray(testDataX);
+
+            var trainY1 = Utils.ToFloatArray(trainDataY);
+            var validY1 = Utils.ToFloatArray(validDataY);
+            var testY1 = Utils.ToFloatArray(testDataY);
+#else
             //normalize data before return
             var trainX1 = Utils.ToFloatArray(Normalize(trainDataX));
             var validX1 = Utils.ToFloatArray(Normalize(validDataX));
             var testX1 = Utils.ToFloatArray(Normalize(testDataX));
-            var xxx = (trainX1, validX1, testX1);
 
             var trainY1 = Utils.ToFloatArray(Normalize(trainDataY, firstColumnToPredict));
             var validY1 = Utils.ToFloatArray(Normalize(validDataY, firstColumnToPredict));
             var testY1 = Utils.ToFloatArray(Normalize(testDataY, firstColumnToPredict));
+#endif
+
+            var xxx = (trainX1, validX1, testX1);
             var yyy = (trainY1, validY1, testY1);
             
             retVal.Add("features", xxx);

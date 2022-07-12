@@ -38,7 +38,6 @@ namespace VIXAL2.Data
         {
             get
             {
-
                 return originalData;
             }
         }

@@ -1,5 +1,4 @@
-﻿using SharpML.Types;
-using SharpML.Types.Normalization;
+﻿using SharpML.Types.Normalization;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,6 +9,7 @@ namespace VIXAL2.Data.Base
     public abstract class NormalizedDataSet
     {
         private double[][] _data;
+        bool normalizeFirst = false;
 
         protected double[][] Data
         {
@@ -24,6 +24,11 @@ namespace VIXAL2.Data.Base
             }
         }
 
+        public bool NormalizeFirst
+        {
+            get { return normalizeFirst; }
+        }
+
         protected List<double[]> dataList;
         protected INormalizer normalizer;
 
@@ -34,12 +39,19 @@ namespace VIXAL2.Data.Base
             normalizer = Normalizer.Constructor(normalizerType);
         }
 
-        public abstract void Prepare();
+        public virtual void Prepare()
+        {
+#if NORMALIZE_FIRST
+#else
+            normalizer.Initialize(dataList);
+#endif
+        }
 
         protected void NormalizeAllData()
         {
             normalizer.Initialize(dataList);
             normalizer.NormalizeByRef(dataList);
+            normalizeFirst = true;
         }
 
         public double Normalize(double value, int col)
@@ -57,6 +69,21 @@ namespace VIXAL2.Data.Base
             return normalizer.Normalize(values);
         }
 
+        public double[][] Normalize(double[][] values, int col)
+        {
+            if ((values.Length > 0) && (values[0].Length > 1))
+                throw new InvalidOperationException("This Normalize function can be used only with an array with 1 column and N rows");
+
+            double[][] result = new double[values.Length][];
+            for (int row = 0; row < values.Length; row++)
+            {
+                result[row] = new double[1];
+                result[row][0] = Normalize(values[row][0], col);    
+            }
+
+            return result;
+        }
+
 
         public double Decode(double value, int col)
         {
@@ -64,6 +91,11 @@ namespace VIXAL2.Data.Base
         }
 
         public double[] Decode(double[] values, int col)
+        {
+            return normalizer.Decode(values, col);
+        }
+
+        public List<double> Decode(List<double> values, int col)
         {
             return normalizer.Decode(values, col);
         }

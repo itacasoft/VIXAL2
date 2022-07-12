@@ -149,8 +149,14 @@ namespace VIXAL2.GUI
         {
             //disegno il grafico dei prezzi reali normalizzato
             var sample1 = 1;// + ds.PredictDays;
-            //var realData = ds.OriginalNormalizedData;
-            var realData = ds.OriginalData;
+
+            TimeSerieArray realData;
+            
+            if (ds.NormalizeFirst)
+                realData = ds.OriginalNormalizedData;
+            else
+                realData = ds.OriginalData;
+
             int sampleIndex = 0;
 
             for (int i = sampleIndex; i < realData.Length; i++)

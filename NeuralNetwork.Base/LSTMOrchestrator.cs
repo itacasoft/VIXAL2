@@ -167,6 +167,11 @@ namespace NeuralNetwork.Base
                     result.Add(y[0]);
                 }
             }
+
+            //denormalize before return
+            if (!DataSet.NormalizeFirst)
+                result = DataSet.Decode(result, indexColumnToPredict);
+
             return result;
         }
 
@@ -186,7 +191,11 @@ namespace NeuralNetwork.Base
 
                 foreach (var y in oData)
                 {
-                    result.Add(new DoubleDatedValue(testDataY.GetDate(mydateIndex), testDataY.GetFutureDate(mydateIndex), y[0]));
+                    if (DataSet.NormalizeFirst)
+                        result.Add(new DoubleDatedValue(testDataY.GetDate(mydateIndex), testDataY.GetFutureDate(mydateIndex), y[0]));
+                    else
+                        result.Add(new DoubleDatedValue(testDataY.GetDate(mydateIndex), testDataY.GetFutureDate(mydateIndex), DataSet.Decode(y[0], indexColumnToPredict)));
+
                     mydateIndex++;
                 }
             }
@@ -197,8 +206,14 @@ namespace NeuralNetwork.Base
         public List<DoubleDatedValue> CurrentModelTestExtreme()
         {
             var result = new List<DoubleDatedValue>();
-            //predico anche l'estremo
-            var dad = DataSet.GetExtendedArrayX();
+
+            TimeSerieArrayExt dad;
+            if (DataSet.NormalizeFirst)
+                //predico anche l'estremo
+                dad = DataSet.GetExtendedArrayX(false);
+            else
+                //predico anche l'estremo con dati normalizzati
+                dad = DataSet.GetExtendedArrayX(true);
 
             float[] batch = new float[dad.Length * dad.Columns];
             int sss = 0;
@@ -212,7 +227,11 @@ namespace NeuralNetwork.Base
             int mydateIndex = 0;
             foreach (var y in oDataExt)
             {
-                result.Add(new DoubleDatedValue(dad.GetDate(mydateIndex), dad.GetFutureDate(mydateIndex), y[0]));
+                if (DataSet.NormalizeFirst)
+                    result.Add(new DoubleDatedValue(dad.GetDate(mydateIndex), dad.GetFutureDate(mydateIndex), y[0]));
+                else
+                    result.Add(new DoubleDatedValue(dad.GetDate(mydateIndex), dad.GetFutureDate(mydateIndex), DataSet.Decode(y[0], indexColumnToPredict)));
+
                 mydateIndex++;
             }
             return result;

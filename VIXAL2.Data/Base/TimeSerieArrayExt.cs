@@ -54,10 +54,5 @@ namespace VIXAL2.Data.Base
         {
             return GetColName(0) + ", PD:" + this.PredictDays;
         }
-
-        public void Normalize(INormalizer normalizer)
-        {
-            values = normalizer.Normalize(values);
-        }
     }
 }

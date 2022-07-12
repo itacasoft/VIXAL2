@@ -149,7 +149,8 @@ namespace VIXAL2.GUI
         {
             //disegno il grafico dei prezzi reali normalizzato
             var sample1 = 1;// + ds.PredictDays;
-            var realData = ds.OriginalNormalizedData;
+            //var realData = ds.OriginalNormalizedData;
+            var realData = ds.OriginalData;
             int sampleIndex = 0;
 
             for (int i = sampleIndex; i < realData.Length; i++)
@@ -513,7 +514,7 @@ namespace VIXAL2.GUI
 
         private void SetDatesOnPerformances(ref List<Performance> performances)
         {
-            var dad = orchestrator.DataSet.GetExtendedArrayX();
+            var dad = orchestrator.DataSet.GetExtendedArrayX(false);
             for (int i = 0; (i < dad.Length && i < performances.Count); i++)
             {
                 performances[i].Date = dad.GetFutureDate(i);

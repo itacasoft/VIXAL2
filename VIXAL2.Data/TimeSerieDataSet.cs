@@ -33,21 +33,10 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
-            NormalizeAllData();
+            //NormalizeAllData();
+            base.Prepare();
 
             SplitData(dataList.ToArray());
-
-            //            NormalizeData(trainDataX, validDataX, testDataX, true);
-            //            NormalizeData(trainDataY, validDataY, testDataY);
-
-            /*            Training = CreateSequencesTraining();
-                        Validation = CreateSequencesValidation();
-                        Testing = CreateSequencesTesting();
-                        InputDimension = Training[0].Steps[0].Input.Rows;
-                        OutputDimension = Training[0].Steps[0].TargetOutput.Rows;
-                        LossTraining = new LossSumOfSquares();
-                        LossReporting = new LossSumOfSquares();
-            */
             prepared = true;
         }
 
@@ -75,7 +64,7 @@ namespace VIXAL2.Data
         /// <summary>
         /// This method returns a copy of dataX for latest PredictGap days 
         /// </summary>
-        public virtual TimeSerieArrayExt GetExtendedArrayX()
+        public virtual TimeSerieArrayExt GetExtendedArrayX(bool normalized = false)
         {
             TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - TestCount, dataList[0].Length);
             result.PredictDays = predictDays;
@@ -87,6 +76,8 @@ namespace VIXAL2.Data
                     DateTime date = dates[row + TrainCount + ValidCount + TestCount];
                     DateTime futureDate = Utils.AddBusinessDays(dates[row + TrainCount + ValidCount + TestCount], predictDays+1);
                     var currentValue = dataList[row + TrainCount + ValidCount + TestCount][col];
+                    if (normalized) 
+                        currentValue = Normalize(currentValue, col);
                     result.SetValue(row, col, date, futureDate, currentValue);
                 }
             }
@@ -170,19 +161,25 @@ namespace VIXAL2.Data
         }
 
 
+        /// <summary>
+        /// Returns a dictionary containing features/label (datax/datay) couple of data for training
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, (float[][] train, float[][] valid, float[][] test)> GetFeatureLabelDataSet()
         {
             var retVal = new Dictionary<string, (float[][] train, float[][] valid, float[][] test)>();
 
-            float[][] extendedTestDataX = Utils.ToFloatArray(testDataX);
+            //normalize data before return
+            var trainX1 = Utils.ToFloatArray(Normalize(trainDataX));
+            var validX1 = Utils.ToFloatArray(Normalize(validDataX));
+            var testX1 = Utils.ToFloatArray(Normalize(testDataX));
+            var xxx = (trainX1, validX1, testX1);
 
-#if EXTENDED_TEST
-            var exte = Utils.ToFloatArray(Normalizer.Instance.Normalize(this.GetExtendedArrayX().Values));
-            extendedTestDataX = extendedTestDataX.Stack<float>(exte);
-#endif
-
-            var xxx = (Utils.ToFloatArray(trainDataX), Utils.ToFloatArray(validDataX), Utils.ToFloatArray(testDataX));
-            var yyy = (Utils.ToFloatArray(trainDataY), Utils.ToFloatArray(validDataY), Utils.ToFloatArray(testDataY));
+            var trainY1 = Utils.ToFloatArray(Normalize(trainDataY, firstColumnToPredict));
+            var validY1 = Utils.ToFloatArray(Normalize(validDataY, firstColumnToPredict));
+            var testY1 = Utils.ToFloatArray(Normalize(testDataY, firstColumnToPredict));
+            var yyy = (trainY1, validY1, testY1);
+            
             retVal.Add("features", xxx);
             retVal.Add("label", yyy);
 

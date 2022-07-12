@@ -88,6 +88,21 @@ namespace SharpML.Types.Normalization
             return result;
         }
 
+        public override List<double> Decode(List<double> values, int col)
+        {
+            if (!initialized) throw new InvalidOperationException("INormalizer not initialized");
+
+            List<double> result = new List<double>();
+            Stat stat = rnnConfig.GetStat(0, 0, col);
+
+            for (int row = 0; row < values.Count; row++)
+            {
+                result.Add(this.DecodeValue(values[row], stat.Mean, stat.Deviance));
+            }
+            return result;
+        }
+
+
         public override double Decode(double value, int col)
         {
             if (!initialized) throw new InvalidOperationException("INormalizer not initialized");

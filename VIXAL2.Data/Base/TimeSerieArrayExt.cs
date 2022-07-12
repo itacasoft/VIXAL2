@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpML.Types.Normalization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -52,6 +53,11 @@ namespace VIXAL2.Data.Base
         public string ToStringExt()
         {
             return GetColName(0) + ", PD:" + this.PredictDays;
+        }
+
+        public void Normalize(INormalizer normalizer)
+        {
+            values = normalizer.Normalize(values);
         }
     }
 }

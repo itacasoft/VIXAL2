@@ -166,7 +166,7 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.TestCount, 95);
 
             TimeSerieArray current = ds.GetTestArrayX();
-            TimeSerieArray extended = ds.GetExtendedArrayX();
+            TimeSerieArray extended = ds.GetExtendedArrayX(false);
             Assert.AreEqual(current.MaxDate.AddDays(1), extended.MinDate);
         }
 

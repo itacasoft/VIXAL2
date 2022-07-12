@@ -69,6 +69,7 @@ namespace SharpML.Types.Normalization
         public abstract double[] Normalize(double[] values, int col);
         public abstract double Normalize(double value, int col);
         public abstract double[] Decode(double[] values, int col);
+        public abstract List<double> Decode(List<double> values, int col);
         public abstract double Decode(double value, int col);
 
         double[] GetVectorFromArray(double[][] input, int column)

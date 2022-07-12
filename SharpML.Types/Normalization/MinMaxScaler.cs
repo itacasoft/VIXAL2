@@ -37,6 +37,17 @@ namespace SharpML.Types.Normalization
             return result;
         }
 
+        public override List<double> Decode(List<double> values, int col)
+        {
+            List<double> result = new List<double>();
+            for (int i = 0; i < values.Count; i++)
+            {
+                result.Add(Decode(values[i], col));
+            }
+            return result;
+        }
+
+
         public override double Decode(double value, int col)
         {
             double result = value * (maxs[col] - mins[col]) + mins[col];
@@ -52,6 +63,7 @@ namespace SharpML.Types.Normalization
             }
             return result;
         }
+
 
         public override double Normalize(double value, int col)
         {

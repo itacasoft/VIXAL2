@@ -80,9 +80,9 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public override TimeSerieArrayExt GetExtendedArrayX()
+        public override TimeSerieArrayExt GetExtendedArrayX(bool normalized = false)
         {
-            var result = base.GetExtendedArrayX();
+            var result = base.GetExtendedArrayX(normalized);
             result.Range = this.Range;
             return result;
         }

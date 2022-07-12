@@ -21,6 +21,18 @@ namespace SharpML.Types.Normalization
             return (double[])values.Clone();
         }
 
+        public override List<double> Decode(List<double> values, int col)
+        {
+            var result = new List<double>();
+            for (int i=0; i < values.Count; i++)
+            {
+                result.Add(values[i]);
+            }
+
+            return result;
+        }
+
+
         public override double Decode(double value, int col)
         {
             return value;

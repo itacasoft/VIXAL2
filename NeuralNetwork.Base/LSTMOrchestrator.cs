@@ -1,6 +1,7 @@
 ﻿using SharpML.Types;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Threading.Tasks;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
@@ -31,12 +32,20 @@ namespace NeuralNetwork.Base
         private static string labelsName = "label";
         private int indexColumnToPredict;
 
+        int MAX_DAYS_FOR_TRADE = 5;
+        int TRADE_LENGHT = 10;
+        double MIN_TREND = 0.03;
+
         public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, int batchSize)
         {
             _progressReport = progressReport;
             _reloadReport = reloadReport;
             _endReport = endReport;
             _batchSize = batchSize;
+
+            MAX_DAYS_FOR_TRADE = Convert.ToInt32(ConfigurationManager.AppSettings["MaxDaysForTradesSimulation"]);
+            TRADE_LENGHT = Convert.ToInt32(ConfigurationManager.AppSettings["TradeLenghtForTradesSimulation"]);
+            MIN_TREND = Convert.ToDouble(ConfigurationManager.AppSettings["MinTrendForTradesSimulation"]);
         }
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays, int range = 20)
@@ -123,8 +132,9 @@ namespace NeuralNetwork.Base
             {
                 predictedList[i].Value = DataSet.Decode(predictedList[i].Value, indexColumnToPredict);
             }
-                        
-            var tradeResult = TradesSimulator.Trade(DataSet.OriginalData, indexColumnToPredict, predictedList, MONEY, COMMISSION);
+
+            var tradeSim = new TradesSimulator(MAX_DAYS_FOR_TRADE, TRADE_LENGHT, MIN_TREND);
+            var tradeResult = tradeSim.Trade(DataSet.OriginalData, indexColumnToPredict, predictedList, MONEY, COMMISSION);
             //prendo solo il primo perchè ritengo che sia più affidabile
             if (tradeResult.Count>0) Trades.Add(tradeResult[0]);
 

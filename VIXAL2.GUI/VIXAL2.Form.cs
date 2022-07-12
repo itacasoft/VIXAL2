@@ -1,6 +1,7 @@
 ﻿using NeuralNetwork.Base;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Windows.Forms;
 using VIXAL2.Data;
@@ -11,8 +12,8 @@ namespace VIXAL2.GUI
 {
     public partial class VIXAL2Form : Form
     {
-        const double MONEY = 10000.00;
-        const double COMMISSION = 0.0019;
+        double MONEY = 10000.00;
+        double COMMISSION = 0.0019;
 
         LSTMOrchestrator orchestrator;
 
@@ -137,6 +138,10 @@ namespace VIXAL2.GUI
         {
             comboBox1.SelectedIndex = 0;
             buttonStart.Enabled = false;
+
+            MONEY = Convert.ToDouble(ConfigurationManager.AppSettings["MoneyForTradesSimulation"]);
+            COMMISSION = Convert.ToDouble(ConfigurationManager.AppSettings["CommisionForTradesSimulation"]);
+
             InitiGraphs();
         }
 

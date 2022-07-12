@@ -5,24 +5,31 @@ namespace NeuralNetwork.Base
 {
     public class TradesSimulator
     {
-        const int MAX_DAYS_FOR_TRADE = 5;
-        const int TRADE_LENGHT = 10;
-        const double MIN_TREND = 0.04;
+        int MaxDaysForATrade = 5;
+        int TradeLenght = 10;
+        double MinTrend = 0.03;
 
-        public static int GetTrend(double value0, double value1)
+        public TradesSimulator(int maxDaysForATrade, int tradeLenght, double minTrend)
+        {
+            MaxDaysForATrade = maxDaysForATrade;
+            TradeLenght = tradeLenght;
+            MinTrend = minTrend;
+        }
+
+        public int GetTrend(double value0, double value1)
         {
             if (value0 == value1) return 0;
 
             if (value1 > value0)
             {
-                if (((value1 - value0) / value0) < MIN_TREND)
+                if (((value1 - value0) / value0) < MinTrend)
                     return 0;
                 else
                     return 1;
             }
             else
             {
-                if (((value0 - value1) / value0) < MIN_TREND)
+                if (((value0 - value1) / value0) < MinTrend)
                     return 0;
                 else
                     return -1;
@@ -30,19 +37,19 @@ namespace NeuralNetwork.Base
         }
 
 
-        public static List<Trade> Trade(TimeSerieArray originalData, int IndexColumnToPredict, List<DoubleDatedValue> dataPredicted, double money, double commission)
+        public List<Trade> Trade(TimeSerieArray originalData, int IndexColumnToPredict, List<DoubleDatedValue> dataPredicted, double money, double commission)
         {
             int trades = 0;
             int i = 0;
             List<Trade> result = new List<Trade>();
 
-            while (i < dataPredicted.Count && i < MAX_DAYS_FOR_TRADE)
+            while (i < dataPredicted.Count && i < MaxDaysForATrade)
             {
                 DoubleDatedValue predicted0 = dataPredicted[i];
                 DoubleDatedValue predicted1;
-                if (i + TRADE_LENGHT < dataPredicted.Count)
+                if (i + TradeLenght < dataPredicted.Count)
                 {
-                    predicted1 = dataPredicted[i + TRADE_LENGHT];
+                    predicted1 = dataPredicted[i + TradeLenght];
                     //check if the predicted trend is positive, negative or flat
                     int predictedTrend = GetTrend(predicted0.Value, predicted1.Value);
 
@@ -61,7 +68,7 @@ namespace NeuralNetwork.Base
                         money = t.EndMoney;
                         result.Add(t);
 
-                        i += TRADE_LENGHT;
+                        i += TradeLenght;
                     }
                     else if (predictedTrend == -1)
                     {
@@ -74,7 +81,7 @@ namespace NeuralNetwork.Base
                         money = t.EndMoney;
                         result.Add(t);
 
-                        i += TRADE_LENGHT;
+                        i += TradeLenght;
                     }
                     else
                     {

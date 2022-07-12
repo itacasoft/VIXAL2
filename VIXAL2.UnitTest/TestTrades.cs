@@ -12,16 +12,18 @@ namespace VIXAL2.UnitTest
         [TestMethod]
         public void CalculateTrend()
         {
-            var trend = TradesSimulator.GetTrend(10,10.5);
+            var tradeSim = new TradesSimulator(5, 10, 0.04);
+
+            var trend = tradeSim.GetTrend(10,10.5);
             Assert.AreEqual(trend, 1);
 
-            trend = TradesSimulator.GetTrend(10.5, 10);
+            trend = tradeSim.GetTrend(10.5, 10);
             Assert.AreEqual(trend, 0);
 
-            trend = TradesSimulator.GetTrend(10.6, 10);
+            trend = tradeSim.GetTrend(10.6, 10);
             Assert.AreEqual(trend, -1);
 
-            trend = TradesSimulator.GetTrend(10, 9.6);
+            trend = tradeSim.GetTrend(10, 9.6);
             Assert.AreEqual(trend, 0);
         }
 
@@ -35,7 +37,8 @@ namespace VIXAL2.UnitTest
             var originalData = GetSimpleTimeSerieArray();
             var predictedList = GetSimplePredictedList();
 
-            var tradeResult = TradesSimulator.Trade(originalData, 0, predictedList, 10000, 0.0019);
+            var tradeSim = new TradesSimulator(5, 10, 0.04);
+            var tradeResult = tradeSim.Trade(originalData, 0, predictedList, 10000, 0.0019);
             Assert.IsTrue(tradeResult.Count > 0);
 
             Assert.AreEqual(tradeResult[0].PredictedTrend, -1);
@@ -51,7 +54,8 @@ namespace VIXAL2.UnitTest
             var predictedList = GetSimplePredictedList();
             predictedList.RemoveRange(9, predictedList.Count-9);
 
-            var tradeResult = TradesSimulator.Trade(originalData, 0, predictedList, 10000, 0.0019);
+            var tradeSim = new TradesSimulator(5, 10, 0.04);
+            var tradeResult = tradeSim.Trade(originalData, 0, predictedList, 10000, 0.0019);
             Assert.AreEqual(tradeResult.Count, 0);
         }
 

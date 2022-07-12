@@ -127,10 +127,13 @@ namespace NeuralNetwork.Base
 
         public List<Trade> SimulateTrades(List<DoubleDatedValue> predictedList, double MONEY, double COMMISSION)
         {
-            //denormalizzo altrimenti non posso fare calcoli di trading corretti
-            for (int i=0; i<predictedList.Count; i++)
+            if (DataSet.NormalizeFirst)
             {
-                predictedList[i].Value = DataSet.Decode(predictedList[i].Value, indexColumnToPredict);
+                //denormalizzo altrimenti non posso fare calcoli di trading corretti
+                for (int i = 0; i < predictedList.Count; i++)
+                {
+                    predictedList[i].Value = DataSet.Decode(predictedList[i].Value, indexColumnToPredict);
+                }
             }
 
             var tradeSim = new TradesSimulator(MAX_DAYS_FOR_TRADE, TRADE_LENGHT, MIN_TREND);

@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Threading.Tasks;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
+using System.Linq;
 
 namespace NeuralNetwork.Base
 {
@@ -15,9 +17,13 @@ namespace NeuralNetwork.Base
         /// </summary>
         public StocksDataset DataSet;
         /// <summary>
-        /// Performances of the simulation
+        /// Performances of the simulation based on slope comparison
         /// </summary>
-        public List<Performance> Performances;
+        public List<Performance> SlopePerformances;
+        /// <summary>
+        /// Performance of the simulation based on difference average
+        /// </summary>
+        public List<double> DiffPerformance;
         /// <summary>
         /// Trades of the simulation
         /// </summary>
@@ -35,6 +41,7 @@ namespace NeuralNetwork.Base
         int MAX_DAYS_FOR_TRADE = 5;
         int TRADE_LENGHT = 10;
         double MIN_TREND = 0.03;
+        public int DAYS_FOR_PERFORMANCE = 15;
 
         public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, int batchSize)
         {
@@ -45,7 +52,7 @@ namespace NeuralNetwork.Base
 
             MAX_DAYS_FOR_TRADE = Convert.ToInt32(ConfigurationManager.AppSettings["MaxDaysForTradesSimulation"]);
             TRADE_LENGHT = Convert.ToInt32(ConfigurationManager.AppSettings["TradeLenghtForTradesSimulation"]);
-            MIN_TREND = Convert.ToDouble(ConfigurationManager.AppSettings["MinTrendForTradesSimulation"]);
+            MIN_TREND = Convert.ToDouble(ConfigurationManager.AppSettings["MinTrendForTradesSimulation"], CultureInfo.InvariantCulture);
         }
 
         public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays, int range = 20)
@@ -66,7 +73,8 @@ namespace NeuralNetwork.Base
             }
 
             DataSet.Prepare();
-            Performances = new List<Performance>();
+            SlopePerformances = new List<Performance>();
+            DiffPerformance = new List<double>();
             Trades = new List<Trade>();
         }
 
@@ -108,14 +116,7 @@ namespace NeuralNetwork.Base
 
         private void PerformEnd(int iteration)
         {
-            int i = 0;
-            while (i < Performances.Count)
-            {
-                if (Performances[i].Total < 20)
-                    Performances.RemoveAt(i);
-                else
-                    i++;
-            }
+            SlopePerformances.RemoveRange(16, SlopePerformances.Count-16);
 
             _endReport(iteration);
         }
@@ -145,11 +146,16 @@ namespace NeuralNetwork.Base
         }
 
 
-        public List<Performance> ComparePredictedAgainstDataY(double[] predicted, int columnToPredict)
+        public void ComparePredictedAgainstDataY(double[] predicted, int columnToPredict)
         {
             double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, columnToPredict);
-            LSTMUtils.Compare(dataYList, predicted, ref Performances);
-            return Performances;
+            LSTMUtils.CompareSlopes(dataYList, predicted, ref SlopePerformances);
+
+            //calcolo diff performance solo su DAYS_FOR_PERFORMANCE elementi
+            if (dataYList.Length >= DAYS_FOR_PERFORMANCE)
+            {
+                DiffPerformance.Add(LSTMUtils.CompareDifferences(dataYList.Take(DAYS_FOR_PERFORMANCE), predicted.Take(DAYS_FOR_PERFORMANCE)));
+            }
         }
 
         public double GetPreviousLossAverage()

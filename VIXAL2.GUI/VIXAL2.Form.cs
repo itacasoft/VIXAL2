@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
+using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
@@ -139,8 +141,8 @@ namespace VIXAL2.GUI
             comboBox1.SelectedIndex = 0;
             buttonStart.Enabled = false;
 
-            MONEY = Convert.ToDouble(ConfigurationManager.AppSettings["MoneyForTradesSimulation"]);
-            COMMISSION = Convert.ToDouble(ConfigurationManager.AppSettings["CommisionForTradesSimulation"]);
+            MONEY = Convert.ToDouble(ConfigurationManager.AppSettings["MoneyForTradesSimulation"], CultureInfo.InvariantCulture);
+            COMMISSION = Convert.ToDouble(ConfigurationManager.AppSettings["CommisionForTradesSimulation"], CultureInfo.InvariantCulture);
 
             InitiGraphs();
         }
@@ -354,14 +356,14 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            DrawPerfomances(orchestrator.Performances);
+                            DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
                         }
                     }
                     ));
             }
             else
             {
-                DrawPerfomances(orchestrator.Performances);
+                DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
             }
         }
 
@@ -415,10 +417,10 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
-            var performances = orchestrator.ComparePredictedAgainstDataY(DoubleDatedValue.ToDoubleArray(predictedList), 0);
-            SetDatesOnPerformances(ref performances);
-            label2.Text = "Performance (first): " + performances[1].ToString();
-            DrawPerfomances(performances);
+            orchestrator.ComparePredictedAgainstDataY(DoubleDatedValue.ToDoubleArray(predictedList), 0);
+            SetDatesOnPerformances(ref orchestrator.SlopePerformances);
+            label2.Text = "Performance (first): " + orchestrator.SlopePerformances[1].ToString();
+            DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
             var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
             DrawTrades(tradeResult);
@@ -484,11 +486,8 @@ namespace VIXAL2.GUI
             }
             double totalGainPerc = totalGains/trades.Count;
             
-            zedGraphControl3.GraphPane.Title.Text = "Performance - Trade Success % = " + totalGainPerc.ToString("F");
-
             if (zedGraphControl3.GraphPane.GraphObjList.Count > 0)
                 zedGraphControl3.GraphPane.GraphObjList.Clear();
-
 
             //aggiungo il testo
             var pp1 = shortTradesLine[1];
@@ -527,7 +526,7 @@ namespace VIXAL2.GUI
             }
         }
 
-        private void DrawPerfomances(List<Performance> performances)
+        private void DrawPerfomances(List<Performance> performances, List<double> diffPerc)
         {
             performanceDataLine.Clear();
             for (int i=1; i< performances.Count; i++)
@@ -536,6 +535,16 @@ namespace VIXAL2.GUI
                 p.Tag = performances[i].ToString();
                 performanceDataLine.AddPoint(p);
             }
+
+            double avgSlopePerformance = 0;
+            //calcolo la media dei primi DAYS_FOR_PERFORMANCE
+            for (int i=1; i<=orchestrator.DAYS_FOR_PERFORMANCE; i++)
+            {
+                avgSlopePerformance += orchestrator.SlopePerformances[i].SuccessPercentage;
+            }
+            avgSlopePerformance = avgSlopePerformance / orchestrator.DAYS_FOR_PERFORMANCE;
+
+                zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeSuccess(%) = " + avgSlopePerformance.ToString("P") + "; Diff(%) = " + orchestrator.DiffPerformance.Average().ToString("P");
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 

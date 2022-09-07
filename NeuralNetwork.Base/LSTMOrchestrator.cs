@@ -157,15 +157,16 @@ namespace NeuralNetwork.Base
         }
 
 
-        public void ComparePredictedAgainstDataY(double[] predicted, int columnToPredict)
+        public void ComparePredictedAgainstDataY(List<DoubleDatedValue> predicted, int columnToPredict)
         {
             double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, columnToPredict);
-            LSTMUtils.CompareSlopes(dataYList, predicted, ref SlopePerformances);
+            LSTMUtils.CompareSlopes(dataYList, DoubleDatedValue.ToDoubleArray(predicted), ref SlopePerformances);
 
             //calcolo diff performance solo su DAYS_FOR_PERFORMANCE elementi
             if (dataYList.Length >= DAYS_FOR_PERFORMANCE)
             {
-                DiffPerformance.Add(LSTMUtils.CompareDifferences(dataYList.Take(DAYS_FOR_PERFORMANCE), predicted.Take(DAYS_FOR_PERFORMANCE)));
+                var result = LSTMUtils.CompareDifferences(dataYList.Take(DAYS_FOR_PERFORMANCE), DoubleDatedValue.ToDoubleArray(predicted).Take(DAYS_FOR_PERFORMANCE));
+                DiffPerformance.Add(result);
             }
         }
 

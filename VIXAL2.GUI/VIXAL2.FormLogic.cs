@@ -158,7 +158,7 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
-            orchestrator.ComparePredictedAgainstDataY(DoubleDatedValue.ToDoubleArray(predictedList), 0);
+            orchestrator.ComparePredictedAgainstDataY(predictedList, 0);
             SetDatesOnPerformances(ref orchestrator.SlopePerformances);
             label2.Text = "Performance (first): " + orchestrator.SlopePerformances[1].ToString();
             DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);

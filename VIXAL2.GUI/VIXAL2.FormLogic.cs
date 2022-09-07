@@ -15,7 +15,7 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, endReport, Convert.ToInt32(textBoxBatchSize.Text));
+            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, EndReport, FinalEndReport, Convert.ToInt32(textBoxBatchSize.Text));
             orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
 
             LoadListView(orchestrator.DataSet);
@@ -76,7 +76,7 @@ namespace VIXAL2.GUI
         }
 
 
-        void endReport(int iteration)
+        void EndReport(int iteration)
         {
             if (this.InvokeRequired)
             {
@@ -87,7 +87,6 @@ namespace VIXAL2.GUI
                         if (!this.IsDisposed)
                         {
                             DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
-                            CheckReload();
                         }
                     }
                     ));
@@ -95,6 +94,26 @@ namespace VIXAL2.GUI
             else
             {
                 DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
+            }
+        }
+
+        void FinalEndReport()
+        {
+            if (this.InvokeRequired)
+            {
+                // Execute the same method, but this time on the GUI thread
+                this.Invoke(
+                    new Action(() =>
+                    {
+                        if (!this.IsDisposed)
+                        {
+                            CheckReload();
+                        }
+                    }
+                    ));
+            }
+            else
+            {
                 CheckReload();
             }
         }
@@ -107,6 +126,10 @@ namespace VIXAL2.GUI
                 textBoxYIndex.Text = (currentIndex + 1).ToString();
                 LoadDataset(currentIndex + 1);
                 StartTraining();
+            }
+            else
+            {
+
             }
         }
 

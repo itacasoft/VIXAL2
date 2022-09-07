@@ -33,6 +33,7 @@ namespace NeuralNetwork.Base
         private Action<int> _progressReport;
         private Action<StocksDataset> _reloadReport;
         private Action<int> _endReport;
+        private Action _finalEndReport;
         private int _batchSize;
         private static string featuresName = "feature";
         private static string labelsName = "label";
@@ -44,11 +45,12 @@ namespace NeuralNetwork.Base
         public int DAYS_FOR_PERFORMANCE = 15;
         public int Iterations;
 
-        public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, int batchSize)
+        public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, Action finalEndReport, int batchSize)
         {
             _progressReport = progressReport;
             _reloadReport = reloadReport;
             _endReport = endReport;
+            _finalEndReport = finalEndReport;
             _batchSize = batchSize;
 
             MAX_DAYS_FOR_TRADE = Convert.ToInt32(ConfigurationManager.AppSettings["MaxDaysForTradesSimulation"]);
@@ -100,6 +102,7 @@ namespace NeuralNetwork.Base
             if ((!result) || (currentLSTMTrainer.StopNow))
             {
                 PerformEnd(iteration);
+                PerformFinalEnd();
                 return;
             }
 
@@ -122,6 +125,12 @@ namespace NeuralNetwork.Base
 
             _endReport(iteration);
         }
+
+        private void PerformFinalEnd()
+        {
+            _finalEndReport();
+        }
+
 
         public void StopTrainingNow()
         {

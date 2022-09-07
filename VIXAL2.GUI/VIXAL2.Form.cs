@@ -237,7 +237,7 @@ namespace VIXAL2.GUI
             separationline.AddPoint(p1);
         }
 
-        private void loadListView(StocksDataset ds)
+        private void LoadListView(StocksDataset ds)
         {
             //clear the list first
             listView1.Clear();
@@ -300,14 +300,56 @@ namespace VIXAL2.GUI
             }
         }
 
+        private void LoadBars(StocksDataset ds)
+        {
+            totalBar.Width = totalBar.Parent.Width - totalBar.Left * 2;
+            int totalBarLen = totalBar.Width;
+            totalBar.Text = "Total dates: " + ds.Dates.Count.ToString();
+
+            trainDataXBar.Width = totalBarLen * ds.TrainDataX.Length / ds.Dates.Count;
+            trainDataXBar.Text = "TrainDataX: " + ds.TrainDataX.Length.ToString();
+            this.toolTip1.SetToolTip(this.trainDataXBar, trainDataXBar.Text);
+
+            validDataXBar.Width = totalBarLen * ds.ValidDataX.Length / ds.Dates.Count;
+            validDataXBar.Left = trainDataXBar.Right;
+            validDataXBar.Text = "ValidDataX: " + ds.ValidDataX.Length.ToString();
+            this.toolTip1.SetToolTip(this.validDataXBar, validDataXBar.Text);
+
+            testDataXBar.Width = totalBarLen * ds.TestDataX.Length / ds.Dates.Count;
+            testDataXBar.Left = validDataXBar.Right;
+            testDataXBar.Text = "TestDataX: " + ds.TestDataX.Length.ToString();
+            this.toolTip1.SetToolTip(this.testDataXBar, testDataXBar.Text);
+
+            trainDataYBar.Width = totalBarLen * ds.TrainDataY.Length / ds.Dates.Count;
+            trainDataYBar.Left = trainDataXBar.Left + ds.PredictDays * totalBarLen / ds.Dates.Count;
+            trainDataYBar.Text = "TrainDataY: " + ds.TrainDataY.Length.ToString();
+            this.toolTip1.SetToolTip(this.trainDataYBar, trainDataYBar.Text);
+
+            validDataYBar.Width = totalBarLen * ds.ValidDataY.Length / ds.Dates.Count;
+            validDataYBar.Left = trainDataYBar.Right;
+            validDataYBar.Text = "TrainDataY: " + ds.ValidDataY.Length.ToString();
+            this.toolTip1.SetToolTip(this.validDataYBar, validDataYBar.Text);
+
+            testDataYBar.Width = totalBarLen * ds.TestDataY.Length / ds.Dates.Count;
+            testDataYBar.Left = validDataYBar.Right;
+            testDataYBar.Text = "TestDataY: " + ds.TestDataY.Length.ToString();
+            this.toolTip1.SetToolTip(this.testDataYBar, testDataYBar.Text);
+
+        }
+
         private void buttonStart_Click(object sender, EventArgs e)
+        {
+            StartTraining();
+        }
+
+        private void StartTraining()
         {
             int iterations = int.Parse(textBoxIterations.Text);
             int hiddenLayersDim = Convert.ToInt32(textBoxHidden.Text);
             int cellsNumber = Convert.ToInt32(textBoxCells.Text);
             progressBar1.Maximum = iterations;
             progressBar1.Value = 1;
-            
+
             zedGraphControl3.GraphPane.Title.Text += "Performances";
 
             orchestrator.StartTraining(iterations, hiddenLayersDim, cellsNumber, checkBox1.Checked);
@@ -357,6 +399,7 @@ namespace VIXAL2.GUI
                         if (!this.IsDisposed)
                         {
                             DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
+                            CheckReload();
                         }
                     }
                     ));
@@ -364,9 +407,20 @@ namespace VIXAL2.GUI
             else
             {
                 DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
+                CheckReload();
             }
         }
 
+        private void CheckReload()
+        {
+            if (checkBoxIterateOnStocks.Checked)
+            {
+                int currentIndex = Convert.ToInt32(textBoxYIndex.Text);
+                textBoxYIndex.Text = (currentIndex + 1).ToString();
+                LoadDataset(currentIndex + 1);
+                StartTraining();
+            }
+        }
 
         private void reportOnGraphs(int iteration)
         {
@@ -540,11 +594,11 @@ namespace VIXAL2.GUI
             //calcolo la media dei primi DAYS_FOR_PERFORMANCE
             for (int i=1; i<=orchestrator.DAYS_FOR_PERFORMANCE; i++)
             {
-                avgSlopePerformance += orchestrator.SlopePerformances[i].SuccessPercentage;
+                avgSlopePerformance += orchestrator.SlopePerformances[i].FailedPercentage;
             }
             avgSlopePerformance = avgSlopePerformance / orchestrator.DAYS_FOR_PERFORMANCE;
 
-                zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeSuccess(%) = " + avgSlopePerformance.ToString("P") + "; Diff(%) = " + orchestrator.DiffPerformance.Average().ToString("P");
+                zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeDiff(%) = " + avgSlopePerformance.ToString("P") + "; Diff(%) = " + orchestrator.DiffPerformance.Average().ToString("P");
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 
@@ -563,21 +617,28 @@ namespace VIXAL2.GUI
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
+            LoadDataset(Convert.ToInt32(textBoxYIndex.Text));
+        }
+
+        private void LoadDataset(int stockIndex)
+        {
             InitiGraphs();
 
             orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, endReport, Convert.ToInt32(textBoxBatchSize.Text));
-            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBoxYIndex.Text), 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
+            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
 
-            loadListView(orchestrator.DataSet);
+            LoadListView(orchestrator.DataSet);
             //disegno il grafico dei prezzi reali
             LoadOriginalLine(orchestrator.DataSet);
 
             LoadGraphs(orchestrator.DataSet);
 
+            LoadBars(orchestrator.DataSet);
+
             buttonStart.Enabled = true;
             label9.Text = "Dataset: " + orchestrator.DataSet.DataList[0].Length + " cols, " + orchestrator.DataSet.DataList.Count + " rows";
-            //            textBoxCells.Text = DataSet.AllData[0].Length.ToString();
         }
+
 
         private void btnStop_Click(object sender, EventArgs e)
         {

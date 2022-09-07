@@ -37,11 +37,12 @@ namespace NeuralNetwork.Base
         private static string featuresName = "feature";
         private static string labelsName = "label";
         private int indexColumnToPredict;
-
+        
         int MAX_DAYS_FOR_TRADE = 5;
         int TRADE_LENGHT = 10;
         double MIN_TREND = 0.03;
         public int DAYS_FOR_PERFORMANCE = 15;
+        public int Iterations;
 
         public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, int batchSize)
         {
@@ -80,13 +81,14 @@ namespace NeuralNetwork.Base
 
         public void StartTraining(int iterations, int hiddenLayersDim, int cellsNumber, bool reiterate)
         {
+            this.Iterations = iterations;
             int ouDim = DataSet.TrainDataY[0].Length;
             int inDim = DataSet.ColNames.Length;
 
             currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
 
             Task taskA = Task.Run(() =>
-            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iterations, _batchSize, _progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
+            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iterations, _batchSize, TrainingProgress, NeuralNetwork.Base.DeviceType.CPUDevice));
 
             if (reiterate)
                 taskA.ContinueWith(antecedent => ReiterateTrainingAfterForward(hiddenLayersDim, cellsNumber, iterations));
@@ -109,7 +111,7 @@ namespace NeuralNetwork.Base
             currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
 
             Task taskA = Task.Run(() =>
-            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, _batchSize, _progressReport, NeuralNetwork.Base.DeviceType.CPUDevice));
+            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, _batchSize, TrainingProgress, NeuralNetwork.Base.DeviceType.CPUDevice));
 
             taskA.ContinueWith(antecedent => ReiterateTrainingAfterForward(hiddenLayersDim, cellsNumber, iteration));
         }
@@ -161,6 +163,15 @@ namespace NeuralNetwork.Base
         public double GetPreviousLossAverage()
         {
             return currentLSTMTrainer.PreviousMinibatchLossAverage;
+        }
+
+        void TrainingProgress(int iteration)
+        {
+            _progressReport(iteration);
+            if (iteration == Iterations)
+            {
+                PerformEnd(iteration);
+            }
         }
 
 

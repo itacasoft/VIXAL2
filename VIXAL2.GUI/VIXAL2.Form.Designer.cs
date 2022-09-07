@@ -56,14 +56,25 @@
             this.zedGraphControl2 = new ZedGraph.ZedGraphControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.zedGraphControl3 = new ZedGraph.ZedGraphControl();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.validDataYBar = new System.Windows.Forms.Button();
+            this.testDataYBar = new System.Windows.Forms.Button();
+            this.trainDataYBar = new System.Windows.Forms.Button();
+            this.validDataXBar = new System.Windows.Forms.Button();
+            this.testDataXBar = new System.Windows.Forms.Button();
+            this.trainDataXBar = new System.Windows.Forms.Button();
+            this.totalBar = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBoxRange = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
+            this.checkBoxIterateOnStocks = new System.Windows.Forms.CheckBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnStop
@@ -295,6 +306,7 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Location = new System.Drawing.Point(602, 255);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl1.Name = "tabControl1";
@@ -389,6 +401,100 @@
             this.zedGraphControl3.TabIndex = 1;
             this.zedGraphControl3.UseExtendedPrintDialog = true;
             // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.validDataYBar);
+            this.tabPage4.Controls.Add(this.testDataYBar);
+            this.tabPage4.Controls.Add(this.trainDataYBar);
+            this.tabPage4.Controls.Add(this.validDataXBar);
+            this.tabPage4.Controls.Add(this.testDataXBar);
+            this.tabPage4.Controls.Add(this.trainDataXBar);
+            this.tabPage4.Controls.Add(this.totalBar);
+            this.tabPage4.Location = new System.Drawing.Point(4, 29);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(655, 399);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Data Split";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // validDataYBar
+            // 
+            this.validDataYBar.BackColor = System.Drawing.Color.MistyRose;
+            this.validDataYBar.Location = new System.Drawing.Point(455, 154);
+            this.validDataYBar.Name = "validDataYBar";
+            this.validDataYBar.Size = new System.Drawing.Size(52, 33);
+            this.validDataYBar.TabIndex = 8;
+            this.validDataYBar.Text = "button1";
+            this.toolTip1.SetToolTip(this.validDataYBar, "Pollo");
+            this.validDataYBar.UseVisualStyleBackColor = false;
+            // 
+            // testDataYBar
+            // 
+            this.testDataYBar.BackColor = System.Drawing.Color.Salmon;
+            this.testDataYBar.Location = new System.Drawing.Point(513, 154);
+            this.testDataYBar.Name = "testDataYBar";
+            this.testDataYBar.Size = new System.Drawing.Size(110, 33);
+            this.testDataYBar.TabIndex = 7;
+            this.testDataYBar.Text = "button1";
+            this.toolTip1.SetToolTip(this.testDataYBar, "Pagliaccio");
+            this.testDataYBar.UseVisualStyleBackColor = false;
+            // 
+            // trainDataYBar
+            // 
+            this.trainDataYBar.BackColor = System.Drawing.Color.LightGreen;
+            this.trainDataYBar.Location = new System.Drawing.Point(30, 154);
+            this.trainDataYBar.Name = "trainDataYBar";
+            this.trainDataYBar.Size = new System.Drawing.Size(419, 33);
+            this.trainDataYBar.TabIndex = 6;
+            this.trainDataYBar.Text = "button1";
+            this.toolTip1.SetToolTip(this.trainDataYBar, "Ciccio Paciocco\r\n");
+            this.trainDataYBar.UseVisualStyleBackColor = false;
+            // 
+            // validDataXBar
+            // 
+            this.validDataXBar.BackColor = System.Drawing.Color.MistyRose;
+            this.validDataXBar.Location = new System.Drawing.Point(455, 97);
+            this.validDataXBar.Name = "validDataXBar";
+            this.validDataXBar.Size = new System.Drawing.Size(52, 33);
+            this.validDataXBar.TabIndex = 5;
+            this.validDataXBar.Text = "button1";
+            this.toolTip1.SetToolTip(this.validDataXBar, "Pollo");
+            this.validDataXBar.UseVisualStyleBackColor = false;
+            // 
+            // testDataXBar
+            // 
+            this.testDataXBar.BackColor = System.Drawing.Color.Salmon;
+            this.testDataXBar.Location = new System.Drawing.Point(513, 97);
+            this.testDataXBar.Name = "testDataXBar";
+            this.testDataXBar.Size = new System.Drawing.Size(110, 33);
+            this.testDataXBar.TabIndex = 4;
+            this.testDataXBar.Text = "button1";
+            this.toolTip1.SetToolTip(this.testDataXBar, "Pagliaccio");
+            this.testDataXBar.UseVisualStyleBackColor = false;
+            // 
+            // trainDataXBar
+            // 
+            this.trainDataXBar.BackColor = System.Drawing.Color.LightGreen;
+            this.trainDataXBar.Location = new System.Drawing.Point(30, 97);
+            this.trainDataXBar.Name = "trainDataXBar";
+            this.trainDataXBar.Size = new System.Drawing.Size(419, 33);
+            this.trainDataXBar.TabIndex = 3;
+            this.trainDataXBar.Text = "button1";
+            this.toolTip1.SetToolTip(this.trainDataXBar, "Ciccio Paciocco\r\n");
+            this.trainDataXBar.UseVisualStyleBackColor = false;
+            // 
+            // totalBar
+            // 
+            this.totalBar.BackColor = System.Drawing.Color.DarkGray;
+            this.totalBar.Location = new System.Drawing.Point(30, 27);
+            this.totalBar.Name = "totalBar";
+            this.totalBar.Size = new System.Drawing.Size(593, 33);
+            this.totalBar.TabIndex = 2;
+            this.totalBar.Text = "button1";
+            this.toolTip1.SetToolTip(this.totalBar, "Pinco Pallino");
+            this.totalBar.UseVisualStyleBackColor = false;
+            // 
             // listView1
             // 
             this.listView1.Activation = System.Windows.Forms.ItemActivation.OneClick;
@@ -402,6 +508,7 @@
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(572, 670);
             this.listView1.TabIndex = 42;
+            this.toolTip1.SetToolTip(this.listView1, "TrainDataX + ValidDataX + TestDataX");
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
@@ -440,11 +547,23 @@
             this.label11.TabIndex = 70;
             this.label11.Text = "Loss value:";
             // 
+            // checkBoxIterateOnStocks
+            // 
+            this.checkBoxIterateOnStocks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBoxIterateOnStocks.AutoSize = true;
+            this.checkBoxIterateOnStocks.Location = new System.Drawing.Point(1068, 213);
+            this.checkBoxIterateOnStocks.Name = "checkBoxIterateOnStocks";
+            this.checkBoxIterateOnStocks.Size = new System.Drawing.Size(154, 24);
+            this.checkBoxIterateOnStocks.TabIndex = 71;
+            this.checkBoxIterateOnStocks.Text = "Iterate on stocks";
+            this.checkBoxIterateOnStocks.UseVisualStyleBackColor = true;
+            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.checkBoxIterateOnStocks);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.textBoxRange);
             this.Controls.Add(this.checkBox1);
@@ -477,6 +596,7 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
+            this.tabPage4.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -515,6 +635,16 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.TextBox textBoxRange;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.CheckBox checkBoxIterateOnStocks;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.Button totalBar;
+        private System.Windows.Forms.Button trainDataXBar;
+        private System.Windows.Forms.Button validDataXBar;
+        private System.Windows.Forms.Button testDataXBar;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Button validDataYBar;
+        private System.Windows.Forms.Button testDataYBar;
+        private System.Windows.Forms.Button trainDataYBar;
     }
 }
 

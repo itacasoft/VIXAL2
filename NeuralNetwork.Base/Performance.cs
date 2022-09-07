@@ -28,6 +28,16 @@ namespace NeuralNetwork.Base
             }
         }
 
+        public float FailedPercentage
+        {
+            get
+            {
+                float result = (float)Failed / (float)(Guessed + Failed);
+                return result;
+            }
+        }
+
+
         public override string ToString()
         {
             return Date.ToShortDateString() + "; guessed " + Guessed + "/" + Total + " (" + SuccessPercentage.ToString("F2") + ")";

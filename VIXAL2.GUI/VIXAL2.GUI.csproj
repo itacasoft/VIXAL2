@@ -58,6 +58,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VIXAL2.FormLogic.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="VIXAL2.Form.resx">
       <DependentUpon>VIXAL2.Form.cs</DependentUpon>
     </EmbeddedResource>

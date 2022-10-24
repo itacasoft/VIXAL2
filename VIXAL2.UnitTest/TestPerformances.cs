@@ -81,8 +81,71 @@ namespace VIXAL2.UnitTest
 
         }
 
+
         [TestMethod]
-        public void Test_CompareTimeSeriesDifferences()
+        public void CompareDifferences_on_same_values()
+        {
+            double[] dataY = new double[10];
+            dataY[0] = 1;
+            dataY[1] = 2;
+            dataY[2] = 3;
+            dataY[3] = 4;
+            dataY[4] = 5;
+            dataY[5] = 6;
+            dataY[6] = 7;
+            dataY[7] = 8;
+            dataY[8] = 9;
+            dataY[9] = 10;
+
+            double[] predicted = new double[10];
+            predicted[0] = 1;
+            predicted[1] = 2;
+            predicted[2] = 3;
+            predicted[3] = 4;
+            predicted[4] = 5;
+            predicted[5] = 6;
+            predicted[6] = 7;
+            predicted[7] = 8;
+            predicted[8] = 9;
+            predicted[9] = 10;
+
+            double diff = LSTMUtils.CompareDifferences(dataY, predicted);
+            Assert.AreEqual(diff,0);
+        }
+
+        [TestMethod]
+        public void CompareDifferences_on_parallel_values()
+        {
+            double[] dataY = new double[10];
+            dataY[0] = 1;
+            dataY[1] = 2;
+            dataY[2] = 3;
+            dataY[3] = 4;
+            dataY[4] = 5;
+            dataY[5] = 6;
+            dataY[6] = 7;
+            dataY[7] = 8;
+            dataY[8] = 9;
+            dataY[9] = 10;
+
+            double[] predicted = new double[10];
+            predicted[0] = 3;
+            predicted[1] = 4;
+            predicted[2] = 5;
+            predicted[3] = 6;
+            predicted[4] = 7;
+            predicted[5] = 8;
+            predicted[6] = 9;
+            predicted[7] = 10;
+            predicted[8] = 11;
+            predicted[9] = 12;
+
+            double diff = LSTMUtils.CompareDifferences(dataY, predicted);
+            Assert.AreEqual(diff, 0);
+        }
+
+        [TestMethod]
+        public void CompareDifferences_on_inverse_values()
         {
             double[] dataY = new double[10];
             dataY[0] = 1;
@@ -109,8 +172,75 @@ namespace VIXAL2.UnitTest
             predicted[9] = 1;
 
             double diff = LSTMUtils.CompareDifferences(dataY, predicted);
-            Assert.IsTrue(diff > 1.8);
+            Assert.IsTrue(diff > 1.8 && diff < 1.9);
+        }
 
+        [TestMethod]
+        public void CompareDifferences_for_max_difference()
+        {
+            double[] dataY = new double[10];
+            dataY[0] = 0.000001;
+            dataY[1] = 0.000001;
+            dataY[2] = 0.000001;
+            dataY[3] = 0.000001;
+            dataY[4] = 0.000001;
+            dataY[5] = 10;
+            dataY[6] = 10;
+            dataY[7] = 10;
+            dataY[8] = 10;
+            dataY[9] = 10;
+
+            double[] predicted = new double[10];
+            predicted[0] = 10;
+            predicted[1] = 10;
+            predicted[2] = 10;
+            predicted[3] = 10;
+            predicted[4] = 10;
+            predicted[5] = 0.000001;
+            predicted[6] = 0.000001;
+            predicted[7] = 0.000001;
+            predicted[8] = 0.000001;
+            predicted[9] = 0.000001;
+
+            double diff = LSTMUtils.CompareDifferences(dataY, predicted);
+            Assert.IsTrue(diff > 4999999 && diff < 5000000);
+        }
+
+        [TestMethod]
+        public void CompareDifferences_realistic_case()
+        {
+            double[] dataY = new double[10];
+            dataY[0] = 1;
+            dataY[1] = 2;
+            dataY[2] = 3;
+            dataY[3] = 4;
+            dataY[4] = 5;
+            dataY[5] = 6;
+            dataY[6] = 7;
+            dataY[7] = 8;
+            dataY[8] = 9;
+            dataY[9] = 10;
+
+            double[] predicted = new double[10];
+            predicted[0] = 1;
+            predicted[1] = 2;
+            predicted[2] = 3;
+            predicted[3] = 3;
+            predicted[4] = 3;
+            predicted[5] = 8;
+            predicted[6] = 10;
+            predicted[7] = 8;
+            predicted[8] = 9;
+            predicted[9] = 10;
+
+            double diff = LSTMUtils.CompareDifferences(dataY, predicted);
+            Assert.IsTrue(diff > 0.18 && diff < 0.19);
+        }
+
+
+        [TestMethod]
+        public void CompareDifferences_15_values_inverse()
+        {
             double[] dataY2 = new double[15];
             dataY2[0] = 1;
             dataY2[1] = 2;
@@ -145,85 +275,8 @@ namespace VIXAL2.UnitTest
             predicted2[13] = 2;
             predicted2[14] = 1;
 
-            diff = LSTMUtils.CompareDifferences(dataY2, predicted2);
-            Assert.IsTrue(diff > 2.10);
-
-
-            dataY[0] = 1;
-            dataY[1] = 2;
-            dataY[2] = 3;
-            dataY[3] = 4;
-            dataY[4] = 5;
-            dataY[5] = 6;
-            dataY[6] = 7;
-            dataY[7] = 8;
-            dataY[8] = 9;
-            dataY[9] = 10;
-
-            predicted[0] = 3;
-            predicted[1] = 4;
-            predicted[2] = 5;
-            predicted[3] = 6;
-            predicted[4] = 7;
-            predicted[5] = 8;
-            predicted[6] = 9;
-            predicted[7] = 10;
-            predicted[8] = 11;
-            predicted[9] = 12;
-
-            diff = LSTMUtils.CompareDifferences(dataY, predicted);
-            Assert.IsTrue(diff == 0);
-
-            dataY[0] = 0.000001;
-            dataY[1] = 0.000001;
-            dataY[2] = 0.000001;
-            dataY[3] = 0.000001;
-            dataY[4] = 0.000001;
-            dataY[5] = 10;
-            dataY[6] = 10;
-            dataY[7] = 10;
-            dataY[8] = 10;
-            dataY[9] = 10;
-
-            predicted[0] = 10;
-            predicted[1] = 10;
-            predicted[2] = 10;
-            predicted[3] = 10;
-            predicted[4] = 10;
-            predicted[5] = 0.000001;
-            predicted[6] = 0.000001;
-            predicted[7] = 0.000001;
-            predicted[8] = 0.000001;
-            predicted[9] = 0.000001;
-
-            diff = LSTMUtils.CompareDifferences(dataY, predicted);
-            Assert.IsTrue(diff > 4999999);
-
-            dataY[0] = 1;
-            dataY[1] = 2;
-            dataY[2] = 3;
-            dataY[3] = 4;
-            dataY[4] = 5;
-            dataY[5] = 6;
-            dataY[6] = 7;
-            dataY[7] = 8;
-            dataY[8] = 9;
-            dataY[9] = 10;
-
-            predicted[0] = 1;
-            predicted[1] = 2;
-            predicted[2] = 3;
-            predicted[3] = 3;
-            predicted[4] = 3;
-            predicted[5] = 8;
-            predicted[6] = 10;
-            predicted[7] = 8;
-            predicted[8] = 9;
-            predicted[9] = 10;
-
-            diff = LSTMUtils.CompareDifferences(dataY, predicted);
-            Assert.IsTrue(diff < 0.2);
-
+            double diff = LSTMUtils.CompareDifferences(dataY2, predicted2);
+            Assert.IsTrue(diff > 2.12 && diff < 2.13);
         }
     }
 }

@@ -165,8 +165,10 @@ namespace NeuralNetwork.Base
             //calcolo diff performance solo su DAYS_FOR_PERFORMANCE elementi
             if (dataYList.Length >= DAYS_FOR_PERFORMANCE)
             {
-                var result = LSTMUtils.CompareDifferences(dataYList.Take(DAYS_FOR_PERFORMANCE), DoubleDatedValue.ToDoubleArray(predicted).Take(DAYS_FOR_PERFORMANCE));
-                DiffPerformance.Add(result);
+                var dataY_to_compare = dataYList.Take(DAYS_FOR_PERFORMANCE);
+                var predicted_to_compare = DoubleDatedValue.ToDoubleArray(predicted).Take(DAYS_FOR_PERFORMANCE);
+                var diff = LSTMUtils.CompareDifferences(dataY_to_compare, predicted_to_compare);
+                DiffPerformance.Add(diff);
             }
         }
 

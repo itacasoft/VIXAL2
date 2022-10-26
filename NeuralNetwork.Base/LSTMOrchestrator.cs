@@ -23,7 +23,7 @@ namespace NeuralNetwork.Base
         /// <summary>
         /// Performance of the simulation based on difference average
         /// </summary>
-        public List<double> DiffPerformance;
+        public List<PerformanceDiff> DiffPerformance;
         /// <summary>
         /// Trades of the simulation
         /// </summary>
@@ -77,7 +77,7 @@ namespace NeuralNetwork.Base
 
             DataSet.Prepare();
             SlopePerformances = new List<Performance>();
-            DiffPerformance = new List<double>();
+            DiffPerformance = new List<PerformanceDiff>();
             Trades = new List<Trade>();
         }
 
@@ -122,6 +122,7 @@ namespace NeuralNetwork.Base
         private void PerformEnd(int iteration)
         {
             SlopePerformances.RemoveRange(16, SlopePerformances.Count-16);
+            DiffPerformance.RemoveRange(16, DiffPerformance.Count - 16);
 
             _endReport(iteration);
         }
@@ -163,13 +164,18 @@ namespace NeuralNetwork.Base
             LSTMUtils.CompareSlopes(dataYList, DoubleDatedValue.ToDoubleArray(predicted), ref SlopePerformances);
 
             //calcolo diff performance solo su DAYS_FOR_PERFORMANCE elementi
-            if (dataYList.Length >= DAYS_FOR_PERFORMANCE)
-            {
-                var dataY_to_compare = dataYList.Take(DAYS_FOR_PERFORMANCE);
-                var predicted_to_compare = DoubleDatedValue.ToDoubleArray(predicted).Take(DAYS_FOR_PERFORMANCE);
-                var diff = LSTMUtils.CompareDifferences(dataY_to_compare, predicted_to_compare);
-                DiffPerformance.Add(diff);
-            }
+            /*
+
+                        if (dataYList.Length >= DAYS_FOR_PERFORMANCE)
+                        {
+                            var dataY_to_compare = dataYList.Take(DAYS_FOR_PERFORMANCE);
+                            var predicted_to_compare = DoubleDatedValue.ToDoubleArray(predicted).Take(DAYS_FOR_PERFORMANCE);
+                            var diff = LSTMUtils.CompareDifferences(dataY_to_compare, predicted_to_compare);
+                            DiffPerformance.Add(diff);
+                        }
+            */
+
+            LSTMUtils.CompareDifferences(dataYList, DoubleDatedValue.ToDoubleArray(predicted), ref DiffPerformance);
         }
 
         public double GetPreviousLossAverage()

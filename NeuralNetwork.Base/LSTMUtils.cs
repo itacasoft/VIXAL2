@@ -37,6 +37,18 @@ namespace NeuralNetwork.Base
             }
         }
 
+        public static void CompareDifferences(double[] dataY, double[] dataPredicted, ref List<PerformanceDiff> performances)
+        {
+            for (int row = 0; row < dataY.Length; row++)
+            {
+                if (performances.Count <= row) performances.Add(new PerformanceDiff());
+
+                performances[row].Predicted = (float)dataPredicted[row];
+                performances[row].Real = (float)dataY[row];
+            }
+        }
+
+
         /// <summary>
         /// Compare differences between 2 series and returns the average result
         /// </summary>

@@ -38,7 +38,7 @@
             this.textBoxCells = new System.Windows.Forms.TextBox();
             this.textBoxHidden = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblPerformance1 = new System.Windows.Forms.Label();
             this.btnLoad = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -70,6 +70,7 @@
             this.label11 = new System.Windows.Forms.Label();
             this.checkBoxIterateOnStocks = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.lblPerformance2 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -173,16 +174,16 @@
             this.label6.TabIndex = 57;
             this.label6.Text = "Network Dim (hidden|cells):";
             // 
-            // label2
+            // lblPerformance1
             // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(648, 180);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(104, 20);
-            this.label2.TabIndex = 56;
-            this.label2.Text = "Performance:";
+            this.lblPerformance1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblPerformance1.AutoSize = true;
+            this.lblPerformance1.Location = new System.Drawing.Point(648, 180);
+            this.lblPerformance1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPerformance1.Name = "lblPerformance1";
+            this.lblPerformance1.Size = new System.Drawing.Size(104, 20);
+            this.lblPerformance1.TabIndex = 56;
+            this.lblPerformance1.Text = "Performance:";
             // 
             // btnLoad
             // 
@@ -558,11 +559,23 @@
             this.checkBoxIterateOnStocks.Text = "Iterate on stocks";
             this.checkBoxIterateOnStocks.UseVisualStyleBackColor = true;
             // 
+            // lblPerformance2
+            // 
+            this.lblPerformance2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblPerformance2.AutoSize = true;
+            this.lblPerformance2.Location = new System.Drawing.Point(648, 213);
+            this.lblPerformance2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPerformance2.Name = "lblPerformance2";
+            this.lblPerformance2.Size = new System.Drawing.Size(104, 20);
+            this.lblPerformance2.TabIndex = 72;
+            this.lblPerformance2.Text = "Performance:";
+            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.lblPerformance2);
             this.Controls.Add(this.checkBoxIterateOnStocks);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.textBoxRange);
@@ -576,7 +589,7 @@
             this.Controls.Add(this.textBoxCells);
             this.Controls.Add(this.textBoxHidden);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.lblPerformance1);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.comboBox1);
@@ -613,7 +626,7 @@
         private System.Windows.Forms.TextBox textBoxCells;
         private System.Windows.Forms.TextBox textBoxHidden;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblPerformance1;
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox comboBox1;
@@ -645,6 +658,7 @@
         private System.Windows.Forms.Button validDataYBar;
         private System.Windows.Forms.Button testDataYBar;
         private System.Windows.Forms.Button trainDataYBar;
+        private System.Windows.Forms.Label lblPerformance2;
     }
 }
 

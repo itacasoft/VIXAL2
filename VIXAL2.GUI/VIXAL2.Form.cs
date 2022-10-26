@@ -24,7 +24,8 @@ namespace VIXAL2.GUI
         LineItem separationline;
         LineItem realLine;
         LineItem lossDataLine;
-        LineItem performanceDataLine;
+        LineItem slopePerformanceDataLine;
+        LineItem diffPerformanceDataLine;
         LineItem longTradesLine, shortTradesLine;
 
         public VIXAL2Form()
@@ -34,8 +35,10 @@ namespace VIXAL2.GUI
 
         private void InitiGraphs()
         {
-            label2.Tag = null;
-            label2.Text = "Performance (first): ";
+            lblPerformance1.Tag = null;
+            lblPerformance1.Text = "Performance Slope (first): ";
+            lblPerformance2.Tag = null;
+            lblPerformance2.Text = "Performance Diff (first): ";
 
             ///Fitness simulation chart
             zedGraphControl1.GraphPane.Title.Text = "Model evaluation";
@@ -71,11 +74,17 @@ namespace VIXAL2.GUI
             lossDataLine.Symbol.Fill = new Fill(Color.Red);
             lossDataLine.Symbol.Size = 5;
 
-            if (performanceDataLine != null) performanceDataLine.Clear();
+            if (slopePerformanceDataLine != null) slopePerformanceDataLine.Clear();
             else
-                performanceDataLine = new LineItem("Performance", null, null, Color.DarkKhaki, ZedGraph.SymbolType.Diamond, 1);
-            performanceDataLine.Symbol.Fill = new Fill(Color.DarkKhaki);
-            performanceDataLine.Symbol.Size = 5;
+                slopePerformanceDataLine = new LineItem("SlopePerformance", null, null, Color.DarkKhaki, ZedGraph.SymbolType.Diamond, 1);
+            slopePerformanceDataLine.Symbol.Fill = new Fill(Color.DarkKhaki);
+            slopePerformanceDataLine.Symbol.Size = 5;
+
+            if (diffPerformanceDataLine != null) diffPerformanceDataLine.Clear();
+            else
+                diffPerformanceDataLine = new LineItem("DiffPerformance", null, null, Color.DarkOliveGreen, ZedGraph.SymbolType.Diamond, 1);
+            diffPerformanceDataLine.Symbol.Fill = new Fill(Color.DarkOliveGreen);
+            diffPerformanceDataLine.Symbol.Size = 5;
 
             if (longTradesLine != null) longTradesLine.Clear();
             else
@@ -113,7 +122,8 @@ namespace VIXAL2.GUI
             zedGraphControl3.GraphPane.Title.Text = "Performances";
             zedGraphControl3.GraphPane.XAxis.Title.Text = "Days from start";
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Success Percentage";
-            zedGraphControl3.GraphPane.CurveList.Add(performanceDataLine);
+            zedGraphControl3.GraphPane.CurveList.Add(slopePerformanceDataLine);
+            zedGraphControl3.GraphPane.CurveList.Add(diffPerformanceDataLine);
             zedGraphControl3.GraphPane.CurveList.Add(shortTradesLine);
             zedGraphControl3.GraphPane.CurveList.Add(longTradesLine);
             zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());

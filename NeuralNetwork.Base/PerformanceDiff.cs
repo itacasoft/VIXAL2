@@ -2,11 +2,11 @@
 
 namespace NeuralNetwork.Base
 {
-    public class Performance: IPerformance
+    public class PerformanceDiff: IPerformance
     {
-        int _guessed = 0;
-        int _failed = 0;
         DateTime _date;
+        float _predicted;
+        float _real;
 
         public DateTime Date
         {
@@ -20,36 +20,27 @@ namespace NeuralNetwork.Base
             }
         }
 
-
-        public int Guessed
+        public float Predicted
         {
             get
             {
-                return _guessed;
+                return _predicted;
             }
             set
             {
-                _guessed = value;
+                _predicted = value;
             }
         }
 
-        public int Failed
+        public float Real
         {
             get
             {
-                return _failed;
+                return _real;
             }
             set
             {
-                _failed = value;
-            }
-        }
-
-        public int Total
-        {
-            get
-            { 
-                return Guessed + Failed;
+                _real = value;
             }
         }
 
@@ -57,7 +48,7 @@ namespace NeuralNetwork.Base
         {
             get
             {
-                float result = (float)Guessed / (float)(Guessed + Failed);
+                float result = 1 - Math.Abs(_predicted - _real) / _real;
                 return result;
             }
         }
@@ -66,7 +57,7 @@ namespace NeuralNetwork.Base
         {
             get
             {
-                float result = (float)Failed / (float)(Guessed + Failed);
+                float result = Math.Abs(_predicted - _real) / _real;
                 return result;
             }
         }
@@ -74,7 +65,7 @@ namespace NeuralNetwork.Base
 
         public override string ToString()
         {
-            return Date.ToShortDateString() + " (" + SuccessPercentage.ToString("F2") + ")";
+            return Date.ToShortDateString() + "; (" + SuccessPercentage.ToString("F2") + ")";
         }
     }
 }

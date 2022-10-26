@@ -160,8 +160,9 @@ namespace VIXAL2.GUI
 
             orchestrator.ComparePredictedAgainstDataY(predictedList, 0);
             SetDatesOnPerformances(ref orchestrator.SlopePerformances);
-            label2.Text = "Performance (first): " + orchestrator.SlopePerformances[1].ToString();
-            DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
+            SetDatesOnPerformances(ref orchestrator.DiffPerformance);
+
+            //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
             var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
             DrawTrades(tradeResult);
@@ -176,18 +177,36 @@ namespace VIXAL2.GUI
             }
         }
 
-
-        private void DrawPerfomances(List<Performance> performances, List<double> diffPerc)
+        private void SetDatesOnPerformances(ref List<PerformanceDiff> performances)
         {
-            performanceDataLine.Clear();
+            var dad = orchestrator.DataSet.GetExtendedArrayX(false);
+            for (int i = 0; (i < dad.Length && i < performances.Count); i++)
+            {
+                performances[i].Date = dad.GetFutureDate(i);
+            }
+        }
+
+
+        private void DrawPerfomances(List<Performance> performances, List<PerformanceDiff> diffPerformances)
+        {
+            slopePerformanceDataLine.Clear();
             for (int i = 1; i < performances.Count; i++)
             {
                 var p = new PointPair(i, performances[i].SuccessPercentage);
                 p.Tag = performances[i].ToString();
-                performanceDataLine.AddPoint(p);
+                slopePerformanceDataLine.AddPoint(p);
+            }
+
+            diffPerformanceDataLine.Clear();
+            for (int i = 0; i < diffPerformances.Count; i++)
+            {
+                var p = new PointPair(i, diffPerformances[i].SuccessPercentage);
+                p.Tag = diffPerformances[i].ToString();
+                diffPerformanceDataLine.AddPoint(p);
             }
 
             double avgSlopePerformance = 0;
+            double avgDiffPerformance = 0;
             //calcolo la media dei primi DAYS_FOR_PERFORMANCE
             for (int i = 1; i <= orchestrator.DAYS_FOR_PERFORMANCE; i++)
             {
@@ -195,8 +214,17 @@ namespace VIXAL2.GUI
             }
             avgSlopePerformance = avgSlopePerformance / orchestrator.DAYS_FOR_PERFORMANCE;
 
-            zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeDiff(%) = " + avgSlopePerformance.ToString("P") + "; Diff(%) = " + orchestrator.DiffPerformance.Average().ToString("P");
+            for (int i = 0; i < orchestrator.DAYS_FOR_PERFORMANCE; i++)
+            {
+                avgDiffPerformance += orchestrator.DiffPerformance[i].FailedPercentage;
+            }
+            avgDiffPerformance = avgDiffPerformance / orchestrator.DAYS_FOR_PERFORMANCE;
+
+            zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeDiff(%) = " + avgSlopePerformance.ToString("P") + "; Diff(%) = " + avgDiffPerformance.ToString("P");
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
+
+            lblPerformance1.Text = "SlopePerformance (first): " + orchestrator.SlopePerformances[1].ToString();
+            lblPerformance2.Text = "DiffPerformance (first): " + orchestrator.DiffPerformance[0].ToString();
         }
 
         private void reportOnGraphs(int iteration)

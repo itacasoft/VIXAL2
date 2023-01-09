@@ -71,6 +71,7 @@
             this.checkBoxIterateOnStocks = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.lblPerformance2 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -570,11 +571,24 @@
             this.lblPerformance2.TabIndex = 72;
             this.lblPerformance2.Text = "Performance:";
             // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(1154, 145);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(104, 35);
+            this.button1.TabIndex = 73;
+            this.button1.Text = "Print";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1354, 745);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.lblPerformance2);
             this.Controls.Add(this.checkBoxIterateOnStocks);
             this.Controls.Add(this.label11);
@@ -659,6 +673,7 @@
         private System.Windows.Forms.Button testDataYBar;
         private System.Windows.Forms.Button trainDataYBar;
         private System.Windows.Forms.Label lblPerformance2;
+        private System.Windows.Forms.Button button1;
     }
 }
 

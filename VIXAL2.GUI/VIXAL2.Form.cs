@@ -1,9 +1,12 @@
 ﻿using NeuralNetwork.Base;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using VIXAL2.Data;
@@ -370,6 +373,64 @@ namespace VIXAL2.GUI
         private void btnStop_Click(object sender, EventArgs e)
         {
             orchestrator.StopTrainingNow();
+        }
+
+      
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string stockName = orchestrator.DataSet.GetTestArrayY().GetColName(0);
+            string filename = "..\\..\\..\\Analysis\\" + stockName + "_report_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf";
+
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, QuestPDF.Infrastructure.Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(12));
+
+                    page.Header()
+                        .Text("Report on " + stockName + " of " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"))
+                        .SemiBold().FontSize(24).FontColor(Colors.Blue.Medium);
+
+                    page.Content()
+                        .PaddingVertical(1, QuestPDF.Infrastructure.Unit.Centimetre)
+                        .Column(x =>
+                        {
+                            x.Spacing(20);
+
+                            x.Item().Text("Stock name: " + stockName);
+                            x.Item().Text("Dataset type: " + comboBoxType.Text);
+                            x.Item().Text("Predict days: " + textBoxPredictDays.Text);
+                            x.Item().Text("Range days: " + textBoxRange.Text);
+                            x.Item().Text("Network hidden layers: " + textBoxHidden.Text);
+                            x.Item().Text("Network cells for layer: " + textBoxCells.Text);
+                            x.Item().Text("Iterations: " + textBoxIterations.Text);
+                            x.Item().Text("Back size: " + textBoxBatchSize.Text);
+
+                            ImageConverter _imageConverter = new ImageConverter();
+                            byte[] xByte1 = (byte[])_imageConverter.ConvertTo(zedGraphControl1.GetImage(), typeof(byte[]));
+                            x.Item().Image(xByte1);
+
+                            x.Item().PageBreak();
+
+                            x.Item().Text(zedGraphControl3.GraphPane.Title.Text);
+
+                            byte[] xByte2 = (byte[])_imageConverter.ConvertTo(zedGraphControl3.GetImage(), typeof(byte[]));
+                            x.Item().Image(xByte2);
+                        });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span("Page ");
+                            x.CurrentPageNumber();
+                        });
+                });
+            })
+.GeneratePdf(filename);
         }
 
         private void listView1_ColumnClick(object sender, ColumnClickEventArgs e)

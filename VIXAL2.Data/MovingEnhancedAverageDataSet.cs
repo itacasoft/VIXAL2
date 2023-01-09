@@ -59,7 +59,7 @@ namespace VIXAL2.Data
                 }
 
                 if (pieces.Count == (range*2-1))
-                    result[i] = Utils.Mean(pieces.ToArray());
+                    result[i] = SharpML.Types.Utils.Mean(pieces.ToArray());
                 else
                     result[i] = double.NaN;
             }
@@ -77,7 +77,7 @@ namespace VIXAL2.Data
 
             for (int col = 0; col < input[0].Length; col++)
             {
-                double[] singleStock = Utils.GetVectorFromArray(input, col);
+                double[] singleStock = SharpML.Types.Utils.GetVectorFromArray(input, col);
                 double[] movingAverage = GetFutureMovingAverage(singleStock, range);
 
                 //apply moving average on data

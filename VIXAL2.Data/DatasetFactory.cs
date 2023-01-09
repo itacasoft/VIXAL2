@@ -6,6 +6,7 @@ using Accord.Statistics;
 using System.Data;
 using System.Linq;
 using SharpML.Types.Normalization;
+using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
 {
@@ -45,7 +46,7 @@ namespace VIXAL2.Data
 
         private static Tuple<List<string>, List<DateTime>, double[][]> LoadCsvAsTuple(string inputCsv)
         {
-            string[][] stocks = Utils.LoadCsvAsStrings(inputCsv);
+            string[][] stocks = SharpML.Types.Utils.LoadCsvAsStrings(inputCsv);
 
             List<string> stockNames;
             List<DateTime> stockDates;
@@ -58,7 +59,7 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public static StocksDataset CreateDataset(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType)
+        public static StocksDataset CreateDataset(string inputCsv, int firstColumnToPredict, int predictCount, DataSetType dataSetType)
         {
             var t = LoadCsvAsTuple(inputCsv);
 
@@ -67,19 +68,19 @@ namespace VIXAL2.Data
                 throw new ArgumentException("PredictCount cannot be larger than input columns");
 
             StocksDataset ds;
-            if (dataSetType == 2)
+            if (dataSetType == DataSetType.MovingAverage)
             {
                 ds = new MovingAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
-            else if (dataSetType == 3)
+            else if (dataSetType == DataSetType.RSI)
             {
                 ds = new RsiDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
-            else if (dataSetType == 4)
+            else if (dataSetType == DataSetType.Enh_MovingAverage)
             {
                 ds = new MovingEnhancedAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
-            else if (dataSetType == 5)
+            else if (dataSetType == DataSetType.Enh2_MovingAverage)
             {
                 ds = new MovingEnhancedAverageDataSet2(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
             }
@@ -93,9 +94,9 @@ namespace VIXAL2.Data
         private static void FillNaNs(double[][] data)
         {
             string prefix = "Filling NaNs...";
-            Utils.DrawMessage(prefix, Utils.CreateProgressBar(Utils.ProgressBarLength, 0), ConsoleColor.Gray);
+            SharpML.Types.Utils.DrawMessage(prefix, SharpML.Types.Utils.CreateProgressBar(SharpML.Types.Utils.ProgressBarLength, 0), ConsoleColor.Gray);
 
-            int drawEvery = Utils.PercentIntervalByLength(data[0].Length);
+            int drawEvery = SharpML.Types.Utils.PercentIntervalByLength(data[0].Length);
 
             Random currentRandom = new Random(Normalizer.Instance.Random.Next());
 
@@ -172,10 +173,10 @@ namespace VIXAL2.Data
                         data[row][col] = data[row + 1][col];
 
                 if (col % drawEvery == 0)
-                    Utils.DrawMessage(prefix, Utils.CreateProgressBar(Utils.ProgressBarLength, (double)col / data[0].Length * 100.0), ConsoleColor.Gray);
+                    SharpML.Types.Utils.DrawMessage(prefix, SharpML.Types.Utils.CreateProgressBar(SharpML.Types.Utils.ProgressBarLength, (double)col / data[0].Length * 100.0), ConsoleColor.Gray);
             }
 
-            Utils.DrawMessage(prefix, Utils.CreateProgressBar(Utils.ProgressBarLength, 100), ConsoleColor.Green);
+            SharpML.Types.Utils.DrawMessage(prefix, SharpML.Types.Utils.CreateProgressBar(SharpML.Types.Utils.ProgressBarLength, 100), ConsoleColor.Green);
             Console.WriteLine();
         }
     }

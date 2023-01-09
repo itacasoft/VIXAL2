@@ -7,13 +7,13 @@ namespace NeuralNetwork.Base
 {
     public static class LSTMUtils
     {
-        public static void CompareSlopes(double[] dataY, double[] dataPredicted, ref List<Performance> performances)
+        public static void CompareSlopes(double[] dataY, double[] dataPredicted, ref Performance[] performances)
         {
             double predicted0 = dataPredicted[0];
             double future0 = dataY[0];
-            if (performances.Count == 0) performances.Add(new Performance());
+//            if (performances.Count<Performance>() == 0) performances.Add(new Performance());
 
-            for (int row = 1; row < dataY.Length; row++)
+            for (int row = 1; row < performances.Length && row < dataY.Length; row++)
             {
                 double future1 = dataY[row];
                 bool futurePositiveTrend = (future1 > future0);
@@ -21,7 +21,7 @@ namespace NeuralNetwork.Base
                 double predicted1 = dataPredicted[row];
                 bool predictedPositiveTrend = (predicted1 > predicted0);
 
-                if (performances.Count <= row) performances.Add(new Performance());
+                //if (performances.Count <= row) performances.Add(new Performance());
 
                 if (predictedPositiveTrend == futurePositiveTrend)
                 {
@@ -37,11 +37,11 @@ namespace NeuralNetwork.Base
             }
         }
 
-        public static void CompareDifferences(double[] dataY, double[] dataPredicted, ref List<PerformanceDiff> performances)
+        public static void CompareDifferences(double[] dataY, double[] dataPredicted, ref PerformanceDiff[] performances)
         {
-            for (int row = 0; row < dataY.Length; row++)
+            for (int row = 0; row < dataY.Length && row < performances.Length; row++)
             {
-                if (performances.Count <= row) performances.Add(new PerformanceDiff());
+                //if (performances.Count() <= row) performances.Add(new PerformanceDiff());
 
                 performances[row].Predicted = (float)dataPredicted[row];
                 performances[row].Real = (float)dataY[row];

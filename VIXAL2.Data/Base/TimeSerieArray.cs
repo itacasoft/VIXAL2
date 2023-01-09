@@ -172,7 +172,7 @@ namespace VIXAL2.Data.Base
         /// <returns></returns>
         public double[] GetColumnValues(int column = 0)
         {
-            return Utils.GetVectorFromArray(values, column);
+            return SharpML.Types.Utils.GetVectorFromArray(values, column);
         }
 
         /// <summary>

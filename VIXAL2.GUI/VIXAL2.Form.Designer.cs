@@ -41,7 +41,7 @@
             this.lblPerformance1 = new System.Windows.Forms.Label();
             this.btnLoad = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.comboBoxType = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.textBoxBatchSize = new System.Windows.Forms.TextBox();
@@ -201,28 +201,28 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(648, 23);
+            this.label5.Location = new System.Drawing.Point(649, 4);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(47, 20);
             this.label5.TabIndex = 54;
             this.label5.Text = "Type:";
             // 
-            // comboBox1
+            // comboBoxType
             // 
-            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.comboBoxType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBoxType.FormattingEnabled = true;
+            this.comboBoxType.Items.AddRange(new object[] {
             "Normal",
             "MovingAverage",
             "RSI",
-            "MovingEnhancedAverage",
-            "MovingEnhancedAverage2"});
-            this.comboBox1.Location = new System.Drawing.Point(700, 22);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(85, 28);
-            this.comboBox1.TabIndex = 53;
+            "Enh MovingAverage",
+            "Enh2 MovingAverage"});
+            this.comboBoxType.Location = new System.Drawing.Point(652, 22);
+            this.comboBoxType.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.comboBoxType.Name = "comboBoxType";
+            this.comboBoxType.Size = new System.Drawing.Size(133, 28);
+            this.comboBoxType.TabIndex = 53;
             // 
             // label4
             // 
@@ -592,7 +592,7 @@
             this.Controls.Add(this.lblPerformance1);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.comboBoxType);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.textBoxBatchSize);
@@ -629,7 +629,7 @@
         private System.Windows.Forms.Label lblPerformance1;
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox comboBoxType;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBoxBatchSize;

@@ -148,7 +148,16 @@ namespace VIXAL2.GUI
 
         private void VIXAL2Form_Load(object sender, EventArgs e)
         {
-            comboBox1.SelectedIndex = 0;
+            comboBoxType.Items.Clear();
+            var n = Enum.GetValues(typeof(DataSetType));
+
+            for (int i = 0; i < n.Length; i++)
+            {
+                var Name = n.GetValue(i);
+                comboBoxType.Items.Add(Name);
+            }
+
+            comboBoxType.SelectedIndex = 0;
             buttonStart.Enabled = false;
 
             MONEY = Convert.ToDouble(ConfigurationManager.AppSettings["MoneyForTradesSimulation"], CultureInfo.InvariantCulture);

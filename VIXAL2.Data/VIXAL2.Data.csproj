@@ -72,11 +72,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\DataSetType.cs" />
     <Compile Include="Base\DatedValue.cs" />
     <Compile Include="Base\DoubleDatedValue.cs" />
     <Compile Include="Base\IAverageRangeDataSet.cs" />
     <Compile Include="Base\TimeSerieArrayExt.cs" />
     <Compile Include="Base\Trade.cs" />
+    <Compile Include="ReflectionUtils.cs" />
     <Compile Include="DiscontinuousDataSet.cs" />
     <Compile Include="MovingEnhancedAverageDataSet.cs" />
     <Compile Include="MovingAverageDataSet.cs" />

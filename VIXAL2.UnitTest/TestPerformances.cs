@@ -29,11 +29,11 @@ namespace VIXAL2.UnitTest
             predicted[3] = 4;
             predicted[4] = 8;
 
-            List<Performance> perfList = new List<Performance>();
+            Performance[] perfList = new Performance[15];
 
             LSTMUtils.CompareSlopes(dataY, predicted, ref perfList);
 
-            Assert.AreEqual(perfList.Count, 5);
+            Assert.AreEqual(perfList.Count(), 5);
             Assert.AreEqual(perfList[0].Guessed, 0);
             Assert.AreEqual(perfList[0].Failed, 0);
             Assert.AreEqual(perfList[0].Total, 0);
@@ -65,7 +65,7 @@ namespace VIXAL2.UnitTest
 
             LSTMUtils.CompareSlopes(dataY2, predicted2, ref perfList);
 
-            Assert.AreEqual(perfList.Count, 5);
+            Assert.AreEqual(perfList.Count(), 5);
             Assert.AreEqual(perfList[1].Guessed, 2);
             Assert.AreEqual(perfList[1].Failed, 0);
             Assert.AreEqual(perfList[1].Total, 2);

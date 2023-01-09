@@ -457,7 +457,7 @@ namespace LSTMTimeSeriesDemo
         {
             InitiGraphs();
 
-            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, comboBox1.SelectedIndex + 1);
+            DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, (DataSetType)( comboBox1.SelectedIndex + 1));
             DataSet.TrainPercent = 0.8F;
             DataSet.ValidPercent = 0.0F;
             if (DataSet.GetType() == typeof(MovingAverageDataSet))

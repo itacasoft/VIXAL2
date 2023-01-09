@@ -54,7 +54,7 @@ namespace VIXAL2.Data
                         pieces.Add(values[j]);
                 }
 
-                result[i] = Utils.Mean(pieces.ToArray());
+                result[i] = SharpML.Types.Utils.Mean(pieces.ToArray());
             }
 
             return result;
@@ -70,7 +70,7 @@ namespace VIXAL2.Data
 
             for (int col = 0; col < input[0].Length; col++)
             {
-                double[] singleStock = Utils.GetVectorFromArray(input, col);
+                double[] singleStock = SharpML.Types.Utils.GetVectorFromArray(input, col);
                 double[] movingAverage = GetFutureMovingAverage(singleStock, range);
 
                 //apply moving average on data

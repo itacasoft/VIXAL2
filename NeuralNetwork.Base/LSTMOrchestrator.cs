@@ -19,11 +19,13 @@ namespace NeuralNetwork.Base
         /// <summary>
         /// Performances of the simulation based on slope comparison
         /// </summary>
-        public List<Performance> SlopePerformances;
+        //public List<Performance> SlopePerformances;
+        public Performance[] SlopePerformances = new Performance[DAYS_FOR_PERFORMANCE];
         /// <summary>
         /// Performance of the simulation based on difference average
         /// </summary>
-        public List<PerformanceDiff> DiffPerformance;
+        //public List<PerformanceDiff> DiffPerformance;
+        public PerformanceDiff[] DiffPerformance = new PerformanceDiff[DAYS_FOR_PERFORMANCE];
         /// <summary>
         /// Trades of the simulation
         /// </summary>
@@ -42,7 +44,7 @@ namespace NeuralNetwork.Base
         int MAX_DAYS_FOR_TRADE = 5;
         int TRADE_LENGHT = 10;
         double MIN_TREND = 0.03;
-        public int DAYS_FOR_PERFORMANCE = 15;
+        public const int DAYS_FOR_PERFORMANCE = 15;
         public int Iterations;
 
         public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, Action finalEndReport, int batchSize)
@@ -56,9 +58,20 @@ namespace NeuralNetwork.Base
             MAX_DAYS_FOR_TRADE = Convert.ToInt32(ConfigurationManager.AppSettings["MaxDaysForTradesSimulation"]);
             TRADE_LENGHT = Convert.ToInt32(ConfigurationManager.AppSettings["TradeLenghtForTradesSimulation"]);
             MIN_TREND = Convert.ToDouble(ConfigurationManager.AppSettings["MinTrendForTradesSimulation"], CultureInfo.InvariantCulture);
+
+            //create obects for arrays
+            for (int i=0; i< SlopePerformances.Length; i++)
+            {
+                SlopePerformances[i] = new Performance();
+            }
+
+            for (int i = 0; i < DiffPerformance.Length; i++)
+            {
+                DiffPerformance[i] = new PerformanceDiff();
+            }
         }
 
-        public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, int dataSetType, int predictDays, int range = 20)
+        public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, DataSetType dataSetType, int predictDays, int range = 20)
         {
             indexColumnToPredict = firstColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
@@ -76,8 +89,8 @@ namespace NeuralNetwork.Base
             }
 
             DataSet.Prepare();
-            SlopePerformances = new List<Performance>();
-            DiffPerformance = new List<PerformanceDiff>();
+            //SlopePerformances = new List<Performance>();
+            //DiffPerformance = new List<PerformanceDiff>();
             Trades = new List<Trade>();
         }
 
@@ -121,8 +134,8 @@ namespace NeuralNetwork.Base
 
         private void PerformEnd(int iteration)
         {
-            SlopePerformances.RemoveRange(16, SlopePerformances.Count-16);
-            DiffPerformance.RemoveRange(16, DiffPerformance.Count - 16);
+//            SlopePerformances.RemoveRange(16, SlopePerformances.Count-16);
+//            DiffPerformance.RemoveRange(16, DiffPerformance.Count - 16);
 
             _endReport(iteration);
         }

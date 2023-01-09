@@ -77,7 +77,7 @@ namespace VIXAL2.Data
                 for (int col = 0; col < result.Columns; col++)
                 {
                     DateTime date = dates[row + TrainCount + ValidCount + TestCount];
-                    DateTime futureDate = Utils.AddBusinessDays(dates[row + TrainCount + ValidCount + TestCount], predictDays+1);
+                    DateTime futureDate = SharpML.Types.Utils.AddBusinessDays(dates[row + TrainCount + ValidCount + TestCount], predictDays + 1);
                     var currentValue = dataList[row + TrainCount + ValidCount + TestCount][col];
                     if (normalized) 
                         currentValue = Normalize(currentValue, col);
@@ -183,13 +183,13 @@ namespace VIXAL2.Data
             var testY1 = Utils.ToFloatArray(testDataY);
 #else
             //normalize data before return
-            var trainX1 = Utils.ToFloatArray(Normalize(trainDataX));
-            var validX1 = Utils.ToFloatArray(Normalize(validDataX));
-            var testX1 = Utils.ToFloatArray(Normalize(testDataX));
+            var trainX1 = SharpML.Types.Utils.ToFloatArray(Normalize(trainDataX));
+            var validX1 = SharpML.Types.Utils.ToFloatArray(Normalize(validDataX));
+            var testX1 = SharpML.Types.Utils.ToFloatArray(Normalize(testDataX));
 
-            var trainY1 = Utils.ToFloatArray(Normalize(trainDataY, firstColumnToPredict));
-            var validY1 = Utils.ToFloatArray(Normalize(validDataY, firstColumnToPredict));
-            var testY1 = Utils.ToFloatArray(Normalize(testDataY, firstColumnToPredict));
+            var trainY1 = SharpML.Types.Utils.ToFloatArray(Normalize(trainDataY, firstColumnToPredict));
+            var validY1 = SharpML.Types.Utils.ToFloatArray(Normalize(validDataY, firstColumnToPredict));
+            var testY1 = SharpML.Types.Utils.ToFloatArray(Normalize(testDataY, firstColumnToPredict));
 #endif
 
             var xxx = (trainX1, validX1, testX1);

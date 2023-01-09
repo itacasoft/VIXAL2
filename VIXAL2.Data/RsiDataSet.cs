@@ -106,7 +106,7 @@ namespace VIXAL2.Data
 
             for (int col = 0; col < input[0].Length; col++)
             {
-                double[] singleStock = Utils.GetVectorFromArray(input, col);
+                double[] singleStock = SharpML.Types.Utils.GetVectorFromArray(input, col);
                 double[] rsi = GetRsi(singleStock, range);
 
                 //apply RSI on data

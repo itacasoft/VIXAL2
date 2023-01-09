@@ -58,20 +58,20 @@ namespace VIXAL2.Data
 
             for (int col = 0; col < TrainDataY[0].Length; col++)
             {
-                double[] vectorX = Utils.GetVectorFromArray(TrainDataX, col);
-                double[] vectorY = Utils.GetVectorFromArray(TrainDataY, col);
+                double[] vectorX = SharpML.Types.Utils.GetVectorFromArray(TrainDataX, col);
+                double[] vectorY = SharpML.Types.Utils.GetVectorFromArray(TrainDataY, col);
                 double[] stairY = CreateStairVector(vectorX, vectorY);
-                Utils.SetArrayFromVector(stairY, col, TrainDataY);
+                SharpML.Types.Utils.SetArrayFromVector(stairY, col, TrainDataY);
 
-                vectorX = Utils.GetVectorFromArray(ValidDataX, col);
-                vectorY = Utils.GetVectorFromArray(ValidDataY, col);
+                vectorX = SharpML.Types.Utils.GetVectorFromArray(ValidDataX, col);
+                vectorY = SharpML.Types.Utils.GetVectorFromArray(ValidDataY, col);
                 stairY = CreateStairVector(vectorX, vectorY);
-                Utils.SetArrayFromVector(stairY, col, ValidDataY);
+                SharpML.Types.Utils.SetArrayFromVector(stairY, col, ValidDataY);
 
-                vectorX = Utils.GetVectorFromArray(TestDataX, col);
-                vectorY = Utils.GetVectorFromArray(TestDataY, col);
+                vectorX = SharpML.Types.Utils.GetVectorFromArray(TestDataX, col);
+                vectorY = SharpML.Types.Utils.GetVectorFromArray(TestDataY, col);
                 stairY = CreateStairVector(vectorX, vectorY);
-                Utils.SetArrayFromVector(stairY, col, TestDataY);
+                SharpML.Types.Utils.SetArrayFromVector(stairY, col, TestDataY);
             }
         }
     }

@@ -16,7 +16,7 @@ namespace VIXAL2.GUI
             InitiGraphs();
 
             orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, EndReport, FinalEndReport, Convert.ToInt32(textBoxBatchSize.Text));
-            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, comboBox1.SelectedIndex + 1, Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
+            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)( comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
 
             LoadListView(orchestrator.DataSet);
             //disegno il grafico dei prezzi reali
@@ -168,29 +168,29 @@ namespace VIXAL2.GUI
             DrawTrades(tradeResult);
         }
 
-        private void SetDatesOnPerformances(ref List<Performance> performances)
+        private void SetDatesOnPerformances(ref Performance[] performances)
         {
             var dad = orchestrator.DataSet.GetExtendedArrayX(false);
-            for (int i = 0; (i < dad.Length && i < performances.Count); i++)
+            for (int i = 0; (i < dad.Length && i < performances.Count()); i++)
             {
                 performances[i].Date = dad.GetFutureDate(i);
             }
         }
 
-        private void SetDatesOnPerformances(ref List<PerformanceDiff> performances)
+        private void SetDatesOnPerformances(ref PerformanceDiff[] performances)
         {
             var dad = orchestrator.DataSet.GetExtendedArrayX(false);
-            for (int i = 0; (i < dad.Length && i < performances.Count); i++)
+            for (int i = 0; (i < dad.Length && i < performances.Count()); i++)
             {
                 performances[i].Date = dad.GetFutureDate(i);
             }
         }
 
 
-        private void DrawPerfomances(List<Performance> performances, List<PerformanceDiff> diffPerformances)
+        private void DrawPerfomances(Performance[] performances, PerformanceDiff[] diffPerformances)
         {
             slopePerformanceDataLine.Clear();
-            for (int i = 1; i < performances.Count; i++)
+            for (int i = 1; i < performances.Count(); i++)
             {
                 var p = new PointPair(i, performances[i].SuccessPercentage);
                 p.Tag = performances[i].ToString();
@@ -198,7 +198,7 @@ namespace VIXAL2.GUI
             }
 
             diffPerformanceDataLine.Clear();
-            for (int i = 0; i < diffPerformances.Count; i++)
+            for (int i = 0; i < diffPerformances.Count(); i++)
             {
                 var p = new PointPair(i, diffPerformances[i].SuccessPercentage);
                 p.Tag = diffPerformances[i].ToString();
@@ -208,17 +208,17 @@ namespace VIXAL2.GUI
             double avgSlopePerformance = 0;
             double avgDiffPerformance = 0;
             //calcolo la media dei primi DAYS_FOR_PERFORMANCE
-            for (int i = 1; i <= orchestrator.DAYS_FOR_PERFORMANCE; i++)
+            for (int i = 1; i < orchestrator.SlopePerformances.Length; i++)
             {
                 avgSlopePerformance += orchestrator.SlopePerformances[i].FailedPercentage;
             }
-            avgSlopePerformance = avgSlopePerformance / orchestrator.DAYS_FOR_PERFORMANCE;
+            avgSlopePerformance = avgSlopePerformance / orchestrator.SlopePerformances.Length;
 
-            for (int i = 0; i < orchestrator.DAYS_FOR_PERFORMANCE; i++)
+            for (int i = 0; i < orchestrator.DiffPerformance.Length; i++)
             {
                 avgDiffPerformance += orchestrator.DiffPerformance[i].FailedPercentage;
             }
-            avgDiffPerformance = avgDiffPerformance / orchestrator.DAYS_FOR_PERFORMANCE;
+            avgDiffPerformance = avgDiffPerformance / orchestrator.DiffPerformance.Length;
 
             zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeDiff(%) = " + avgSlopePerformance.ToString("P") + "; Diff(%) = " + avgDiffPerformance.ToString("P");
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);

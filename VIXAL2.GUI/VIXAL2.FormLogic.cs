@@ -143,12 +143,12 @@ namespace VIXAL2.GUI
                 }
                 else
                 {
-                    PrintReport();
+
                 }
             }
             else
             {
-                PrintReport();
+
             }
         }
 

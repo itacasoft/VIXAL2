@@ -42,6 +42,7 @@ namespace VIXAL2.GUI
         private void ReportClear()
         {
             reportItems.Clear();
+            reportHeader = null;
         }
 
         private Image MergeImages(Image image1, Image image2, int space)
@@ -63,7 +64,7 @@ namespace VIXAL2.GUI
             if (reportHeader == null)
             {
                 reportHeader = new ReportHeader();
-                reportHeader.Title = "Report of " + DateTime.Now.ToString("dd / MM / yyyy HH: mm");
+                reportHeader.Title = "Report of " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
                 reportHeader.Text.Add("Dataset type: " + comboBoxType.Text);
                 reportHeader.Text.Add("Predict days: " + textBoxPredictDays.Text);
                 reportHeader.Text.Add("Range days: " + textBoxRange.Text);
@@ -79,6 +80,7 @@ namespace VIXAL2.GUI
             item.Text = new List<string>();
 
             ImageConverter _imageConverter = new ImageConverter();
+            var img1 = zedGraphControl1.GetImage();
             byte[] xByte1 = (byte[])_imageConverter.ConvertTo(zedGraphControl1.GetImage(), typeof(byte[]));
             item.Image1 = xByte1;
             byte[] xByte2 = (byte[])_imageConverter.ConvertTo(zedGraphControl3.GetImage(), typeof(byte[]));
@@ -105,11 +107,11 @@ namespace VIXAL2.GUI
 
                     page.Header().Column(column =>
                     {
-                        column.Item().Text(reportHeader.Title).SemiBold().FontSize(14).FontColor(Colors.Blue.Medium); ;
-                        for (int i=0; i<reportHeader.Text.Count; i++)
-                            column.Item().ShowOnce().Text(reportHeader.Text[i]);
+                        column.Item().Text(reportHeader.Title).SemiBold().FontSize(14).FontColor(Colors.Blue.Medium);
+//                        for (int i=0; i<reportHeader.Text.Count; i++)
+//                            column.Item().ShowOnce().Text(reportHeader.Text[i]);
 
-                        column.Item().ShowOnce().Image(Placeholders.Image(200, 200));
+//                        column.Item().ShowOnce().Image(Placeholders.Image(200, 200));
                     });
 
 
@@ -117,17 +119,18 @@ namespace VIXAL2.GUI
                         .PaddingVertical(1, QuestPDF.Infrastructure.Unit.Centimetre)
                         .Column(x =>
                         {
+                            for (int i = 0; i < reportHeader.Text.Count; i++)
+                                x.Item().ShowOnce().Text(reportHeader.Text[i]);
+                            x.Item().ShowOnce().PageBreak();
+
+
                             for (int i = 0; i < reportItems.Count; i++)
                             {
-                                x.Spacing(20);
-
                                 x.Item().Text("Stock name: " + reportItems[i].StockName);
-
-                                x.Spacing(10);
-
+                                x.Spacing(5);
                                 x.Item().Image(reportItems[i].Image1);
+                                x.Spacing(5);
 
-                                x.Spacing(10);
                                 x.Item().Image(reportItems[i].Image2);
 
                                 x.Item().PageBreak();

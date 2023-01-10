@@ -363,6 +363,7 @@ namespace VIXAL2.GUI
         private void btnLoad_Click(object sender, EventArgs e)
         {
             LoadDataset(Convert.ToInt32(textBoxYIndex.Text));
+            ReportClear();
         }
 
         private void btnStop_Click(object sender, EventArgs e)
@@ -373,8 +374,6 @@ namespace VIXAL2.GUI
       
         private void button1_Click(object sender, EventArgs e)
         {
-            ReportClear();
-            ReportItemAdd();
             PrintReport();
         }
 

@@ -11,12 +11,22 @@ namespace VIXAL2.GUI
 {
     public partial class VIXAL2Form : Form
     {
-        private void LoadDataset(int stockIndex)
+        private bool LoadDataset(int stockIndex)
         {
             InitiGraphs();
 
             orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, EndReport, FinalEndReport, Convert.ToInt32(textBoxBatchSize.Text));
-            orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)( comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
+            try
+            {
+                orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)(comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
+            }
+            catch(Exception ex)
+            {
+                if (ex is IndexOutOfRangeException)
+                {
+                    return false;
+                }
+            }
 
             LoadListView(orchestrator.DataSet);
             //disegno il grafico dei prezzi reali
@@ -28,6 +38,7 @@ namespace VIXAL2.GUI
 
             buttonStart.Enabled = true;
             label9.Text = "Dataset: " + orchestrator.DataSet.DataList[0].Length + " cols, " + orchestrator.DataSet.DataList.Count + " rows";
+            return true;
         }
 
         private void StartTraining()
@@ -120,16 +131,24 @@ namespace VIXAL2.GUI
 
         private void CheckReload()
         {
+            ReportItemAdd();
+
             if (checkBoxIterateOnStocks.Checked)
             {
                 int currentIndex = Convert.ToInt32(textBoxYIndex.Text);
                 textBoxYIndex.Text = (currentIndex + 1).ToString();
-                LoadDataset(currentIndex + 1);
-                StartTraining();
+                if (LoadDataset(currentIndex + 1))
+                {
+                    StartTraining();
+                }
+                else
+                {
+                    PrintReport();
+                }
             }
             else
             {
-
+                PrintReport();
             }
         }
 

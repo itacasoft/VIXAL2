@@ -88,6 +88,9 @@
     <Compile Include="VIXAL2.FormLogic.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="VIXAL2.PrintLogic.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="VIXAL2.Form.resx">
       <DependentUpon>VIXAL2.Form.cs</DependentUpon>
     </EmbeddedResource>

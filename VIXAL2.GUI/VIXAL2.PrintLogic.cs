@@ -55,7 +55,6 @@ namespace VIXAL2.GUI
                 g.DrawImage(image2, 0, image1.Height + space);
             }
             Image img = bitmap;
-//            img.Save("c:\\temp\\pippo.jpg");
             return img;
         }
 
@@ -108,10 +107,6 @@ namespace VIXAL2.GUI
                     page.Header().Column(column =>
                     {
                         column.Item().Text(reportHeader.Title).SemiBold().FontSize(14).FontColor(Colors.Blue.Medium);
-//                        for (int i=0; i<reportHeader.Text.Count; i++)
-//                            column.Item().ShowOnce().Text(reportHeader.Text[i]);
-
-//                        column.Item().ShowOnce().Image(Placeholders.Image(200, 200));
                     });
 
 
@@ -133,7 +128,7 @@ namespace VIXAL2.GUI
 
                                 x.Item().Image(reportItems[i].Image2);
 
-                                x.Item().PageBreak();
+                                x.Item().ShowIf(i < (reportItems.Count-1)).PageBreak();
                             }
                         });
 

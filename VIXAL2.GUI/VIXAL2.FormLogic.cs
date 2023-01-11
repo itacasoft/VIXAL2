@@ -143,7 +143,8 @@ namespace VIXAL2.GUI
                 }
                 else
                 {
-
+                    //genera il report quando ha finito
+                    btnPrint.PerformClick();
                 }
             }
             else
@@ -224,22 +225,7 @@ namespace VIXAL2.GUI
                 diffPerformanceDataLine.AddPoint(p);
             }
 
-            double avgSlopePerformance = 0;
-            double avgDiffPerformance = 0;
-            //calcolo la media dei primi DAYS_FOR_PERFORMANCE
-            for (int i = 1; i < orchestrator.SlopePerformances.Length; i++)
-            {
-                avgSlopePerformance += orchestrator.SlopePerformances[i].FailedPercentage;
-            }
-            avgSlopePerformance = avgSlopePerformance / orchestrator.SlopePerformances.Length;
-
-            for (int i = 0; i < orchestrator.DiffPerformance.Length; i++)
-            {
-                avgDiffPerformance += orchestrator.DiffPerformance[i].FailedPercentage;
-            }
-            avgDiffPerformance = avgDiffPerformance / orchestrator.DiffPerformance.Length;
-
-            zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeDiff(%) = " + avgSlopePerformance.ToString("P") + "; Diff(%) = " + avgDiffPerformance.ToString("P");
+            zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeDiff(%) = " + orchestrator.AvgSlopePerformance.ToString("P") + "; Diff(%) = " + orchestrator.AvgDiffPerformance.ToString("P");
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
 
             lblPerformance1.Text = "SlopePerformance (first): " + orchestrator.SlopePerformances[1].ToString();

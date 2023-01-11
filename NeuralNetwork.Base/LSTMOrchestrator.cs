@@ -333,5 +333,56 @@ namespace NeuralNetwork.Base
                 yield return (x, y);
             }
         }
+
+        public double AvgSlopePerformance
+        {
+            get
+            {
+                double avgSlopePerformance = 0;
+
+                //calcolo la media dei primi DAYS_FOR_PERFORMANCE
+                for (int i = 1; i < SlopePerformances.Length; i++)
+                {
+                    avgSlopePerformance += SlopePerformances[i].FailedPercentage;
+                }
+                avgSlopePerformance = avgSlopePerformance / (SlopePerformances.Length-1);
+                return avgSlopePerformance;
+            }
+        }
+
+        public double WeightedSlopePerformance
+        {
+            get
+            {
+                double result = 0;
+
+                //calcolo la media dei primi DAYS_FOR_PERFORMANCE
+                for (int i = 1; i < SlopePerformances.Length; i++)
+                {
+                    //il coefficiente del peso deve essere attorno a 1.8-1.9
+                    double weight = 1.85 * ((double)SlopePerformances.Length + 1.00 - (double)i)/ (double)SlopePerformances.Length;
+                    result += SlopePerformances[i].FailedPercentage * weight;
+                }
+                result = result / (SlopePerformances.Length-1);
+                return result;
+            }
+        }
+
+
+        public double AvgDiffPerformance
+        {
+            get
+            {
+                double avgDiffPerformance = 0;
+                //calcolo la media dei primi DAYS_FOR_PERFORMANCE
+
+                for (int i = 0; i < DiffPerformance.Length; i++)
+                {
+                    avgDiffPerformance += DiffPerformance[i].FailedPercentage;
+                }
+                avgDiffPerformance = avgDiffPerformance / DiffPerformance.Length;
+                return avgDiffPerformance;
+            }
+        }
     }
 }

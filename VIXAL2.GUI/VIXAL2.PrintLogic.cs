@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -30,10 +31,13 @@ namespace VIXAL2.GUI
         private class ReportItem
         {
             public string StockName;
+            public DateTime TimeOfSimulation;
             public List<string> Text;
             public byte[] Image1;
             public byte[] Image2;
-            public byte[] Image;
+            public double WeightedSlopePerformance;
+            public double AvgSlopePerformance;
+            public double AvgDiffPerformance;
         }
 
         private List<ReportItem> reportItems = new List<ReportItem>();
@@ -76,6 +80,7 @@ namespace VIXAL2.GUI
             string stockName = orchestrator.DataSet.GetTestArrayY().GetColName(0);
             ReportItem item = new ReportItem();
             item.StockName = stockName;
+            item.TimeOfSimulation = DateTime.Now;
             item.Text = new List<string>();
 
             ImageConverter _imageConverter = new ImageConverter();
@@ -85,14 +90,17 @@ namespace VIXAL2.GUI
             byte[] xByte2 = (byte[])_imageConverter.ConvertTo(zedGraphControl3.GetImage(), typeof(byte[]));
             item.Image2 = xByte2;
 
-            Image image = MergeImages(zedGraphControl1.GetImage(), zedGraphControl3.GetImage(), 10);
-            item.Image = (byte[])_imageConverter.ConvertTo(image, typeof(byte[]));
+            item.WeightedSlopePerformance = orchestrator.WeightedSlopePerformance;
+            item.AvgDiffPerformance = orchestrator.AvgDiffPerformance;
+            item.AvgSlopePerformance = orchestrator.AvgSlopePerformance;
 
             reportItems.Add(item);
         }
 
         private void PrintReport()
         {
+            List<ReportItem> sortedReportItems = reportItems.OrderBy(o => o.WeightedSlopePerformance).ToList();
+
             string filename = "..\\..\\..\\Analysis\\report_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf";
 
             Document.Create(container =>
@@ -119,16 +127,17 @@ namespace VIXAL2.GUI
                             x.Item().ShowOnce().PageBreak();
 
 
-                            for (int i = 0; i < reportItems.Count; i++)
+                            for (int i = 0; i < sortedReportItems.Count; i++)
                             {
-                                x.Item().Text("Stock name: " + reportItems[i].StockName);
+                                x.Item().Text("[" + sortedReportItems[i].TimeOfSimulation.ToShortTimeString() + "]" + " Stock name: " + sortedReportItems[i].StockName);
+                                x.Item().Text("Performance: WeigthedSlopeDiff(%) = " + sortedReportItems[i].WeightedSlopePerformance.ToString("P") + "; SlopeDiff(%) = " + sortedReportItems[i].AvgSlopePerformance.ToString("P") + "; AbsDiff(%) = " + sortedReportItems[i].AvgDiffPerformance.ToString("P"));
                                 x.Spacing(5);
-                                x.Item().Image(reportItems[i].Image1);
+                                x.Item().Image(sortedReportItems[i].Image1);
                                 x.Spacing(5);
 
-                                x.Item().Image(reportItems[i].Image2);
+                                x.Item().Image(sortedReportItems[i].Image2);
 
-                                x.Item().ShowIf(i < (reportItems.Count-1)).PageBreak();
+                                x.Item().ShowIf(i < (sortedReportItems.Count-1)).PageBreak();
                             }
                         });
 

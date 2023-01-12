@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using QuestPDF.Fluent;
@@ -101,7 +103,8 @@ namespace VIXAL2.GUI
         {
             List<ReportItem> sortedReportItems = reportItems.OrderBy(o => o.WeightedSlopePerformance).ToList();
 
-            string filename = "..\\..\\..\\Analysis\\report_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf";
+            string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
+            string filename = Path.Combine(reportFolder, "report_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf");
 
             Document.Create(container =>
             {

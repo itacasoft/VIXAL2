@@ -30,6 +30,7 @@ namespace NeuralNetwork.Base
         /// Trades of the simulation
         /// </summary>
         public List<Trade> Trades;
+        public PredictedData PredictedData;
 
         private NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
         private Action<int> _progressReport;

@@ -1,4 +1,5 @@
 ﻿using NeuralNetwork.Base;
+using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -178,7 +179,9 @@ namespace VIXAL2.GUI
                 sample++;
             }
 
-            orchestrator.ComparePredictedAgainstDataY(predictedList, 0);
+            int columnToPredict = 0;
+            orchestrator.ComparePredictedAgainstDataY(predictedList, columnToPredict);
+
             SetDatesOnPerformances(ref orchestrator.SlopePerformances);
             SetDatesOnPerformances(ref orchestrator.DiffPerformance);
 
@@ -186,6 +189,25 @@ namespace VIXAL2.GUI
 
             var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
             DrawTrades(tradeResult);
+
+            if (orchestrator.PredictedData == null)
+            {
+                List<DatedValue> originalData = new List<DatedValue>();
+
+                for (int i = 0; i < predictedList.Count; i++)
+                {
+                    var myDate = predictedList[i].Date;
+                    var value = orchestrator.DataSet.OriginalData.GetValue(myDate, Convert.ToInt32(textBoxYIndex.Text));
+                    DatedValue item = new DatedValue(myDate, value);
+                    originalData.Add(item);
+                }
+
+                //creo il PredictedData passandogli l'intera lista di valori originali
+                orchestrator.PredictedData = new PredictedData(originalData, predictedList);
+                orchestrator.PredictedData.StockName = orchestrator.DataSet.OriginalData.GetColName(Convert.ToInt32(textBoxYIndex.Text));
+            }
+
+            orchestrator.PredictedData.AddPredictedCurve(predictedList, sample);
         }
 
         private void SetDatesOnPerformances(ref Performance[] performances)

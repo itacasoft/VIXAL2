@@ -51,6 +51,28 @@ namespace VIXAL2.GUI
             reportHeader = null;
         }
 
+        //
+        // Summary:
+        //     Build a System.Drawing.Bitmap object containing the graphical rendering of all
+        //     the ZedGraph.GraphPane objects in this list.
+        //
+        // Value:
+        //     A System.Drawing.Bitmap object rendered with the current graph.
+        public Bitmap GetImage(ZedGraph.ZedGraphControl control)
+        {
+            var _rect = control.GraphPane.Rect;
+            if (_rect.Width == 0) _rect.Width = 852;
+            if (_rect.Height == 0) _rect.Height = 450;
+
+            Bitmap bitmap = new Bitmap((int)_rect.Width, (int)_rect.Height);
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                graphics.TranslateTransform(0f - _rect.Left, 0f - _rect.Top);
+                control.GraphPane.Draw(graphics);
+                return bitmap;
+            }
+        }
+
         private Image MergeImages(Image image1, Image image2, int space)
         {
             Bitmap bitmap = new Bitmap(Math.Max(image1.Width, image2.Width), image1.Height + image2.Height + space);
@@ -86,10 +108,15 @@ namespace VIXAL2.GUI
             item.Text = new List<string>();
 
             ImageConverter _imageConverter = new ImageConverter();
-            var img1 = zedGraphControl1.GetImage();
-            byte[] xByte1 = (byte[])_imageConverter.ConvertTo(zedGraphControl1.GetImage(), typeof(byte[]));
+
+            //var img1 = zedGraphControl1.GetImage();
+            var img1 = GetImage(zedGraphControl1);
+            byte[] xByte1 = (byte[])_imageConverter.ConvertTo(img1, typeof(byte[]));
             item.Image1 = xByte1;
-            byte[] xByte2 = (byte[])_imageConverter.ConvertTo(zedGraphControl3.GetImage(), typeof(byte[]));
+
+            //var img2 = zedGraphControl3.GetImage();
+            var img2 = GetImage(zedGraphControl3);
+            byte[] xByte2 = (byte[])_imageConverter.ConvertTo(img2, typeof(byte[]));
             item.Image2 = xByte2;
 
             item.WeightedSlopePerformance = orchestrator.WeightedSlopePerformance;

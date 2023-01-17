@@ -1,36 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using VIXAL2.Data.Base;
 
 namespace NeuralNetwork.Base
 {
-    public class TradesSimulator: BaseTradeSimulator
+    public class TradeSimulator2 : BaseTradeSimulator
     {
-        int MaxDaysForATrade = 5;
-        int TradeLenght = 10;
-
-        public TradesSimulator(int maxDaysForATrade, int tradeLenght, double minTrend): base(minTrend)
+        public TradeSimulator2(double minTrend) : base(minTrend)
         {
-
-            MaxDaysForATrade = maxDaysForATrade;
-            TradeLenght = tradeLenght;
         }
 
-        public List<Trade> Trade(TimeSerieArray originalData, int IndexColumnToPredict, List<DoubleDatedValue> dataPredicted, double money, double commission)
+        public List<Trade> Trade(PredictedData predictedData, double money, double commission)
         {
             int trades = 0;
             int i = 0;
             List<Trade> result = new List<Trade>();
+            List<DateTime> dates = predictedData.GetDates();
 
-            while (i < dataPredicted.Count && i < MaxDaysForATrade)
+            while (i < predictedData.PredictedStack.Count)
             {
-                DoubleDatedValue predicted0 = dataPredicted[i];
-                DoubleDatedValue predicted1;
-                if (i + TradeLenght < dataPredicted.Count)
+                DatedValue predicted0 = predictedData.PredictedStack[i].Predicted[0];
+                DatedValue predicted1;
+
+                if (i < predictedData.PredictedStack.Count - 1)
                 {
-                    predicted1 = dataPredicted[i + TradeLenght];
+                    predicted1 = predictedData.PredictedStack[i].Predicted[1];
                     //check if the predicted trend is positive, negative or flat
                     int predictedTrend = GetTrend(predicted0.Value, predicted1.Value);
-
+/*
                     double value0 = originalData.GetValue(predicted0.Date, IndexColumnToPredict);
                     double value1 = originalData.GetValue(predicted1.Date, IndexColumnToPredict);
 
@@ -65,13 +65,13 @@ namespace NeuralNetwork.Base
                     {
                         i++;
                     }
+*/
                 }
                 else
                 {
                     i++;
                 }
             }
-
             return result;
         }
     }

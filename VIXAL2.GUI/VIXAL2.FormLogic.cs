@@ -119,21 +119,22 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            CheckReload();
+                            PerformFinalEndReport();
                         }
                     }
                     ));
             }
             else
             {
-                CheckReload();
+                PerformFinalEndReport();
             }
         }
 
-        private void CheckReload()
+        private void PerformFinalEndReport()
         {
             ReportItemAdd();
 
+            //se sto iterando su tutti gli stock
             if (checkBoxIterateOnStocks.Checked)
             {
                 int currentIndex = Convert.ToInt32(textBoxYIndex.Text);
@@ -150,7 +151,8 @@ namespace VIXAL2.GUI
             }
             else
             {
-
+                //genera il report quando ha finito
+                btnPrint.PerformClick();
             }
         }
 

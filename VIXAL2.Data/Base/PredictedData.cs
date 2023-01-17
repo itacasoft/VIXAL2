@@ -9,8 +9,13 @@ namespace VIXAL2.Data.Base
     public class PredictedCurve
     {
         public int Sample;
-        public DateTime PredictionDate, Date;
-        public List<DoubleDatedValue> Predicted;
+        public DateTime FirstPredictionDate;
+        public List<DatedValue> Predicted;
+
+        public PredictedCurve()
+        {
+            Predicted = new List<DatedValue>();
+        }
     }
 
     public class PredictedData
@@ -29,10 +34,25 @@ namespace VIXAL2.Data.Base
         {
             var item = new PredictedCurve();
             item.Sample = sample;
-            item.PredictionDate = predicted[0].PredictionDate;
-            item.Date = predicted[0].Date;
+            item.FirstPredictionDate = predicted[0].PredictionDate;
+
+            for (int i = 0; i < predicted.Count; i++)
+            {
+                item.Predicted.Add(new DatedValue(predicted[i].Date, predicted[i].Value));
+            }
 
             PredictedStack.Add(item);
+        }
+
+        public List<DateTime> GetDates()
+        {
+            var result = new List<DateTime>();
+            for (int i=0; i< OriginalData.Count; i++)
+            {
+                result.Add(OriginalData[i].Date);
+            }
+
+            return result;
         }
     }
 }

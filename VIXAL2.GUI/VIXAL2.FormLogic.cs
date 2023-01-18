@@ -205,11 +205,11 @@ namespace VIXAL2.GUI
                 }
 
                 //creo il PredictedData passandogli l'intera lista di valori originali
-                orchestrator.PredictedData = new PredictedData(originalData, predictedList);
+                orchestrator.PredictedData = new PredictedData(originalData);
                 orchestrator.PredictedData.StockName = orchestrator.DataSet.OriginalData.GetColName(Convert.ToInt32(textBoxYIndex.Text));
             }
 
-            orchestrator.PredictedData.AddPredictedCurve(predictedList, sample);
+            orchestrator.PredictedData.AddPredictedCurve(predictedList);
         }
 
         private void SetDatesOnPerformances(ref Performance[] performances)

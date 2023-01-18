@@ -1,71 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VIXAL2.Data.Base;
 
 namespace NeuralNetwork.Base
 {
+    public enum TradingStatus
+    {
+        None = 0,
+        Long = 1,
+        Short = 2
+    }
+
+    public enum Trend
+    {
+        EOF = 0,
+        Down = 1,
+        None = 2,
+        Up = 3
+    }
+
     public class TradeSimulator2 : BaseTradeSimulator
     {
-        public TradeSimulator2(double minTrend) : base(minTrend)
+        private PredictedData PredictedData;
+
+        public TradeSimulator2(PredictedData predictedData, double minTrend) : base(minTrend)
         {
+            PredictedData = predictedData;
         }
 
-        public List<Trade> Trade(PredictedData predictedData, double money, double commission)
+        public Trend GetTrend(int index)
         {
+            if (index >= PredictedData.OriginalData.Count-1)
+                return Trend.EOF;
+
+            var predictedCurve = PredictedData.GetPredictedCurve(index);
+
+            double value0 = predictedCurve.Predicted[0].Value;
+            double value1 = predictedCurve.Predicted[1].Value; ;
+
+            if (value1 == value0) return Trend.None;
+
+            if (value1 > value0)
+            {
+                if (((value1 - value0) / value0) < MinTrend)
+                    return Trend.None;
+                else
+                    return Trend.Up;
+            }
+            else
+            {
+                if (((value0 - value1) / value0) < MinTrend)
+                    return Trend.None;
+                else
+                    return Trend.Down;
+            }
+        }
+
+        public List<Trade> Trade(double money, double commission)
+        {
+            TradingStatus status = TradingStatus.None;
+
             int trades = 0;
             int i = 0;
             List<Trade> result = new List<Trade>();
-            List<DateTime> dates = predictedData.GetDates();
+            List<DateTime> dates = PredictedData.GetDates();
 
-            while (i < predictedData.PredictedStack.Count)
+            while (i < PredictedData.PredictedStack.Count)
             {
-                DatedValue predicted0 = predictedData.PredictedStack[i].Predicted[0];
-                DatedValue predicted1;
-
-                if (i < predictedData.PredictedStack.Count - 1)
+                if (status == TradingStatus.None)
                 {
-                    predicted1 = predictedData.PredictedStack[i].Predicted[1];
-                    //check if the predicted trend is positive, negative or flat
-                    int predictedTrend = GetTrend(predicted0.Value, predicted1.Value);
-/*
-                    double value0 = originalData.GetValue(predicted0.Date, IndexColumnToPredict);
-                    double value1 = originalData.GetValue(predicted1.Date, IndexColumnToPredict);
+                    //se non sono in trading, verifico il trend e decido se acquistare o
+                    //vendere allo scoperto
 
-                    if (predictedTrend == 1)
-                    {
-                        //compro
-                        var t = new Trade(predicted0.Date, value0, predicted1.Date, value1, 1);
-                        trades++;
-                        t.StartMoney = money;
-                        t.EndMoney = (value1 * t.StartMoney) / value0;
-                        //subtract commissions
-                        t.EndMoney = t.EndMoney - commission * t.StartMoney - commission * t.EndMoney;
-                        money = t.EndMoney;
-                        result.Add(t);
-
-                        i += TradeLenght;
-                    }
-                    else if (predictedTrend == -1)
-                    {
-                        //vendo allo scoperto
-                        var t = new Trade(predicted0.Date, value0, predicted1.Date, value1, -1);
-                        t.StartMoney = money;
-                        t.EndMoney = (value0 * t.StartMoney) / value1;
-                        //subtract commissions
-                        t.EndMoney = t.EndMoney - commission * t.StartMoney - commission * t.EndMoney;
-                        money = t.EndMoney;
-                        result.Add(t);
-
-                        i += TradeLenght;
-                    }
-                    else
-                    {
-                        i++;
-                    }
-*/
+                    Trend trend = GetTrend(i);
                 }
                 else
                 {

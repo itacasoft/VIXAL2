@@ -2,7 +2,7 @@
 {
     public abstract class BaseTradeSimulator
     {
-        double MinTrend = 0.03;
+        protected double MinTrend = 0.02;
 
         public BaseTradeSimulator(double minTrend)
         {

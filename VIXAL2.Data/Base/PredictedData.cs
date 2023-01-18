@@ -8,7 +8,6 @@ namespace VIXAL2.Data.Base
 {
     public class PredictedCurve
     {
-        public int Sample;
         public DateTime FirstPredictionDate;
         public List<DatedValue> Predicted;
 
@@ -24,21 +23,35 @@ namespace VIXAL2.Data.Base
         public List<DatedValue> OriginalData;
         public string StockName;
 
-        public PredictedData(List<DatedValue> originalData, List<DoubleDatedValue> predictedList)
+        public PredictedData(List<DatedValue> originalData)
         {
             OriginalData = originalData;
             PredictedStack = new List<PredictedCurve>();
         }
 
-        public void AddPredictedCurve(List<DoubleDatedValue> predicted, int sample)
+        public void AddPredictedCurve(List<DoubleDatedValue> predicted)
         {
+            //verifico che le date siano presenti nell'Original
+            for (int i=0; i<predicted.Count; i++)
+            {
+                var c = GetOriginalValue(predicted[i].Date);
+                if (c == Double.NaN)
+                    throw new DataMisalignedException("Date " + predicted[i].Date.ToString() + " not present in original data");
+            }
+
+            //verifico che la prima data sia la seconda del precedente predicted
+            if (PredictedStack.Count > 0)
+            {
+                if (predicted[0].Date.Date != PredictedStack[PredictedStack.Count - 1].Predicted[1].Date.Date)
+                    throw new DataMisalignedException("Date " + predicted[0].Date.ToString() + " not present in previous predicted curve");
+            }
+
             var item = new PredictedCurve();
-            item.Sample = sample;
             item.FirstPredictionDate = predicted[0].PredictionDate;
 
             for (int i = 0; i < predicted.Count; i++)
             {
-                item.Predicted.Add(new DatedValue(predicted[i].Date, predicted[i].Value));
+                item.Predicted.Add(new DatedValue(predicted[i].Date.Date, predicted[i].Value));
             }
 
             PredictedStack.Add(item);
@@ -53,6 +66,38 @@ namespace VIXAL2.Data.Base
             }
 
             return result;
+        }
+
+        public Double GetOriginalValue(DateTime date)
+        {
+            for (int i=0; i<OriginalData.Count; i++)
+            {
+                if (OriginalData[i].Date.Date == date.Date)
+                    return GetOriginalValue(i);
+            }
+
+            return Double.NaN;
+        }
+
+        public Double GetOriginalValue(int index)
+        {
+            return OriginalData[index].Value;
+        }
+
+        public PredictedCurve GetPredictedCurve(DateTime date)
+        {
+            for (int i = 0; i < OriginalData.Count; i++)
+            {
+                if (OriginalData[i].Date.Date == date.Date)
+                    return GetPredictedCurve(i);
+            }
+
+            return null;
+        }
+
+        public PredictedCurve GetPredictedCurve(int index)
+        {
+            return this.PredictedStack[index];
         }
     }
 }

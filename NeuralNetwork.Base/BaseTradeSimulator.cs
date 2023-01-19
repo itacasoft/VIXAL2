@@ -2,11 +2,19 @@
 {
     public abstract class BaseTradeSimulator
     {
-        protected double MinTrend = 0.02;
+        const double DEFAULT_MIN_TREND = 0.02;
 
-        public BaseTradeSimulator(double minTrend)
+        private double minTrend = DEFAULT_MIN_TREND;
+
+        public BaseTradeSimulator()
         {
-            MinTrend = minTrend;
+
+        }
+
+        public double MinTrend
+        {
+            get { return minTrend; }
+            set { minTrend = value; }
         }
 
         public int GetTrend(double value0, double value1)

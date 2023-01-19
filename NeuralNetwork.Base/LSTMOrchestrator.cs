@@ -163,7 +163,8 @@ namespace NeuralNetwork.Base
                 }
             }
 
-            var tradeSim = new TradesSimulator(MAX_DAYS_FOR_TRADE, TRADE_LENGHT, MIN_TREND);
+            var tradeSim = new TradesSimulator(MAX_DAYS_FOR_TRADE, TRADE_LENGHT);
+            tradeSim.MinTrend = MIN_TREND;
             var tradeResult = tradeSim.Trade(DataSet.OriginalData, indexColumnToPredict, predictedList, MONEY, COMMISSION);
             //prendo solo il primo perchè ritengo che sia più affidabile
             if (tradeResult.Count>0) Trades.Add(tradeResult[0]);

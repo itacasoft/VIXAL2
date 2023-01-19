@@ -12,7 +12,8 @@ namespace VIXAL2.UnitTest
         [TestMethod]
         public void CalculateTrend()
         {
-            var tradeSim = new TradesSimulator(5, 10, 0.04);
+            var tradeSim = new TradesSimulator(5, 10);
+            tradeSim.MinTrend = 0.04;
 
             var trend = tradeSim.GetTrend(10,10.5);
             Assert.AreEqual(trend, 1);
@@ -60,7 +61,8 @@ namespace VIXAL2.UnitTest
             predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-37), DateTime.Now, 13.5));
             p.AddPredictedCurve(predictedData);
 
-            var tradeSim = new TradeSimulator2(p, 0.02);
+            var tradeSim = new TradeSimulator2(p);
+            tradeSim.MinTrend = 0.02;
             var t0 = tradeSim.GetTrend(0);
             Assert.AreEqual(t0, Trend.Up);
 
@@ -73,7 +75,8 @@ namespace VIXAL2.UnitTest
             var t3 = tradeSim.GetTrend(3);
             Assert.AreEqual(t3, Trend.EOF);
 
-            tradeSim = new TradeSimulator2(p, 0);
+            tradeSim = new TradeSimulator2(p);
+            tradeSim.MinTrend = 0;
             t1 = tradeSim.GetTrend(1);
             Assert.AreEqual(t1, Trend.Down);
         }
@@ -89,7 +92,8 @@ namespace VIXAL2.UnitTest
             var originalData = GetSimpleTimeSerieArray();
             var predictedList = GetSimplePredictedList();
 
-            var tradeSim = new TradesSimulator(5, 10, 0.04);
+            var tradeSim = new TradesSimulator(5, 10);
+            tradeSim.MinTrend = 0.04;
             var tradeResult = tradeSim.Trade(originalData, 0, predictedList, 10000, 0.0019);
             Assert.IsTrue(tradeResult.Count > 0);
 
@@ -106,7 +110,8 @@ namespace VIXAL2.UnitTest
             var predictedList = GetSimplePredictedList();
             predictedList.RemoveRange(9, predictedList.Count-9);
 
-            var tradeSim = new TradesSimulator(5, 10, 0.04);
+            var tradeSim = new TradesSimulator(5, 10);
+            tradeSim.MinTrend = 0.04;
             var tradeResult = tradeSim.Trade(originalData, 0, predictedList, 10000, 0.0019);
             Assert.AreEqual(tradeResult.Count, 0);
         }
@@ -180,6 +185,7 @@ namespace VIXAL2.UnitTest
             var result = new TimeSerieArray(stockNames, dates, data);
             return result;
         }
-    }
 
+
+    }
  }

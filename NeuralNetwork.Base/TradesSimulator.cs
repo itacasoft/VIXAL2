@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
 namespace NeuralNetwork.Base
@@ -8,7 +9,7 @@ namespace NeuralNetwork.Base
         int MaxDaysForATrade = 5;
         int TradeLenght = 10;
 
-        public TradesSimulator(int maxDaysForATrade, int tradeLenght, double minTrend): base(minTrend)
+        public TradesSimulator(int maxDaysForATrade, int tradeLenght): base()
         {
 
             MaxDaysForATrade = maxDaysForATrade;

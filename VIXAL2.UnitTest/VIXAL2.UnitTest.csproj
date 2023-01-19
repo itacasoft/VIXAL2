@@ -65,6 +65,7 @@
     <Compile Include="DiscontinuousDataSetTest.cs" />
     <Compile Include="TestPerformanceAvg.cs" />
     <Compile Include="TestPerformances.cs" />
+    <Compile Include="TestFinTrade.cs" />
     <Compile Include="TestTrades.cs" />
     <Compile Include="TestVixal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

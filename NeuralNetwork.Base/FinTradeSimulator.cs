@@ -19,17 +19,34 @@ namespace NeuralNetwork.Base
         Up = 3
     }
 
-    public class TradeSimulator2 : BaseTradeSimulator
+    public class FinTradeSimulator : BaseTradeSimulator
     {
         private PredictedData PredictedData;
         private List<FinTrade> trades = new List<FinTrade>();
-        private double money = 10000;
 
-        public TradeSimulator2(PredictedData predictedData): base()
+        public FinTradeSimulator(PredictedData predictedData): base()
         {
             PredictedData = predictedData;
         }
 
+        public TradingStatus GetTradingStatus()
+        {
+            if (trades.Count == 0)
+                return TradingStatus.None;
+
+
+            if (trades[trades.Count - 1].TradingPosition == TradingPosition.Long)
+                return TradingStatus.Long;
+            else
+                return TradingStatus.Short;
+
+        }
+
+        /// <summary>
+        /// Restituisce un valore che indica se il trend è ascendente, discendente o neutro
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public Trend GetTrend(int index)
         {
             if (index >= PredictedData.OriginalData.Count-1)
@@ -58,12 +75,25 @@ namespace NeuralNetwork.Base
             }
         }
 
+        /// <summary>
+        /// Apre una posizione di trading
+        /// </summary>
+        /// <param name="tradingPosition">Può essere long (acquisto) o short (vendita allo scoperto)</param>
+        /// <param name="startDate"></param>
+        /// <param name="startPrice"></param>
+        /// <param name="startMoney"></param>
         private void OpenPosition(TradingPosition tradingPosition, DateTime startDate, double startPrice, double startMoney)
         {
             FinTrade trade = new FinTrade(startDate, startPrice, startMoney, tradingPosition);
             trades.Add(trade);
         }
 
+        /// <summary>
+        /// Chiude l'ultima posizione eventualmente aperta
+        /// </summary>
+        /// <param name="endDate"></param>
+        /// <param name="endPrice"></param>
+        /// <returns>Restituisce il denaro della chiusura della posizione</returns>
         private double ClosePosition(DateTime endDate, double endPrice)
         {
             FinTrade trade = trades[trades.Count-1];
@@ -75,19 +105,22 @@ namespace NeuralNetwork.Base
             return trade.EndMoney;
         }
 
-        public void Trade(double money)
+        /// <summary>
+        /// Effettua una serie di operazioni di trade su tutto il periodo considerato
+        /// </summary>
+        /// <param name="money">Denaro da utilizzare per le operazioni</param>
+        /// <returns>Denaro al termine delle operazioni</returns>
+        public double Trade(double money)
         {
-            TradingStatus status = TradingStatus.None;
-
             int i = 0;
-            List<Trade> trades = new List<Trade>();
             List<DateTime> dates = PredictedData.GetDates();
-            var currentMoney = 10000.00;
+            var currentMoney = money;
 
             while (i < dates.Count)
             {
                 var currentDate = dates[i];
                 var currentPrice = PredictedData.OriginalData[i].Value;
+                var status = GetTradingStatus();
 
                 //se sono alla fine, chiudo le posizioni pending
                 if (i == dates.Count - 1)
@@ -124,6 +157,8 @@ namespace NeuralNetwork.Base
 
                 i++;
             }
+
+            return currentMoney;
         }
     }
 }

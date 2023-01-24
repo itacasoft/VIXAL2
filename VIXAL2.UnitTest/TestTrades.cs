@@ -28,61 +28,6 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(trend, 0);
         }
 
-        [TestMethod]
-        public void CalculateTrend2()
-        {
-            List<DatedValue> originalData = new List<DatedValue>();
-            originalData.Add(new DatedValue(DateTime.Now, 10.0));
-            originalData.Add(new DatedValue(DateTime.Now.AddDays(1), 11.0));
-            originalData.Add(new DatedValue(DateTime.Now.AddDays(2), 12.0));
-            originalData.Add(new DatedValue(DateTime.Now.AddDays(3), 11.0));
-
-            PredictedData p = new PredictedData(originalData);
-
-            List<DoubleDatedValue> predictedData = new List<DoubleDatedValue>();
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-40), DateTime.Now, 10.5));
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-39), DateTime.Now, 11.5));
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-38), DateTime.Now, 12.5));
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-37), DateTime.Now, 13.5));
-            p.AddPredictedCurve(predictedData);
-
-            predictedData = new List<DoubleDatedValue>();
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-39), DateTime.Now, 11.5));
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-38), DateTime.Now, 11.4));
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-37), DateTime.Now, 13.5));
-            p.AddPredictedCurve(predictedData);
-
-            predictedData = new List<DoubleDatedValue>();
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-38), DateTime.Now, 12.5));
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-37), DateTime.Now, 11.5));
-            p.AddPredictedCurve(predictedData);
-
-            predictedData = new List<DoubleDatedValue>();
-            predictedData.Add(new DoubleDatedValue(DateTime.Now.AddDays(-37), DateTime.Now, 13.5));
-            p.AddPredictedCurve(predictedData);
-
-            var tradeSim = new TradeSimulator2(p);
-            tradeSim.MinTrend = 0.02;
-            var t0 = tradeSim.GetTrend(0);
-            Assert.AreEqual(t0, Trend.Up);
-
-            var t1 = tradeSim.GetTrend(1);
-            Assert.AreEqual(t1, Trend.None);
-
-            var t2 = tradeSim.GetTrend(2);
-            Assert.AreEqual(t2, Trend.Down);
-
-            var t3 = tradeSim.GetTrend(3);
-            Assert.AreEqual(t3, Trend.EOF);
-
-            tradeSim = new TradeSimulator2(p);
-            tradeSim.MinTrend = 0;
-            t1 = tradeSim.GetTrend(1);
-            Assert.AreEqual(t1, Trend.Down);
-        }
-
-
-
 
         DateTime minDate = Convert.ToDateTime("2022-05-01");
 

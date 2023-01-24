@@ -45,6 +45,11 @@ namespace VIXAL2.Data.Base
                 if (predicted[0].Date.Date != PredictedStack[PredictedStack.Count - 1].Predicted[1].Date.Date)
                     throw new DataMisalignedException("Date " + predicted[0].Date.ToString() + " not present in previous predicted curve");
             }
+            else if (PredictedStack.Count == 0)
+            {
+                if (predicted[0].Date.Date != OriginalData[0].Date.Date)
+                    throw new DataMisalignedException("Date " + predicted[0].Date.ToString() + " is not the first of original data");
+            }
 
             var item = new PredictedCurve();
             item.FirstPredictionDate = predicted[0].PredictionDate;

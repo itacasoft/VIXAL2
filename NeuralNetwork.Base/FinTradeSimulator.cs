@@ -23,10 +23,12 @@ namespace NeuralNetwork.Base
     {
         private PredictedData PredictedData;
         private List<FinTrade> trades = new List<FinTrade>();
+        private bool _applyCommissions;
 
-        public FinTradeSimulator(PredictedData predictedData): base()
+        public FinTradeSimulator(PredictedData predictedData, bool applyCommissions = true): base()
         {
             PredictedData = predictedData;
+            _applyCommissions = applyCommissions;
         }
 
         public TradingStatus GetTradingStatus()
@@ -34,12 +36,12 @@ namespace NeuralNetwork.Base
             if (trades.Count == 0)
                 return TradingStatus.None;
 
-
-            if (trades[trades.Count - 1].TradingPosition == TradingPosition.Long)
+            if (trades[trades.Count - 1].TradingPosition == TradingPosition.Long && trades[trades.Count - 1].IsOpen)
                 return TradingStatus.Long;
-            else
+            else if (trades[trades.Count - 1].TradingPosition == TradingPosition.Short && trades[trades.Count - 1].IsOpen)
                 return TradingStatus.Short;
-
+            else
+                return TradingStatus.None;
         }
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace NeuralNetwork.Base
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public Trend GetTrend(int index)
+        public Trend GetPredictedTrend(int index)
         {
             if (index >= PredictedData.OriginalData.Count-1)
                 return Trend.EOF;
@@ -55,7 +57,7 @@ namespace NeuralNetwork.Base
             var predictedCurve = PredictedData.GetPredictedCurve(index);
 
             double value0 = predictedCurve.Predicted[0].Value;
-            double value1 = predictedCurve.Predicted[1].Value; ;
+            double value1 = predictedCurve.Predicted[1].Value; 
 
             if (value1 == value0) return Trend.None;
 
@@ -84,7 +86,7 @@ namespace NeuralNetwork.Base
         /// <param name="startMoney"></param>
         private void OpenPosition(TradingPosition tradingPosition, DateTime startDate, double startPrice, double startMoney)
         {
-            FinTrade trade = new FinTrade(startDate, startPrice, startMoney, tradingPosition);
+            FinTrade trade = new FinTrade(startDate, startPrice, startMoney, tradingPosition, _applyCommissions);
             trades.Add(trade);
         }
 
@@ -132,23 +134,25 @@ namespace NeuralNetwork.Base
                 if (status == TradingStatus.Long)
                 {
                     //se sono lungo, rilevo il trend, se è in ribasso chiudo la posizione  
-                    Trend trend = GetTrend(i);
+                    Trend trend = GetPredictedTrend(i);
                     if (trend == Trend.Down)
                         currentMoney = ClosePosition(currentDate, currentPrice);
                 }
                 else if (status == TradingStatus.Short)
                 {
                     //se sono cirto, rilevo il trend, se è in rialzo chiudo la posizione  
-                    Trend trend = GetTrend(i);
+                    Trend trend = GetPredictedTrend(i);
                     if (trend == Trend.Up)
                         currentMoney = ClosePosition(currentDate, currentPrice);
                 }
+
+                status = GetTradingStatus();
 
                 if (status == TradingStatus.None)
                 {
                     //se non ho pisizioni aperte, verifico il trend
                     //e decido se aprire una posizione long o short
-                    Trend trend = GetTrend(i);
+                    Trend trend = GetPredictedTrend(i);
                     if (trend == Trend.Up)
                         OpenPosition(TradingPosition.Long, currentDate, currentPrice, currentMoney);
                     else if (trend == Trend.Down)
@@ -159,6 +163,44 @@ namespace NeuralNetwork.Base
             }
 
             return currentMoney;
+        }
+
+        public int TradesCount
+        {
+            get
+            {
+                return trades.Count;
+            }
+        }
+
+        public int TradesGainCount
+        {
+            get
+            {
+                int result = 0;
+
+                for (int i = 0; i < trades.Count; i++)
+                {
+                    if (trades[i].Gain > 0)
+                        result++;
+                }
+                return result;
+            }
+        }
+
+        public int TradesLossCount
+        {
+            get
+            {
+                int result = 0;
+
+                for (int i = 0; i < trades.Count; i++)
+                {
+                    if (trades[i].Gain <= 0)
+                        result++;
+                }
+                return result;
+            }
         }
     }
 }

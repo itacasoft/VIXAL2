@@ -332,25 +332,59 @@ namespace VIXAL2.UnitTest
 
             var tradeSim = new FinTradeSimulator(p);
             tradeSim.MinTrend = 0.02;
-            var t0 = tradeSim.GetTrend(0);
+            var t0 = tradeSim.GetPredictedTrend(0);
             Assert.AreEqual(t0, Trend.Up);
 
-            var t1 = tradeSim.GetTrend(1);
+            var t1 = tradeSim.GetPredictedTrend(1);
             Assert.AreEqual(t1, Trend.None);
 
-            var t2 = tradeSim.GetTrend(2);
+            var t2 = tradeSim.GetPredictedTrend(2);
             Assert.AreEqual(t2, Trend.Down);
 
-            var t3 = tradeSim.GetTrend(3);
+            var t3 = tradeSim.GetPredictedTrend(3);
             Assert.AreEqual(t3, Trend.EOF);
 
             tradeSim = new FinTradeSimulator(p);
             tradeSim.MinTrend = 0;
-            t1 = tradeSim.GetTrend(1);
+            t1 = tradeSim.GetPredictedTrend(1);
             Assert.AreEqual(t1, Trend.Down);
 
             var money1 = tradeSim.Trade(10000);
             Assert.IsTrue(money1 > 10000);
+            Assert.AreEqual(tradeSim.TradesCount, 1);
+            Assert.AreEqual(tradeSim.TradesGainCount, 1);
+            Assert.AreEqual(tradeSim.TradesLossCount, 0);
         }
+
+        [TestMethod]
+        public void FinTradeSimulator_CalculateTrend_Test2()
+        {
+            var p = GetComplexPredictedData();
+
+            var tradeSim = new FinTradeSimulator(p, false);
+            tradeSim.MinTrend = 0.02;
+
+            var money1 = tradeSim.Trade(10000);
+            Assert.IsTrue(money1 > 10000);
+            Assert.AreEqual(tradeSim.TradesCount, 1);
+            Assert.AreEqual(tradeSim.TradesGainCount, 1);
+            Assert.AreEqual(tradeSim.TradesLossCount, 0);
+        }
+
+        [TestMethod]
+        public void FinTradeSimulator_CalculateTrend_Test3_Mintrend_zero()
+        {
+            var p = GetComplexPredictedData();
+
+            var tradeSim = new FinTradeSimulator(p, false);
+            tradeSim.MinTrend = 0;
+
+            var money1 = tradeSim.Trade(10000);
+            Assert.IsTrue(money1 > 10000);
+            Assert.AreEqual(tradeSim.TradesCount, 1);
+            Assert.AreEqual(tradeSim.TradesGainCount, 1);
+            Assert.AreEqual(tradeSim.TradesLossCount, 0);
+        }
+
     }
 }

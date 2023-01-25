@@ -13,6 +13,7 @@ namespace VIXAL2.Data.Base
         public DateTime StartDate;
         public DateTime EndDate = DateTime.MinValue;
         public double StartMoney;
+        public double CurrentMoney;
         public double EndMoney;
         public double StartPrice;
         public double EndPrice;
@@ -28,7 +29,8 @@ namespace VIXAL2.Data.Base
             StartPrice = startPrice;
             _applyCommissions = applyCommissions;
             _commissions = CalculateCommission(startMoney);
-            StartMoney = Math.Round(startMoney - _commissions, 2, MidpointRounding.AwayFromZero);
+            StartMoney = startMoney;
+            CurrentMoney = Math.Round(startMoney - _commissions, 2, MidpointRounding.AwayFromZero);
             IsOpen = true;
         }
 
@@ -51,7 +53,11 @@ namespace VIXAL2.Data.Base
             EndDate = endDate;
             EndPrice = endPrice;
 
-            EndMoney = EndPrice * StartMoney/StartPrice;
+            if (TradingPosition == TradingPosition.Long)
+                EndMoney = EndPrice * CurrentMoney/StartPrice;
+            else
+                EndMoney = StartPrice * CurrentMoney / EndPrice;
+
             var commission = CalculateCommission(EndMoney);
 
             EndMoney = Math.Round(EndMoney - commission, 2, MidpointRounding.AwayFromZero); 
@@ -64,11 +70,7 @@ namespace VIXAL2.Data.Base
         {
             get
             {
-                double result;
-
-                if (TradingPosition == TradingPosition.Long)
-                    result = EndMoney - StartMoney;
-                else result = StartMoney - EndMoney;
+                double result = EndMoney - StartMoney;
                 return Math.Round(result, 2, MidpointRounding.AwayFromZero);
             }
         }
@@ -77,13 +79,17 @@ namespace VIXAL2.Data.Base
         {
             get
             {
-                double result;
-
-                if (TradingPosition == TradingPosition.Long)
-                    result = (EndMoney - StartMoney)/StartMoney;
-                else result = (StartMoney - EndMoney) / EndMoney;
-                
+                double result = (EndMoney - StartMoney)/StartMoney;
                 return Math.Round(result, 4, MidpointRounding.AwayFromZero);
+            }
+        }
+
+        public double Commissions
+        {
+            get
+            {
+                double result = _commissions;
+                return Math.Round(result, 2, MidpointRounding.AwayFromZero);
             }
         }
     }

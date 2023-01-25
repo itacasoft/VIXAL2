@@ -13,28 +13,29 @@ namespace VIXAL2.UnitTest
         public void CalculateFinTrades_Long_Test()
         {
             var trade = new FinTrade(DateTime.Now, 10, 2000, TradingPosition.Long);
-            Assert.AreEqual(trade.StartMoney, 1996.2);
+            Assert.AreEqual(trade.StartMoney, 2000);
+            Assert.AreEqual(trade.CurrentMoney, 1996.2);
 
             trade.Close(DateTime.Now.AddDays(1), 10.2);
-            Assert.AreEqual(trade.Gain, 36.06);
+            Assert.AreEqual(trade.Gain, 32.26);
             Assert.AreEqual(trade.EndMoney, 2032.26);
-            Assert.AreEqual(trade.GainPerc, 0.0181);
+            Assert.AreEqual(trade.GainPerc, 0.0161);
 
             trade = new FinTrade(DateTime.Now, 10, 1000, TradingPosition.Long);
-            Assert.AreEqual(trade.StartMoney, 997.05);
+            Assert.AreEqual(trade.CurrentMoney, 997.05);
 
             trade.Close(DateTime.Now.AddDays(1), 10.2);
-            Assert.AreEqual(trade.Gain, 16.99);
+            Assert.AreEqual(trade.Gain, 14.04);
             Assert.AreEqual(trade.EndMoney, 1014.04);
-            Assert.AreEqual(trade.GainPerc, 0.017);
+            Assert.AreEqual(trade.GainPerc, 0.014);
 
             trade = new FinTrade(DateTime.Now, 10, 10000, TradingPosition.Long);
-            Assert.AreEqual(trade.StartMoney, 9981.00);
+            Assert.AreEqual(trade.CurrentMoney, 9981.00);
 
             trade.Close(DateTime.Now.AddDays(1), 10.2);
-            Assert.AreEqual(trade.Gain, 180.62);
+            Assert.AreEqual(trade.Gain, 161.62);
             Assert.AreEqual(trade.EndMoney, 10161.62);
-            Assert.AreEqual(trade.GainPerc, 0.0181);
+            Assert.AreEqual(trade.GainPerc, 0.0162);
         }
 
         [TestMethod]
@@ -48,13 +49,38 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(trade.EndMoney, 2040);
             Assert.AreEqual(trade.GainPerc, 0.02);
 
-            trade = new FinTrade(DateTime.Now, 10, 2000, TradingPosition.Short, false);
+            trade = new FinTrade(DateTime.Now, 10.2, 2000, TradingPosition.Short, false);
             Assert.AreEqual(trade.StartMoney, 2000);
 
-            trade.Close(DateTime.Now.AddDays(1), 9.8);
+            trade.Close(DateTime.Now.AddDays(1), 10);
             Assert.AreEqual(trade.Gain, 40);
-            Assert.AreEqual(trade.EndMoney, 1960);
+            Assert.AreEqual(trade.EndMoney, 2040);
             Assert.AreEqual(trade.GainPerc, 0.02);
+        }
+
+        [TestMethod]
+        public void CalculateFinTrades_MaxCommission_Test()
+        {
+            var trade = new FinTrade(DateTime.Now, 10, 20000, TradingPosition.Long, true);
+            Assert.AreEqual(trade.Commissions, 19);
+            Assert.AreEqual(trade.StartMoney, 20000);
+            Assert.AreEqual(trade.CurrentMoney, 20000-19);
+
+            trade.Close(DateTime.Now.AddDays(1), 10);
+
+            Assert.AreEqual(trade.Commissions, 38);
+            Assert.AreEqual(trade.EndMoney, 20000-38);
+            Assert.AreEqual(trade.Gain, -38);
+
+            Assert.AreEqual(trade.GainPerc, -0.0019);
+
+            trade = new FinTrade(DateTime.Now, 10, 20000, TradingPosition.Short, true);
+            Assert.AreEqual(trade.StartMoney, 20000);
+            Assert.AreEqual(trade.CurrentMoney, 20000 - 19);
+            trade.Close(DateTime.Now.AddDays(1), 10);
+            Assert.AreEqual(trade.Gain, -38);
+            Assert.AreEqual(trade.EndMoney, 20000 - 38);
+            Assert.AreEqual(trade.GainPerc, -0.0019);
         }
 
 
@@ -62,20 +88,21 @@ namespace VIXAL2.UnitTest
         public void CalculateFinTrades_Short_Test()
         {
             var trade = new FinTrade(DateTime.Now, 10.2, 2000, TradingPosition.Short);
-            Assert.AreEqual(trade.StartMoney, 1996.2);
+            Assert.AreEqual(trade.StartMoney, 2000);
+            Assert.AreEqual(trade.CurrentMoney, 1996.2);
 
             trade.Close(DateTime.Now.AddDays(1), 10);
-            Assert.AreEqual(trade.Gain, 42.86);
-            Assert.AreEqual(trade.EndMoney, 1953.34);
-            Assert.AreEqual(trade.GainPerc, 0.0219);
+            Assert.AreEqual(trade.Gain, 32.26);
+            Assert.AreEqual(trade.EndMoney, 2032.26);
+            Assert.AreEqual(trade.GainPerc, 0.0161);
 
             trade = new FinTrade(DateTime.Now, 10, 1000, TradingPosition.Short);
-            Assert.AreEqual(trade.StartMoney, 997.05);
+            Assert.AreEqual(trade.CurrentMoney, 997.05);
 
             trade.Close(DateTime.Now.AddDays(1), 10.2);
-            Assert.AreEqual(trade.Gain, -16.99);
-            Assert.AreEqual(trade.EndMoney, 1014.04);
-            Assert.AreEqual(trade.GainPerc, -0.0168);
+            Assert.AreEqual(trade.Gain, -25.45);
+            Assert.AreEqual(trade.EndMoney, 974.55);
+            Assert.AreEqual(trade.GainPerc, -0.0255);
         }
 
         private PredictedData GetSimplePredictedData()
@@ -351,9 +378,9 @@ namespace VIXAL2.UnitTest
 
             var money1 = tradeSim.Trade(10000);
             Assert.IsTrue(money1 > 10000);
-            Assert.AreEqual(tradeSim.TradesCount, 1);
+            Assert.AreEqual(tradeSim.TradesCount, 2);
             Assert.AreEqual(tradeSim.TradesGainCount, 1);
-            Assert.AreEqual(tradeSim.TradesLossCount, 0);
+            Assert.AreEqual(tradeSim.TradesLossCount, 1);
         }
 
         [TestMethod]
@@ -366,8 +393,8 @@ namespace VIXAL2.UnitTest
 
             var money1 = tradeSim.Trade(10000);
             Assert.IsTrue(money1 > 10000);
-            Assert.AreEqual(tradeSim.TradesCount, 1);
-            Assert.AreEqual(tradeSim.TradesGainCount, 1);
+            Assert.AreEqual(tradeSim.TradesCount, 2);
+            Assert.AreEqual(tradeSim.TradesGainCount, 2);
             Assert.AreEqual(tradeSim.TradesLossCount, 0);
         }
 
@@ -381,8 +408,8 @@ namespace VIXAL2.UnitTest
 
             var money1 = tradeSim.Trade(10000);
             Assert.IsTrue(money1 > 10000);
-            Assert.AreEqual(tradeSim.TradesCount, 1);
-            Assert.AreEqual(tradeSim.TradesGainCount, 1);
+            Assert.AreEqual(tradeSim.TradesCount, 6);
+            Assert.AreEqual(tradeSim.TradesGainCount, 6);
             Assert.AreEqual(tradeSim.TradesLossCount, 0);
         }
 

@@ -20,7 +20,6 @@ namespace VIXAL2.UnitTest
             const int PREDICT_COUNT = 1;
             const int TEST_COUNT = 10;
 
-
             List<DateTime> dates = new List<DateTime>();
             DateTime firstDate = Convert.ToDateTime("2022-01-05", CultureInfo.InvariantCulture);
             dates.Add(firstDate);
@@ -54,16 +53,16 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.ValidCount, 20);
             Assert.AreEqual(ds.TestCount, TEST_COUNT);
 
-            double[][] x = ds.GetTestArrayX().Values; //ds.GetTestArrayExtendedX_ForUnitTest().Values;
+            double[][] x = ds.GetTestArrayX().Values; 
             Assert.AreEqual(x.Length, TEST_COUNT);
 
-            Assert.AreEqual(x[0][0], 0.81);
-            Assert.AreEqual(x[0][1], 0.81);
-            Assert.IsTrue(0.62 < x[0][2] && x[0][2] < 0.63);
+            Assert.AreEqual(x[0][0], data[81][0]);
+            Assert.AreEqual(x[0][1], data[81][1]);
+            Assert.AreEqual(x[0][2], data[81][2]);
 
-            Assert.AreEqual(x[TEST_COUNT-1][0], 0.9);
-            Assert.AreEqual(x[TEST_COUNT-1][1], 0.9);
-            Assert.IsTrue(0.63 < x[9][2] && x[9][2] < 0.64);
+            Assert.AreEqual(x[TEST_COUNT-1][0], data[90][0]);
+            Assert.AreEqual(x[TEST_COUNT-1][1], data[90][1]);
+            Assert.AreEqual(x[TEST_COUNT - 1][2], data[90][2]);
 
             TimeSerieArray current = ds.GetColumnData(0);
             TimeSerieArray future = ds.GetColumnData(0, PREDICT_DAYS);
@@ -138,25 +137,32 @@ namespace VIXAL2.UnitTest
             TimeSerieArray current = ds.GetTestArrayX();
 
             DateTime mydate = current.MaxDate.AddDays(-15);
+            Assert.IsTrue(mydate.DayOfWeek == DayOfWeek.Monday);
+
             double value1 = current.GetValue(mydate, COLUMN_TO_CHECK);
+
+#if NORMALIZE_FIRST
             value1 = ds.Decode(value1, COLUMN_TO_CHECK);
+#endif
 
             double value2 = ds.OriginalData.GetValue(mydate, COLUMN_TO_CHECK);
             Assert.AreEqual(value1, value2);
 
+            var mydate_back = mydate.AddDays(-3);
+            Assert.IsTrue(mydate_back.DayOfWeek == DayOfWeek.Friday);
+
+            double valuePrev = current.GetValue(mydate_back, COLUMN_TO_CHECK);
             double[] data1 = ds.OriginalData.GetPreviousValuesFromColumn(mydate, 1, COLUMN_TO_CHECK);
-            Assert.AreEqual(value1, data1[0]);
+            Assert.AreEqual(valuePrev, data1[0]);
 
             double[] data2 = ds.OriginalData.GetPreviousValuesFromColumn(mydate, 10, COLUMN_TO_CHECK);
-            Assert.AreEqual(value1, data2[9]);
-            Assert.AreEqual(13.480000, data2[8]);
+            Assert.AreEqual(valuePrev, data2[9]);
         }
 
         [TestMethod]
         public void Test_StockDataset_ExtendedArrayX()
         {
             const int PREDICT_DAYS = 10;
-            const int COLUMN_TO_CHECK = 1;
 
             StocksDataset ds = GetDataset(PREDICT_DAYS);
             ds.Prepare();

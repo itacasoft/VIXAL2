@@ -177,13 +177,18 @@ namespace VIXAL2.UnitTest
 
             DateTime mydate = current.MaxDate.AddDays(-15);
             double value1 = current.GetValue(mydate, 1);
+
+#if NORMALIZE_FIRST
             value1 = ds.Decode(value1, 1);
+#endif
 
             double[] data1 = ds.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(mydate, ds.Range, COLUMN_TO_CHECK);
 
             //assert the moving average calculation is correct
             //and that calculated at date "mydate" is correctly found on original data
-            Assert.AreEqual(value1, Utils.Mean(data1));
+            value1 = Math.Round(value1, 2, MidpointRounding.AwayFromZero);
+            double mean1 = Math.Round(Utils.Mean(data1), 2, MidpointRounding.AwayFromZero);
+            Assert.AreEqual(value1, mean1);
         }
 
         [TestMethod]

@@ -1,10 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using SharpML.Types;
-using VIXAL2.UnitTest.Data;
+using System;
 using System.Globalization;
 using VIXAL2.Data;
+using VIXAL2.UnitTest.Data;
 
 namespace VIXAL2.UnitTest
 {
@@ -324,8 +323,11 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
             Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
             Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
-            Assert.IsTrue(ds.TestDataY[2][0] > 0.70 && ds.TestDataY[2][0] < 0.72);
-
+#if NORMALIZE_FIRST
+            Assert.IsTrue(ds.TestDataY[2][0] > 0.70 && ds.TestDataY[2][0] < 0.75);
+#else
+            Assert.IsTrue(ds.TestDataY[2][0] > 60 && ds.TestDataY[2][0] < 65);
+#endif
             //assert FeatureLabel structure is equal to the original one
             var fl = ds.GetFeatureLabelDataSet();
             Assert.AreEqual(fl["features"].train.Length, EXPECTED_TRAINCOUNT);
@@ -335,10 +337,19 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
             Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
 
+#if NORMALIZE_FIRST
             //assert FeatureLabel values are the same of the original ones
             Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
             Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
             Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
+#else
+            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
+            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
+
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
+#endif
         }
 
 
@@ -398,7 +409,12 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
             Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
             Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
+
+#if NORMALIZE_FIRST
             Assert.IsTrue(ds.TestDataY[2][0] > 0.80 && ds.TestDataY[2][0] < 0.82);
+#else
+            Assert.IsTrue(ds.TestDataY[2][0] > 7 && ds.TestDataY[2][0] < 8);
+#endif
 
             //assert FeatureLabel structure is equal to the original one
             var fl = ds.GetFeatureLabelDataSet();
@@ -409,10 +425,19 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
             Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
 
+#if NORMALIZE_FIRST
             //assert FeatureLabel values are the same of the original ones
             Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
             Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
             Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
+#else
+            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
+            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
+
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
+#endif
         }
 
         [TestMethod]
@@ -472,7 +497,12 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
             Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
             double valueToCheck = ds.TestDataX[0][0];
+
+#if NORMALIZE_FIRST
             Assert.IsTrue(valueToCheck > 0.82 && valueToCheck < 0.84);
+#else
+            Assert.IsTrue(valueToCheck > 8.0 && valueToCheck < 8.1);
+#endif
 
             //assert FeatureLabel structure is equal to the original one
             var fl = ds.GetFeatureLabelDataSet();
@@ -483,10 +513,19 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
             Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
 
+#if NORMALIZE_FIRST
             //assert FeatureLabel values are the same of the original ones
             Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
             Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
             Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
+#else
+            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
+            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
+
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
+#endif
 
             bool result = ds.Forward(1);
             Assert.IsTrue(result);

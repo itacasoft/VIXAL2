@@ -18,13 +18,13 @@ namespace VIXAL2.UnitTest
             var trend = tradeSim.GetTrend(10,10.5);
             Assert.AreEqual(trend, 1);
 
-            trend = tradeSim.GetTrend(10.5, 10);
+            trend = tradeSim.GetTrend(10.5, 10.1);
             Assert.AreEqual(trend, 0);
 
             trend = tradeSim.GetTrend(10.6, 10);
             Assert.AreEqual(trend, -1);
 
-            trend = tradeSim.GetTrend(10, 9.6);
+            trend = tradeSim.GetTrend(10, 9.65);
             Assert.AreEqual(trend, 0);
         }
 

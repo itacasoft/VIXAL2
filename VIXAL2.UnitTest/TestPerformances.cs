@@ -29,11 +29,17 @@ namespace VIXAL2.UnitTest
             predicted[3] = 4;
             predicted[4] = 8;
 
-            Performance[] perfList = new Performance[15];
+            Performance[] perfList = new Performance[5];
+            //create obects for arrays
+            for (int i = 0; i < perfList.Length; i++)
+            {
+                perfList[i] = new Performance();
+            }
+
+            Assert.AreEqual(perfList.Count(), 5);
 
             LSTMUtils.CompareSlopes(dataY, predicted, ref perfList);
 
-            Assert.AreEqual(perfList.Count(), 5);
             Assert.AreEqual(perfList[0].Guessed, 0);
             Assert.AreEqual(perfList[0].Failed, 0);
             Assert.AreEqual(perfList[0].Total, 0);

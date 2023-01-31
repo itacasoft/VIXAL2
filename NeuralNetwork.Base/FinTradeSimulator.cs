@@ -36,9 +36,9 @@ namespace NeuralNetwork.Base
             if (trades.Count == 0)
                 return TradingStatus.None;
 
-            if (trades[trades.Count - 1].TradingPosition == TradingPosition.Long && trades[trades.Count - 1].IsOpen)
+            if (trades[trades.Count - 1].TradingPosition == TradingPosition.Long && trades[trades.Count - 1].GetIsOpen())
                 return TradingStatus.Long;
-            else if (trades[trades.Count - 1].TradingPosition == TradingPosition.Short && trades[trades.Count - 1].IsOpen)
+            else if (trades[trades.Count - 1].TradingPosition == TradingPosition.Short && trades[trades.Count - 1].GetIsOpen())
                 return TradingStatus.Short;
             else
                 return TradingStatus.None;
@@ -86,7 +86,7 @@ namespace NeuralNetwork.Base
         /// <param name="startMoney"></param>
         private void OpenPosition(TradingPosition tradingPosition, DateTime startDate, double startPrice, double startMoney)
         {
-            FinTrade trade = new FinTrade(startDate, startPrice, startMoney, tradingPosition, _applyCommissions);
+            FinTrade trade = new FinTrade(PredictedData.StockName, startDate, startPrice, startMoney, tradingPosition, _applyCommissions);
             trades.Add(trade);
         }
 
@@ -100,7 +100,7 @@ namespace NeuralNetwork.Base
         {
             FinTrade trade = trades[trades.Count-1];
 
-            if (trade.IsOpen)
+            if (trade.GetIsOpen())
             {
                 trade.Close(endDate, endPrice);
             }
@@ -127,7 +127,8 @@ namespace NeuralNetwork.Base
                 //se sono alla fine, chiudo le posizioni pending
                 if (i == dates.Count - 1)
                 {
-                    currentMoney = ClosePosition(currentDate, currentPrice);
+                    if (trades.Count > 0) 
+                        currentMoney = ClosePosition(currentDate, currentPrice);
                     break;
                 }
 
@@ -200,6 +201,14 @@ namespace NeuralNetwork.Base
                         result++;
                 }
                 return result;
+            }
+        }
+
+        public List<FinTrade> Trades
+        {
+            get
+            {
+                return trades;
             }
         }
     }

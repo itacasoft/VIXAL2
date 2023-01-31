@@ -2,9 +2,12 @@
 using SharpML.Types;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using VIXAL2.Data.Base;
 using ZedGraph;
 
@@ -16,7 +19,7 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, progressReport, EndReport, FinalEndReport, Convert.ToInt32(textBoxBatchSize.Text));
+            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, OnReportProgress, OnReportEnd, OnReportFinalEnd, Convert.ToInt32(textBoxBatchSize.Text));
             try
             {
                 orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)(comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
@@ -56,7 +59,7 @@ namespace VIXAL2.GUI
         }
 
 
-        void progressReport(int iteration)
+        void OnReportProgress(int iteration)
         {
             if (this.InvokeRequired)
             {
@@ -66,29 +69,51 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            //output training process
-                            label3.Text = "Current iteration: " + iteration.ToString();
-                            label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString("F2");
-                            progressBar1.Value = iteration;
-
-                            reportOnGraphs(iteration);
+                            PerformReportProgress(iteration);
                         }
                     }
                     ));
             }
             else
             {
-                //output training process
-                label3.Text = "Current iteration: " + iteration.ToString();
-                label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString();
-                progressBar1.Value = iteration;
-
-                reportOnGraphs(iteration);
+                PerformReportProgress(iteration);
             }
         }
 
+        /// <summary>
+        /// Updates the graphs for each iteration 
+        /// </summary>
+        /// <param name="iteration"></param>
+        private void PerformReportProgress(int iteration)
+        {
+            //output training process
+            label3.Text = "Current iteration: " + iteration.ToString();
+            label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString();
+            progressBar1.Value = iteration;
 
-        void EndReport(int iteration)
+            if (iteration == Convert.ToInt32(textBoxIterations.Text))
+            {
+                //disegno il modello calcolato dallo stesso primo valore del trainingLine
+                //int sample = orchestrator.DataSet.PredictDays + 1;
+                int sample = orchestrator.DataSet.PredictDays + orchestrator.DataSet.Range;
+
+                modelLine.Clear();
+                lossDataLine.Clear();
+
+                currentModelEvaluation(iteration, ref sample);
+                currentModelTest(iteration, ref sample);
+                currentModelTestExtreme(ref sample);
+
+                zedGraphControl1.Refresh();
+            }
+            else
+            {
+                lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
+                zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
+            }
+        }
+
+        void OnReportEnd(int iteration)
         {
             if (this.InvokeRequired)
             {
@@ -98,18 +123,18 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
+                            PerformReportEnd();
                         }
                     }
                     ));
             }
             else
             {
-                DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
+                PerformReportEnd();
             }
         }
 
-        void FinalEndReport()
+        void OnReportFinalEnd()
         {
             if (this.InvokeRequired)
             {
@@ -119,20 +144,24 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            PerformFinalEndReport();
+                            PerformReportFinalEnd();
                         }
                     }
                     ));
             }
             else
             {
-                PerformFinalEndReport();
+                PerformReportFinalEnd();
             }
         }
 
-        private void PerformFinalEndReport()
+        /// <summary>
+        /// Updates graphs and performs actions at the end of all series of simulatios for a stock 
+        /// </summary>
+        private void PerformReportFinalEnd()
         {
             ReportItemAdd();
+            SimulateFinTrades(orchestrator.PredictedData);
 
             //se sto iterando su tutti gli stock
             if (checkBoxIterateOnStocks.Checked)
@@ -153,6 +182,25 @@ namespace VIXAL2.GUI
             {
                 //genera il report quando ha finito
                 btnPrint.PerformClick();
+            }
+        }
+
+        private void SimulateFinTrades(PredictedData predicted)
+        {
+            var tradeSim = new FinTradeSimulator(predicted, false);
+            tradeSim.MinTrend = 0.00;
+            var moneyGain = tradeSim.Trade(10000);
+            var tradesCount = tradeSim.TradesCount;
+            var gainCount = tradeSim.TradesGainCount;
+            var lossCount = tradeSim.TradesLossCount;
+
+            var serializer = new XmlSerializer(typeof(List<FinTrade>));
+            string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
+            string filename = Path.Combine(reportFolder, predicted.StockName + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
+
+            using (var writer = new StreamWriter(filename))
+            {
+                serializer.Serialize(writer, tradeSim.Trades);
             }
         }
 
@@ -230,9 +278,14 @@ namespace VIXAL2.GUI
             }
         }
 
-
-        private void DrawPerfomances(Performance[] performances, PerformanceDiff[] diffPerformances)
+        /// <summary>
+        /// Updates graphs and performs actions at the end of one serie of iteration for a stock 
+        /// </summary>
+        private void PerformReportEnd()
         {
+            Performance[] performances = orchestrator.SlopePerformances;
+            PerformanceDiff[] diffPerformances = orchestrator.DiffPerformance;
+
             slopePerformanceDataLine.Clear();
             for (int i = 1; i < performances.Count(); i++)
             {
@@ -254,30 +307,6 @@ namespace VIXAL2.GUI
 
             lblPerformance1.Text = "SlopePerformance (first): " + orchestrator.SlopePerformances[1].ToString();
             lblPerformance2.Text = "DiffPerformance (first): " + orchestrator.DiffPerformance[0].ToString();
-        }
-
-        private void reportOnGraphs(int iteration)
-        {
-            if (iteration == Convert.ToInt32(textBoxIterations.Text))
-            {
-                //disegno il modello calcolato dallo stesso primo valore del trainingLine
-                //int sample = orchestrator.DataSet.PredictDays + 1;
-                int sample = orchestrator.DataSet.PredictDays + orchestrator.DataSet.Range;
-
-                modelLine.Clear();
-                lossDataLine.Clear();
-
-                currentModelEvaluation(iteration, ref sample);
-                currentModelTest(iteration, ref sample);
-                currentModelTestExtreme(ref sample);
-
-                zedGraphControl1.Refresh();
-            }
-            else
-            {
-                lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
-                zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
-            }
         }
 
         private void DrawTrades(List<Trade> trades)

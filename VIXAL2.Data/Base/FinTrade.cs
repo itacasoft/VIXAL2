@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace VIXAL2.Data.Base
 {
@@ -10,29 +11,49 @@ namespace VIXAL2.Data.Base
 
     public class FinTrade
     {
-        public DateTime StartDate;
-        public DateTime EndDate = DateTime.MinValue;
+        private DateTime _startDate;
+        private DateTime _endDate = DateTime.MinValue;
+        private double _currentMoney;
+        private bool _applyCommissions = true;
+        private double _commissions = 0;
+        private bool _isOpen;
+
         public double StartMoney;
-        public double CurrentMoney;
         public double EndMoney;
         public double StartPrice;
         public double EndPrice;
+        public string StockName;
         public TradingPosition TradingPosition;
-        public bool IsOpen;
-        private bool _applyCommissions = true;
-        private double _commissions = 0;
 
-        public FinTrade(DateTime startDate, double startPrice, double startMoney, TradingPosition tradingPosition, bool applyCommissions = true)
+
+        public FinTrade()
         {
+
+        }
+
+        public FinTrade(string stockName, DateTime startDate, double startPrice, double startMoney, TradingPosition tradingPosition, bool applyCommissions = true)
+        {
+            StockName = stockName;
             TradingPosition = tradingPosition;
-            StartDate = startDate;
+            _startDate = startDate;
             StartPrice = startPrice;
             _applyCommissions = applyCommissions;
             _commissions = CalculateCommission(startMoney);
             StartMoney = startMoney;
-            CurrentMoney = Math.Round(startMoney - _commissions, 2, MidpointRounding.AwayFromZero);
-            IsOpen = true;
+            _currentMoney = Math.Round(startMoney - _commissions, 2, MidpointRounding.AwayFromZero);
+            _isOpen = true;
         }
+
+        public bool GetIsOpen()
+        {
+            return _isOpen;
+        }
+
+        public double GetCurrentMoney()
+        {
+            return _currentMoney;
+        }
+
 
         private double CalculateCommission(double money)
         {
@@ -47,22 +68,22 @@ namespace VIXAL2.Data.Base
 
         public void Close(DateTime endDate, double endPrice)
         {
-            if (!IsOpen)
+            if (!_isOpen)
                 throw new InvalidOperationException("Trade is already closed");
 
-            EndDate = endDate;
+            _endDate = endDate;
             EndPrice = endPrice;
 
             if (TradingPosition == TradingPosition.Long)
-                EndMoney = EndPrice * CurrentMoney/StartPrice;
+                EndMoney = EndPrice * _currentMoney/StartPrice;
             else
-                EndMoney = StartPrice * CurrentMoney / EndPrice;
+                EndMoney = StartPrice * _currentMoney / EndPrice;
 
             var commission = CalculateCommission(EndMoney);
 
             EndMoney = Math.Round(EndMoney - commission, 2, MidpointRounding.AwayFromZero); 
             _commissions += commission;
-            IsOpen = false;
+            _isOpen = false;
         }
 
 
@@ -75,6 +96,7 @@ namespace VIXAL2.Data.Base
             }
         }
 
+        [XmlAttribute("GainPerc")]
         public double GainPerc
         {
             get
@@ -84,12 +106,29 @@ namespace VIXAL2.Data.Base
             }
         }
 
+        [XmlAttribute("Commissions")]
         public double Commissions
         {
             get
             {
                 double result = _commissions;
                 return Math.Round(result, 2, MidpointRounding.AwayFromZero);
+            }
+        }
+
+        public string StartDate
+        {
+            get
+            {
+                return _startDate.ToShortDateString();
+            }
+        }
+
+        public string EndDate
+        {
+            get
+            {
+                return _endDate.ToShortDateString();
             }
         }
     }

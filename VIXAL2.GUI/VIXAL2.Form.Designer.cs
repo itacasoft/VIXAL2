@@ -72,11 +72,14 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.lblPerformance2 = new System.Windows.Forms.Label();
             this.btnPrint = new System.Windows.Forms.Button();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.zedGraphControl4 = new ZedGraph.ZedGraphControl();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnStop
@@ -309,6 +312,7 @@
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Location = new System.Drawing.Point(602, 255);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl1.Name = "tabControl1";
@@ -583,6 +587,34 @@
             this.btnPrint.UseVisualStyleBackColor = true;
             this.btnPrint.Click += new System.EventHandler(this.button1_Click);
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.zedGraphControl4);
+            this.tabPage5.Location = new System.Drawing.Point(4, 29);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(655, 399);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "Trading";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // zedGraphControl4
+            // 
+            this.zedGraphControl4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.zedGraphControl4.Location = new System.Drawing.Point(3, 3);
+            this.zedGraphControl4.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.zedGraphControl4.Name = "zedGraphControl4";
+            this.zedGraphControl4.ScrollGrace = 0D;
+            this.zedGraphControl4.ScrollMaxX = 0D;
+            this.zedGraphControl4.ScrollMaxY = 0D;
+            this.zedGraphControl4.ScrollMaxY2 = 0D;
+            this.zedGraphControl4.ScrollMinX = 0D;
+            this.zedGraphControl4.ScrollMinY = 0D;
+            this.zedGraphControl4.ScrollMinY2 = 0D;
+            this.zedGraphControl4.Size = new System.Drawing.Size(649, 393);
+            this.zedGraphControl4.TabIndex = 2;
+            this.zedGraphControl4.UseExtendedPrintDialog = true;
+            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -624,6 +656,7 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
+            this.tabPage5.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -674,6 +707,8 @@
         private System.Windows.Forms.Button trainDataYBar;
         private System.Windows.Forms.Label lblPerformance2;
         private System.Windows.Forms.Button btnPrint;
+        private System.Windows.Forms.TabPage tabPage5;
+        private ZedGraph.ZedGraphControl zedGraphControl4;
     }
 }
 

@@ -35,6 +35,7 @@ namespace VIXAL2.GUI
             LoadListView(orchestrator.DataSet);
             //disegno il grafico dei prezzi reali
             LoadOriginalLine(orchestrator.DataSet);
+            LoadOriginalLine2(orchestrator.DataSet);
 
             LoadGraphs(orchestrator.DataSet);
 

@@ -94,9 +94,12 @@ namespace VIXAL2.Data.Base
                 double result = EndMoney - StartMoney;
                 return Math.Round(result, 2, MidpointRounding.AwayFromZero);
             }
+            set
+            {
+                EndMoney = value + StartMoney;
+            }
         }
 
-        [XmlAttribute("GainPerc")]
         public double GainPerc
         {
             get
@@ -104,15 +107,22 @@ namespace VIXAL2.Data.Base
                 double result = (EndMoney - StartMoney)/StartMoney;
                 return Math.Round(result, 4, MidpointRounding.AwayFromZero);
             }
+            set
+            {
+                EndMoney = value * StartMoney + StartMoney;
+            }
         }
 
-        [XmlAttribute("Commissions")]
         public double Commissions
         {
             get
             {
                 double result = _commissions;
                 return Math.Round(result, 2, MidpointRounding.AwayFromZero);
+            }
+            set
+            {
+                _commissions = value;
             }
         }
 
@@ -122,6 +132,10 @@ namespace VIXAL2.Data.Base
             {
                 return _startDate.ToShortDateString();
             }
+            set
+            {
+                _startDate = DateTime.Parse(value);
+            }
         }
 
         public string EndDate
@@ -129,6 +143,10 @@ namespace VIXAL2.Data.Base
             get
             {
                 return _endDate.ToShortDateString();
+            }
+            set
+            {
+                _endDate = DateTime.Parse(value);
             }
         }
     }

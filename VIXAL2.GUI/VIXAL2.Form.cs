@@ -1,5 +1,6 @@
 ﻿using NeuralNetwork.Base;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.Globalization;
@@ -20,11 +21,12 @@ namespace VIXAL2.GUI
         LineItem modelLine;
         LineItem trainingDataLine;
         LineItem separationline;
-        LineItem realLine;
+        LineItem originalLine;
         LineItem lossDataLine;
         LineItem slopePerformanceDataLine;
         LineItem diffPerformanceDataLine;
         LineItem longTradesLine, shortTradesLine;
+        LineItem originalLine2;
 
         public VIXAL2Form()
         {
@@ -43,6 +45,11 @@ namespace VIXAL2.GUI
             zedGraphControl1.GraphPane.XAxis.Title.Text = "Samples";
             zedGraphControl1.GraphPane.YAxis.Title.Text = "Observer/Predicted";
 
+            zedGraphControl4.GraphPane.Title.Text = "Simulation";
+            zedGraphControl4.GraphPane.XAxis.Title.Text = "Samples";
+            zedGraphControl4.GraphPane.YAxis.Title.Text = "Observer/Predicted";
+
+
             if (trainingDataLine != null) trainingDataLine.Clear();
             else
                 trainingDataLine = new LineItem("Training Data", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
@@ -55,12 +62,20 @@ namespace VIXAL2.GUI
             modelLine.Symbol.Fill = new Fill(Color.Red);
             modelLine.Symbol.Size = 1;
 
-            if (realLine != null) realLine.Clear();
+            if (originalLine != null) originalLine.Clear();
             else
-                realLine = new LineItem("Real Data", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
-            realLine.Symbol.Fill = new Fill(Color.Black);
-            realLine.Symbol.Size = 1;
-            realLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
+                originalLine = new LineItem("Real Data", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
+            originalLine.Symbol.Fill = new Fill(Color.Black);
+            originalLine.Symbol.Size = 1;
+            originalLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
+
+            if (originalLine2 != null) originalLine2.Clear();
+            else
+                originalLine2 = new LineItem("Real Data 2", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
+            originalLine2.Symbol.Fill = new Fill(Color.Black);
+            originalLine2.Symbol.Size = 1;
+            originalLine2.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
+
 
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Training Loss";
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Iteration";
@@ -109,7 +124,7 @@ namespace VIXAL2.GUI
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
             this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
-            this.zedGraphControl1.GraphPane.CurveList.Add(realLine);
+            this.zedGraphControl1.GraphPane.CurveList.Add(originalLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
             this.zedGraphControl2.GraphPane.CurveList.Clear();
@@ -139,9 +154,18 @@ namespace VIXAL2.GUI
             zedGraphControl1.PointValueFormat = "0.0000";
             zedGraphControl1.PointDateFormat = "d";
 
+            zedGraphControl4.IsShowPointValues = true;
+            zedGraphControl4.PointValueFormat = "0.0000";
+            zedGraphControl4.PointDateFormat = "d";
+
             zedGraphControl3.IsShowPointValues = true;
             zedGraphControl3.PointValueFormat = "0.0000";
             zedGraphControl3.PointDateFormat = "d";
+
+            //Add line to graph
+            this.zedGraphControl4.GraphPane.CurveList.Clear();
+            this.zedGraphControl4.GraphPane.CurveList.Add(originalLine2);
+            this.zedGraphControl4.GraphPane.AxisChange(this.CreateGraphics());
         }
 
         private void VIXAL2Form_Load(object sender, EventArgs e)
@@ -182,16 +206,72 @@ namespace VIXAL2.GUI
             {
                 var p = new PointPair(sample1, realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)]);
                 p.Tag = "[" + sample1.ToString() + "] " + realData.GetDate(i).ToShortDateString() + ": " + realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
-                realLine.AddPoint(p);
+                originalLine.AddPoint(p);
                 sample1++;
             }
 
-            realLine.Label.Text = "Close Price (" + realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + ")";
+            originalLine.Label.Text = "Close Price (" + realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + ")";
 
             zedGraphControl1.GraphPane.Title.Text = realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + " - Model evaluation";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -20;
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
+
+        private void LoadOriginalLine2(StocksDataset ds)
+        {
+            //disegno il grafico dei prezzi reali normalizzato
+            var sample1 = 1;// + ds.PredictDays;
+
+            TimeSerieArray originalData;
+
+            if (ds.NormalizeFirst)
+                originalData = ds.OriginalNormalizedData;
+            else
+                originalData = ds.OriginalData;
+
+            int sampleIndex = 0;
+
+            for (int i = sampleIndex; i < originalData.Length; i++)
+            {
+                var p = new PointPair(sample1, originalData.Values[i][Convert.ToInt32(textBoxYIndex.Text)]);
+                p.Tag = "[" + sample1.ToString() + "] " + originalData.GetDate(i).ToShortDateString() + ": " + originalData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
+
+                originalLine2.AddPoint(p);
+                sample1++;
+            }
+
+            originalLine2.Label.Text = "Close Price (" + originalData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + ")";
+
+            zedGraphControl4.GraphPane.Title.Text = originalData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + " - Trading Simulation";
+            zedGraphControl4.GraphPane.XAxis.Scale.Min = -20;
+            zedGraphControl4.RestoreScale(zedGraphControl4.GraphPane);
+        }
+
+        private void LoadTrades(List<FinTrade> trades)
+        {
+            var sample1 = 1;// + ds.PredictDays;
+
+            int sampleIndex = 0;
+
+            for (int i = sampleIndex; i < originalLine2.Points.Count; i++)
+            {
+/* To be implemented
+                var p = originalLine2.Points[i;
+                
+                p.
+                new PointPair(sample1, trades[0]. originalData.Values[i][Convert.ToInt32(textBoxYIndex.Text)]);
+                p.Tag = "[" + sample1.ToString() + "] " + originalData.GetDate(i).ToShortDateString() + ": " + originalData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
+                originalLine2.AddPoint(p);
+                sample1++;
+*/
+            }
+
+//            originalLine2.Label.Text = "Close Price (" + originalData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + ")";
+
+            zedGraphControl4.GraphPane.XAxis.Scale.Min = -20;
+            zedGraphControl4.RestoreScale(zedGraphControl4.GraphPane);
+        }
+
 
         private void LoadGraphs(StocksDataset ds)
         {

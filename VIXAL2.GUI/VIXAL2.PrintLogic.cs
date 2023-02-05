@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
-
+using VIXAL2.Data.Base;
 
 namespace VIXAL2.GUI
 {
@@ -136,6 +136,58 @@ namespace VIXAL2.GUI
 
             reportItems.Add(item);
             return item;
+        }
+
+        private void EnrichReportItemWithTradesData(ReportItem item, List<FinTrade> trades)
+        {
+            //calcolo la media e la somma
+            double gainPerc = 0;
+            double gain = 0;
+            int goodTrades = 0;
+            int badTrades = 0;
+            for (int i = 0; i < trades.Count; i++)
+            {
+                gainPerc += trades[i].GainPerc;
+                if (gainPerc > 0) goodTrades++;
+                else badTrades++;
+            }
+
+            if (trades.Count > 0)
+            {
+                gainPerc = gainPerc / (double)trades.Count;
+                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
+            }
+
+            item.FinTrade_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
+            item.FinTrade_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
+            item.FinTrade_BadTrades = badTrades;
+            item.FinTrade_GoodTrades = goodTrades;
+        }
+
+        private void EnrichReportItemWithTradesDataWithCommissions(ReportItem item, List<FinTrade> trades)
+        {
+            //calcolo la media e la somma
+            double gainPerc = 0;
+            double gain = 0;
+            int goodTrades = 0;
+            int badTrades = 0;
+            for (int i = 0; i < trades.Count; i++)
+            {
+                gainPerc += trades[i].GainPerc;
+                if (gainPerc > 0) goodTrades++;
+                else badTrades++;
+            }
+
+            if (trades.Count > 0)
+            {
+                gainPerc = gainPerc / (double)trades.Count;
+                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
+            }
+
+            item.FinTradeComm_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
+            item.FinTradeComm_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
+            item.FinTradeComm_BadTrades = badTrades;
+            item.FinTradeComm_GoodTrades = goodTrades;
         }
 
         private void PrintReport()

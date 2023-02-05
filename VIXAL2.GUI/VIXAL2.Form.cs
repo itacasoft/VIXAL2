@@ -188,6 +188,10 @@ namespace VIXAL2.GUI
             InitiGraphs();
         }
 
+        /// <summary>
+        /// Disegno il grafico dei prezzi originali
+        /// </summary>
+        /// <param name="ds"></param>
         private void LoadOriginalLine(StocksDataset ds)
         {
             //disegno il grafico dei prezzi reali normalizzato
@@ -247,6 +251,11 @@ namespace VIXAL2.GUI
             zedGraphControl4.RestoreScale(zedGraphControl4.GraphPane);
         }
 
+        /// <summary>
+        /// Load trades on GraphControl1
+        /// </summary>
+        /// <param name="trades"></param>
+        /// <exception cref="Exception"></exception>
         private void LoadTrades(List<FinTrade> trades)
         {
             TimeSerieArray originalData;

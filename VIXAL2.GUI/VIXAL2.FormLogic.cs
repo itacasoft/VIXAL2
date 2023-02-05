@@ -165,52 +165,9 @@ namespace VIXAL2.GUI
             var tradesWithCommissions = SimulateFinTrades(true);
             LoadTrades(tradesWithCommissions);
 
-            //calcolo la media e la somma
-            double gainPerc = 0;
-            double gain = 0;
-            int goodTrades = 0;
-            int badTrades = 0;
-            for (int i=0; i<trades.Count; i++)
-            {
-                gainPerc += trades[i].GainPerc;
-                if (gainPerc > 0) goodTrades++;
-                else badTrades++;
-            }
-
-            if (trades.Count > 0)
-            {
-                gainPerc = gainPerc / (double)trades.Count;
-                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
-            }
-
             ReportItem item = ReportItemAdd();
-            item.FinTrade_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero); 
-            item.FinTrade_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero); 
-            item.FinTrade_BadTrades = badTrades;
-            item.FinTrade_GoodTrades = goodTrades;
-
-            //calcolo la media e la somma
-            gainPerc = 0;
-            gain = 0;
-            goodTrades = 0;
-            badTrades = 0;
-            for (int i = 0; i < tradesWithCommissions.Count; i++)
-            {
-                gainPerc += tradesWithCommissions[i].GainPerc;
-                if (gainPerc > 0) goodTrades++;
-                else badTrades++;
-            }
-
-            if (tradesWithCommissions.Count > 0)
-            {
-                gainPerc = gainPerc / (double)tradesWithCommissions.Count;
-                gain = tradesWithCommissions[tradesWithCommissions.Count - 1].EndMoney - tradesWithCommissions[0].StartMoney;
-            }
-
-            item.FinTradeComm_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
-            item.FinTradeComm_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
-            item.FinTradeComm_BadTrades = badTrades;
-            item.FinTradeComm_GoodTrades = goodTrades;
+            EnrichReportItemWithTradesData(item, trades);
+            EnrichReportItemWithTradesDataWithCommissions(item, tradesWithCommissions);
 
             //se sto iterando su tutti gli stock
             if (checkBoxIterateOnStocks.Checked)
@@ -229,7 +186,7 @@ namespace VIXAL2.GUI
             }
             else
             {
-                //genera il report quando ha finito
+                //genera il report
                 PrintReport(); 
             }
         }

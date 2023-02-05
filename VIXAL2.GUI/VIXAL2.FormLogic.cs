@@ -161,8 +161,56 @@ namespace VIXAL2.GUI
         /// </summary>
         private void PerformReportFinalEnd()
         {
-            ReportItemAdd();
-            SimulateFinTrades(orchestrator.PredictedData);
+            var trades = SimulateFinTrades(false);
+            var tradesWithCommissions = SimulateFinTrades(true);
+            LoadTrades(tradesWithCommissions);
+
+            //calcolo la media e la somma
+            double gainPerc = 0;
+            double gain = 0;
+            int goodTrades = 0;
+            int badTrades = 0;
+            for (int i=0; i<trades.Count; i++)
+            {
+                gainPerc += trades[i].GainPerc;
+                if (gainPerc > 0) goodTrades++;
+                else badTrades++;
+            }
+
+            if (trades.Count > 0)
+            {
+                gainPerc = gainPerc / (double)trades.Count;
+                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
+            }
+
+            ReportItem item = ReportItemAdd();
+            item.FinTrade_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero); 
+            item.FinTrade_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero); 
+            item.FinTrade_BadTrades = badTrades;
+            item.FinTrade_GoodTrades = goodTrades;
+
+            //calcolo la media e la somma
+            gainPerc = 0;
+            gain = 0;
+            goodTrades = 0;
+            badTrades = 0;
+            for (int i = 0; i < tradesWithCommissions.Count; i++)
+            {
+                gainPerc += tradesWithCommissions[i].GainPerc;
+                if (gainPerc > 0) goodTrades++;
+                else badTrades++;
+            }
+
+            if (tradesWithCommissions.Count > 0)
+            {
+                gainPerc = gainPerc / (double)tradesWithCommissions.Count;
+                gain = tradesWithCommissions[tradesWithCommissions.Count - 1].EndMoney - tradesWithCommissions[0].StartMoney;
+            }
+
+            item.FinTradeComm_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
+            item.FinTradeComm_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
+            item.FinTradeComm_BadTrades = badTrades;
+            item.FinTradeComm_GoodTrades = goodTrades;
 
             //se sto iterando su tutti gli stock
             if (checkBoxIterateOnStocks.Checked)
@@ -176,33 +224,30 @@ namespace VIXAL2.GUI
                 else
                 {
                     //genera il report quando ha finito
-                    btnPrint.PerformClick();
+                    PrintReport(); 
                 }
             }
             else
             {
                 //genera il report quando ha finito
-                btnPrint.PerformClick();
+                PrintReport(); 
             }
         }
 
-        private void SimulateFinTrades(PredictedData predicted)
+        private List<FinTrade> SimulateFinTrades(bool applyCommissions)
         {
-            var tradeSim = new FinTradeSimulator(predicted, false);
-            tradeSim.MinTrend = 0.00;
-            var moneyGain = tradeSim.Trade(10000);
-            var tradesCount = tradeSim.TradesCount;
-            var gainCount = tradeSim.TradesGainCount;
-            var lossCount = tradeSim.TradesLossCount;
+            var trades = orchestrator.SimulateFinTrades(applyCommissions);
 
             var serializer = new XmlSerializer(typeof(List<FinTrade>));
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
-            string filename = Path.Combine(reportFolder, predicted.StockName + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
+            string filename = Path.Combine(reportFolder, orchestrator.PredictedData.StockName + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
 
             using (var writer = new StreamWriter(filename))
             {
-                serializer.Serialize(writer, tradeSim.Trades);
+                serializer.Serialize(writer, trades);
             }
+
+            return trades;
         }
 
         private void currentModelTestExtreme(ref int sample)
@@ -410,7 +455,5 @@ namespace VIXAL2.GUI
             }
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }
-
-
     }
 }

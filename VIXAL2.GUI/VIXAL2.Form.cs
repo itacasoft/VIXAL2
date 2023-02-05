@@ -249,27 +249,41 @@ namespace VIXAL2.GUI
 
         private void LoadTrades(List<FinTrade> trades)
         {
-            var sample1 = 1;// + ds.PredictDays;
+            TimeSerieArray originalData;
 
-            int sampleIndex = 0;
+            if (orchestrator.DataSet.NormalizeFirst)
+                originalData = orchestrator.DataSet.OriginalNormalizedData;
+            else
+                originalData = orchestrator.DataSet.OriginalData;
 
-            for (int i = sampleIndex; i < originalLine2.Points.Count; i++)
+            if (originalLine.Points.Count != originalData.Length)
+                throw new Exception("Points.Count different from Original Data lenght");
+
+            for (int i=0; i<trades.Count; i++)
             {
-/* To be implemented
-                var p = originalLine2.Points[i;
-                
-                p.
-                new PointPair(sample1, trades[0]. originalData.Values[i][Convert.ToInt32(textBoxYIndex.Text)]);
-                p.Tag = "[" + sample1.ToString() + "] " + originalData.GetDate(i).ToShortDateString() + ": " + originalData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
-                originalLine2.AddPoint(p);
-                sample1++;
-*/
+                int? tradeStartIndex = originalData.DateToSampleIndex(trades[i].StartDate);
+                int? tradeEndIndex = originalData.DateToSampleIndex(trades[i].EndDate);
+
+                var p0 = originalLine.Points[tradeStartIndex.Value];
+                var p1 = originalLine.Points[tradeEndIndex.Value];
+
+                LineItem l;
+                if (trades[i].TradingPosition == TradingPosition.Long)
+                {
+                    l = new LineItem("Trade" + (i + 1).ToString() + " (" + (int)(trades[i].GainPerc*100) + "%)", null, null, Color.Green, ZedGraph.SymbolType.Diamond, 3);
+                }
+                else
+                {
+                    l = new LineItem("Trade" + (i + 1).ToString() + " (" + (int)(trades[i].GainPerc*100) + "%)", null, null, Color.DarkMagenta, ZedGraph.SymbolType.Diamond, 3);
+                }
+
+                l.AddPoint(p0);
+                l.AddPoint(p1);
+                this.zedGraphControl1.GraphPane.CurveList.Add(l);
             }
 
-//            originalLine2.Label.Text = "Close Price (" + originalData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + ")";
-
-            zedGraphControl4.GraphPane.XAxis.Scale.Min = -20;
-            zedGraphControl4.RestoreScale(zedGraphControl4.GraphPane);
+            zedGraphControl1.GraphPane.XAxis.Scale.Min = -20;
+            zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
 
 

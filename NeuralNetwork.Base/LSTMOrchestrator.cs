@@ -172,6 +172,17 @@ namespace NeuralNetwork.Base
             return Trades;
         }
 
+        public List<FinTrade> SimulateFinTrades(bool applyCommissions)
+        {
+            var tradeSim = new FinTradeSimulator(this.PredictedData, applyCommissions);
+            tradeSim.MinTrend = 0.00;
+            var moneyGain = tradeSim.Trade(10000);
+            var tradesCount = tradeSim.TradesCount;
+            var gainCount = tradeSim.TradesGainCount;
+            var lossCount = tradeSim.TradesLossCount;
+
+            return tradeSim.Trades;
+        }
 
         public void ComparePredictedAgainstDataY(List<DoubleDatedValue> predicted, int columnToPredict)
         {

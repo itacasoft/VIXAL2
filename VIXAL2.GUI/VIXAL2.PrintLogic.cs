@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 
@@ -30,16 +31,26 @@ namespace VIXAL2.GUI
             }
         }
 
-        private class ReportItem
+        public class ReportItem
         {
             public string StockName;
             public DateTime TimeOfSimulation;
-            public List<string> Text;
+            //public List<string> Text;
+            [XmlIgnoreAttribute]
             public byte[] Image1;
+            [XmlIgnoreAttribute]
             public byte[] Image2;
             public double WeightedSlopePerformance;
             public double AvgSlopePerformance;
             public double AvgDiffPerformance;
+            public double FinTrade_GainPerc;
+            public double FinTrade_Gain;
+            public int FinTrade_GoodTrades;
+            public int FinTrade_BadTrades;
+            public double FinTradeComm_GainPerc;
+            public double FinTradeComm_Gain;
+            public int FinTradeComm_GoodTrades;
+            public int FinTradeComm_BadTrades;
         }
 
         private List<ReportItem> reportItems = new List<ReportItem>();
@@ -86,7 +97,7 @@ namespace VIXAL2.GUI
             return img;
         }
 
-        private void ReportItemAdd()
+        private ReportItem ReportItemAdd()
         {
             if (reportHeader == null)
             {
@@ -105,7 +116,7 @@ namespace VIXAL2.GUI
             ReportItem item = new ReportItem();
             item.StockName = stockName;
             item.TimeOfSimulation = DateTime.Now;
-            item.Text = new List<string>();
+            //item.Text = new List<string>();
 
             ImageConverter _imageConverter = new ImageConverter();
 
@@ -124,14 +135,23 @@ namespace VIXAL2.GUI
             item.AvgSlopePerformance = orchestrator.AvgSlopePerformance;
 
             reportItems.Add(item);
+            return item;
         }
 
         private void PrintReport()
         {
             List<ReportItem> sortedReportItems = reportItems.OrderBy(o => o.WeightedSlopePerformance).ToList();
 
+            var serializer = new XmlSerializer(typeof(List<ReportItem>));
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
-            string filename = Path.Combine(reportFolder, "report_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf");
+            string filename = Path.Combine(reportFolder, "reportItems_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
+
+            using (var writer = new StreamWriter(filename))
+            {
+                serializer.Serialize(writer, sortedReportItems);
+            }
+
+            filename = Path.Combine(reportFolder, "report_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf");
 
             Document.Create(container =>
             {

@@ -38,8 +38,8 @@
     <Reference Include="HarfBuzzSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\HarfBuzzSharp.2.8.2.3\lib\net462\HarfBuzzSharp.dll</HintPath>
     </Reference>
-    <Reference Include="QuestPDF, Version=2022.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuestPDF.2022.12.0\lib\net462\QuestPDF.dll</HintPath>
+    <Reference Include="QuestPDF, Version=2022.12.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuestPDF.2022.12.1\lib\net462\QuestPDF.dll</HintPath>
     </Reference>
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.2.88.3\lib\net462\SkiaSharp.dll</HintPath>

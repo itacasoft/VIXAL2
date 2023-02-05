@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfFinTrade xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FinTrade>
+    <StartMoney>10000</StartMoney>
+    <EndMoney>12656.43</EndMoney>
+    <StartPrice>21.440001</StartPrice>
+    <EndPrice>16.940001</EndPrice>
+    <StockName>ICLN</StockName>
+    <TradingPosition>Short</TradingPosition>
+    <Gain>2656.43</Gain>
+    <GainPerc>0.2656</GainPerc>
+    <Commissions>0</Commissions>
+    <StartDate>29/03/2022</StartDate>
+    <EndDate>11/05/2022</EndDate>
+  </FinTrade>
+  <FinTrade>
+    <StartMoney>12656.43</StartMoney>
+    <EndMoney>13627.7</EndMoney>
+    <StartPrice>16.940001</StartPrice>
+    <EndPrice>18.24</EndPrice>
+    <StockName>ICLN</StockName>
+    <TradingPosition>Long</TradingPosition>
+    <Gain>971.27</Gain>
+    <GainPerc>0.0767</GainPerc>
+    <Commissions>0</Commissions>
+    <StartDate>11/05/2022</StartDate>
+    <EndDate>17/05/2022</EndDate>
+  </FinTrade>
+</ArrayOfFinTrade>

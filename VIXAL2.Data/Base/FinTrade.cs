@@ -126,7 +126,8 @@ namespace VIXAL2.Data.Base
             }
         }
 
-        public string StartDate
+        [XmlElement("StartDate")]
+        public string StartDateAsString
         {
             get
             {
@@ -138,7 +139,16 @@ namespace VIXAL2.Data.Base
             }
         }
 
-        public string EndDate
+        public DateTime StartDate
+        {
+            get
+            {
+                return _startDate;
+            }
+        }
+
+        [XmlElement("EndDate")]
+        public string EndDateAsString
         {
             get
             {
@@ -149,5 +159,14 @@ namespace VIXAL2.Data.Base
                 _endDate = DateTime.Parse(value);
             }
         }
+
+        public DateTime EndDate
+        {
+            get
+            {
+                return _endDate;
+            }
+        }
+
     }
 }

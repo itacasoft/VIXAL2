@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfFinTrade xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FinTrade>
+    <StartMoney>10000</StartMoney>
+    <EndMoney>12403.39</EndMoney>
+    <StartPrice>26.32</StartPrice>
+    <EndPrice>21.219999</EndPrice>
+    <StockName>BOTZ</StockName>
+    <TradingPosition>Short</TradingPosition>
+    <Gain>2403.39</Gain>
+    <GainPerc>0.2403</GainPerc>
+    <Commissions>0</Commissions>
+    <StartDate>11/04/2022</StartDate>
+    <EndDate>11/05/2022</EndDate>
+  </FinTrade>
+  <FinTrade>
+    <StartMoney>12403.39</StartMoney>
+    <EndMoney>13899.75</EndMoney>
+    <StartPrice>21.219999</StartPrice>
+    <EndPrice>23.780001</EndPrice>
+    <StockName>BOTZ</StockName>
+    <TradingPosition>Long</TradingPosition>
+    <Gain>1496.36</Gain>
+    <GainPerc>0.1206</GainPerc>
+    <Commissions>0</Commissions>
+    <StartDate>11/05/2022</StartDate>
+    <EndDate>31/05/2022</EndDate>
+  </FinTrade>
+</ArrayOfFinTrade>

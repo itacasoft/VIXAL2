@@ -18,9 +18,21 @@ namespace VIXAL2.GUI
 
         LSTMOrchestrator orchestrator;
 
+        /// <summary>
+        /// Line calculated by the NN
+        /// </summary>
         LineItem modelLine;
+        /// <summary>
+        /// Line that is used for training
+        /// </summary>
         LineItem trainingDataLine;
+        /// <summary>
+        /// Vertical line to separate training data from test data
+        /// </summary>
         LineItem separationline;
+        /// <summary>
+        /// Line representing the original price (close price)
+        /// </summary>
         LineItem originalLine;
         LineItem lossDataLine;
         LineItem slopePerformanceDataLine;

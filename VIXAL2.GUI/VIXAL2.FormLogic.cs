@@ -1,5 +1,4 @@
 ﻿using NeuralNetwork.Base;
-using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

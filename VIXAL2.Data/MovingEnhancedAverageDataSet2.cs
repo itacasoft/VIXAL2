@@ -1,27 +1,25 @@
-﻿using SharpML.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
-
 namespace VIXAL2.Data
 {
-    public class MovingEnhancedAverageDataSet2: StocksDataset
+    public class MovingEnhancedAverageDataSet2: StocksDataset, IAverageRangeDataSet
     {
-        protected int halfRange = 3;
+        protected int range = 3;
 
         public MovingEnhancedAverageDataSet2(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
         }
 
-        public void SetHalfRange(int value)
+        public void SetRange(int value)
         {
-            halfRange = value;
+            range = value;
         }
 
         public override void Prepare()
         {
-            this.Data = GetMovingEnhancedAverage(Data, halfRange);
+            this.Data = GetMovingEnhancedAverage(Data, range);
             RemoveNaNs(dataList, Dates);
 
             base.Prepare();
@@ -41,7 +39,7 @@ namespace VIXAL2.Data
         /// <param name="values"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public static double[] GetFutureMovingAverage(double[] values, int halfrange)
+        public double[] GetFutureMovingAverage(double[] values, int halfrange)
         {
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
@@ -60,7 +58,7 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public static double[][] GetMovingEnhancedAverage(double[][] input, int range)
+        public double[][] GetMovingEnhancedAverage(double[][] input, int range)
         {
             double[][] result = new double[input.Length][];
             for (int row = 0; row < input.Length; row++)
@@ -80,11 +78,6 @@ namespace VIXAL2.Data
                 }
             }
             return result;
-        }
-
-        public int HalfRange
-        {
-            get { return halfRange; }
         }
     }
 }

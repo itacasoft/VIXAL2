@@ -224,22 +224,27 @@ namespace VIXAL2.UnitTest
         public void Test_MovingEnhancedAverageDataset_EnhancedMovingAverageCalculation()
         {
             double[] array2 = new double[] { 1, 3, 5, 7, 9, 15, 9, 7, 5 };
+            DateTime[] dates = EnergyData.Dates;
+            double[][] data = EnergyData.AllData;
+            string[] stockNames = EnergyData.StockNames;
 
-            var avg1 = MovingEnhancedAverageDataSet.GetFutureMovingAverage(array2, 1);
+            var ds = new MovingEnhancedAverageDataSet(stockNames, dates, data, -1, -1);
+
+            var avg1 = ds.GetFutureMovingAverage(array2, 1);
             Assert.AreEqual(avg1.Length, array2.Length);
             Assert.AreEqual(avg1[0], 1);
             Assert.AreEqual(avg1[2], 5);
             Assert.AreEqual(avg1[4], 9);
             Assert.AreEqual(avg1[8], 5);
 
-            var avg2 = MovingEnhancedAverageDataSet.GetFutureMovingAverage(array2, 2);
+            var avg2 = ds.GetFutureMovingAverage(array2, 2);
             Assert.AreEqual(avg2.Length, array2.Length);
             Assert.AreEqual(avg2[0], double.NaN);
             Assert.AreEqual(avg2[2], 5);
             Assert.AreEqual(avg2[4], (7.0 + 9.0 + 15.0)/3.0);
             Assert.AreEqual(avg2[8], double.NaN);
 
-            var avg3 = MovingEnhancedAverageDataSet.GetFutureMovingAverage(array2, 3);
+            var avg3 = ds.GetFutureMovingAverage(array2, 3);
             Assert.AreEqual(avg3.Length, array2.Length);
             Assert.AreEqual(avg3[0], double.NaN);
             Assert.AreEqual(avg3[1], double.NaN);
@@ -253,22 +258,26 @@ namespace VIXAL2.UnitTest
         public void Test_MovingEnhancedAverageDataset2_EnhancedMovingAverageCalculation()
         {
             double[] array2 = new double[] { 1, 3, 5, 7, 9, 15, 9, 7, 5 };
+            DateTime[] dates = EnergyData.Dates;
+            double[][] data = EnergyData.AllData;
+            string[] stockNames = EnergyData.StockNames;
 
-            var avg1 = MovingEnhancedAverageDataSet2.GetFutureMovingAverage(array2, 1);
+            var ds = new MovingEnhancedAverageDataSet2(stockNames, dates, data, -1, -1);
+            var avg1 = ds.GetFutureMovingAverage(array2, 1);
             Assert.AreEqual(avg1.Length, array2.Length);
             Assert.AreEqual(avg1[0], 1);
             Assert.AreEqual(avg1[2], 5);
             Assert.AreEqual(avg1[4], 9);
             Assert.AreEqual(avg1[8], 5);
 
-            var avg2 = MovingEnhancedAverageDataSet2.GetFutureMovingAverage(array2, 2);
+            var avg2 = ds.GetFutureMovingAverage(array2, 2);
             Assert.AreEqual(avg2.Length, array2.Length);
             Assert.AreEqual(avg2[0], 2);
             Assert.AreEqual(avg2[2], 5);
             Assert.AreEqual(avg2[4], (7.0 + 9.0 + 15.0) / 3.0);
             Assert.AreEqual(avg2[8], 6);
 
-            var avg3 = MovingEnhancedAverageDataSet2.GetFutureMovingAverage(array2, 3);
+            var avg3 = ds.GetFutureMovingAverage(array2, 3);
             Assert.AreEqual(avg3.Length, array2.Length);
             Assert.AreEqual(avg3[0], 3);
             Assert.AreEqual(avg3[1], 4);

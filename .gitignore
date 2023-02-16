@@ -26,6 +26,7 @@ VIXAL2.GUI/bin/
 VIXAL2.GUI/obj/
 
 Data/
+Analysis/
 
 packages/
 *.cache

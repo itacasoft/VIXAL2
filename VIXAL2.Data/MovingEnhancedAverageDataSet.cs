@@ -1,5 +1,4 @@
-﻿using SharpML.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
@@ -45,7 +44,7 @@ namespace VIXAL2.Data
         /// <param name="values"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public static double[] GetFutureMovingAverage(double[] values, int range)
+        public double[] GetFutureMovingAverage(double[] values, int range)
         {
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
@@ -67,7 +66,7 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public static double[][] GetMovingEnhancedAverage(double[][] input, int range)
+        public double[][] GetMovingEnhancedAverage(double[][] input, int range)
         {
             double[][] result = new double[input.Length][];
             for (int row = 0; row < input.Length; row++)

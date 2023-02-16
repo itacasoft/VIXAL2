@@ -86,7 +86,7 @@ namespace NeuralNetwork.Base
             }
             else if (DataSet.GetType() == typeof(MovingEnhancedAverageDataSet2))
             {
-                ((MovingEnhancedAverageDataSet2)DataSet).SetHalfRange(range);
+                ((MovingEnhancedAverageDataSet2)DataSet).SetRange(range);
             }
 
             DataSet.Prepare();

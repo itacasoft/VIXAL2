@@ -44,7 +44,7 @@ namespace VIXAL2.Data
         /// <param name="values"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public double[] GetFutureMovingAverage(double[] values, int range)
+        public virtual double[] GetFutureMovingAverage(double[] values, int range)
         {
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
@@ -53,7 +53,7 @@ namespace VIXAL2.Data
                 //add the previous and future values
                 for (int j = i - (range-1); j <= i + (range-1); j++)
                 {
-                    if ((j >= 0) && (j<values.Length))
+                    if ((j >= 0) && (j < values.Length))
                         pieces.Add(values[j]);
                 }
 

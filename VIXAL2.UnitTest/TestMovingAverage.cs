@@ -221,6 +221,52 @@ namespace VIXAL2.UnitTest
         }
 
         [TestMethod]
+        public void Test_MovingEnhancedAverageDataset_Pieces_Are_Centered()
+        {
+            double[] array2 = new double[] { 1, 3, 5, 7, 9, 15, 9, 7, 5 };
+            DateTime[] dates = EnergyData.Dates;
+            double[][] data = EnergyData.AllData;
+            string[] stockNames = EnergyData.StockNames;
+
+            var ds = new MovingEnhancedAverageDataSet(stockNames, dates, data, -1, -1);
+            ds.SetRange(1);
+            var pieces = ds.PiecesAround100;
+            Assert.AreEqual(pieces.Count, 1);
+            Assert.AreEqual(pieces[0], 100);
+
+            ds.SetRange(2);
+            pieces = ds.PiecesAround100;
+            Assert.AreEqual(pieces.Count, 2);
+            Assert.AreEqual(pieces[0], 99);
+            Assert.AreEqual(pieces[1], 100);
+
+            ds.SetRange(3);
+            pieces = ds.PiecesAround100;
+            Assert.AreEqual(pieces.Count, 3);
+            Assert.AreEqual(pieces[0], 99);
+            Assert.AreEqual(pieces[1], 100);
+            Assert.AreEqual(pieces[2], 101);
+
+            ds.SetRange(4);
+            pieces = ds.PiecesAround100;
+            Assert.AreEqual(pieces.Count, 4);
+            Assert.AreEqual(pieces[0], 98);
+            Assert.AreEqual(pieces[1], 99);
+            Assert.AreEqual(pieces[2], 100);
+            Assert.AreEqual(pieces[3], 101);
+
+            ds.SetRange(5);
+            pieces = ds.PiecesAround100;
+            Assert.AreEqual(pieces.Count, 5);
+            Assert.AreEqual(pieces[0], 98);
+            Assert.AreEqual(pieces[1], 99);
+            Assert.AreEqual(pieces[2], 100);
+            Assert.AreEqual(pieces[3], 101);
+            Assert.AreEqual(pieces[4], 102);
+        }
+
+
+        [TestMethod]
         public void Test_MovingEnhancedAverageDataset_EnhancedMovingAverageCalculation()
         {
             double[] array2 = new double[] { 1, 3, 5, 7, 9, 15, 9, 7, 5 };

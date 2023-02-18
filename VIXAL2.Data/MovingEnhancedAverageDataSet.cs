@@ -7,6 +7,8 @@ namespace VIXAL2.Data
     public class MovingEnhancedAverageDataSet : StocksDataset, IAverageRangeDataSet
     {
         protected int range = 3;
+        protected int rangePrevious = 2;
+        protected int rangeNext = 1;
 
         public MovingEnhancedAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
@@ -20,6 +22,25 @@ namespace VIXAL2.Data
         public void SetRange(int value)
         {
             range = value;
+            rangePrevious = (int)Math.Floor((double)value / 2.0);
+            rangeNext = (int)Math.Ceiling((double)value / 2.0);
+        }
+
+        /// <summary>
+        /// Check that in a for..next cycle from Previous to Next is equal to range
+        /// and that pieces are taken aroung a given date (100 in this case)
+        /// </summary>
+        public List<int> PiecesAround100
+        {
+            get
+            {
+                List<int> pieces = new List<int>();
+                for (int j = 100 - (rangePrevious); j < 100 + (rangeNext); j++)
+                {
+                    pieces.Add(j);
+                }
+                return pieces;
+            }
         }
 
         public override void Prepare()
@@ -46,6 +67,8 @@ namespace VIXAL2.Data
         /// <returns></returns>
         public virtual double[] GetFutureMovingAverage(double[] values, int range)
         {
+            SetRange(range);
+
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
             {

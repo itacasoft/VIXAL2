@@ -27,6 +27,8 @@ namespace VIXAL2.Data
         /// <returns></returns>
         public override double[] GetFutureMovingAverage(double[] values, int range)
         {
+            SetRange(range);
+
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
             {

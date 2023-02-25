@@ -23,18 +23,15 @@ namespace VIXAL2.Data
         /// Returns an array with average centered in the current value
         /// </summary>
         /// <param name="values"></param>
-        /// <param name="range"></param>
         /// <returns></returns>
-        public override double[] GetFutureMovingAverage(double[] values, int range)
+        public override double[] GetFutureMovingAverage(double[] values)
         {
-            SetRange(range);
-
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
             {
                 List<double> pieces = new List<double>();
                 //add the previous and future values
-                for (int j = i - (range-1); j <= i + (range-1); j++)
+                for (int j = i - (rangePrevious); j < i + (rangeNext); j++)
                 {
                     if ((j >= 0) && (j < values.Length))
                         pieces.Add(values[j]);

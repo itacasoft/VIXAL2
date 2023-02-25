@@ -45,7 +45,7 @@ namespace VIXAL2.Data
 
         public override void Prepare()
         {
-            this.Data = GetMovingEnhancedAverage(Data, range);
+            this.Data = GetMovingEnhancedAverage(Data);
             RemoveNaNs(dataList, Dates);
 
             base.Prepare();
@@ -65,22 +65,20 @@ namespace VIXAL2.Data
         /// <param name="values"></param>
         /// <param name="range"></param>
         /// <returns></returns>
-        public virtual double[] GetFutureMovingAverage(double[] values, int range)
+        public virtual double[] GetFutureMovingAverage(double[] values)
         {
-            SetRange(range);
-
             double[] result = new double[values.Length];
             for (int i = 0; i < values.Length; i++)
             {
                 List<double> pieces = new List<double>();
                 //add the previous and future values
-                for (int j = i - (range-1); j <= i + (range-1); j++)
+                for (int j = i - (rangePrevious); j < i + (rangeNext); j++)
                 {
                     if ((j >= 0) && (j < values.Length))
                         pieces.Add(values[j]);
                 }
 
-                if (pieces.Count == (range*2-1))
+                if (pieces.Count == range)
                     result[i] = SharpML.Types.Utils.Mean(pieces.ToArray());
                 else
                     result[i] = double.NaN;
@@ -89,7 +87,7 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public double[][] GetMovingEnhancedAverage(double[][] input, int range)
+        public double[][] GetMovingEnhancedAverage(double[][] input)
         {
             double[][] result = new double[input.Length][];
             for (int row = 0; row < input.Length; row++)
@@ -100,7 +98,7 @@ namespace VIXAL2.Data
             for (int col = 0; col < input[0].Length; col++)
             {
                 double[] singleStock = SharpML.Types.Utils.GetVectorFromArray(input, col);
-                double[] movingAverage = GetFutureMovingAverage(singleStock, range);
+                double[] movingAverage = GetFutureMovingAverage(singleStock);
 
                 //apply moving average on data
                 for (int row = 0; row < result.Length; row++)

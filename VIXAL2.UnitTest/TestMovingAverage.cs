@@ -275,28 +275,32 @@ namespace VIXAL2.UnitTest
             string[] stockNames = EnergyData.StockNames;
 
             var ds = new MovingEnhancedAverageDataSet(stockNames, dates, data, -1, -1);
+            ds.SetRange(1);
 
-            var avg1 = ds.GetFutureMovingAverage(array2, 1);
+            var avg1 = ds.GetFutureMovingAverage(array2);
             Assert.AreEqual(avg1.Length, array2.Length);
             Assert.AreEqual(avg1[0], 1);
             Assert.AreEqual(avg1[2], 5);
             Assert.AreEqual(avg1[4], 9);
             Assert.AreEqual(avg1[8], 5);
 
-            var avg2 = ds.GetFutureMovingAverage(array2, 2);
+            ds.SetRange(2);
+            var avg2 = ds.GetFutureMovingAverage(array2);
             Assert.AreEqual(avg2.Length, array2.Length);
             Assert.AreEqual(avg2[0], double.NaN);
-            Assert.AreEqual(avg2[2], 5);
-            Assert.AreEqual(avg2[4], (7.0 + 9.0 + 15.0)/3.0);
-            Assert.AreEqual(avg2[8], double.NaN);
+            Assert.AreEqual(avg2[2], (3.0 + 5.0) / 2.0);
+            Assert.AreEqual(avg2[3], (5.0+7.0)/2.0);
+            Assert.AreEqual(avg2[4], (7.0 + 9.0)/2.0);
+            Assert.AreEqual(avg2[8], (7.0 + 5.0) / 2.0);
 
-            var avg3 = ds.GetFutureMovingAverage(array2, 3);
+            ds.SetRange(3);
+            var avg3 = ds.GetFutureMovingAverage(array2);
             Assert.AreEqual(avg3.Length, array2.Length);
             Assert.AreEqual(avg3[0], double.NaN);
-            Assert.AreEqual(avg3[1], double.NaN);
+            Assert.AreEqual(avg3[1], (1.0 + 3.0 + 5.0) / 3.0);
             Assert.AreEqual(avg3[2], 5);
-            Assert.AreEqual(avg3[5], 9.4);
-            Assert.AreEqual(avg3[7], double.NaN);
+            Assert.AreEqual(avg3[5], 11);
+            Assert.AreEqual(avg3[7], 7);
             Assert.AreEqual(avg3[8], double.NaN);
         }
 
@@ -309,28 +313,31 @@ namespace VIXAL2.UnitTest
             string[] stockNames = EnergyData.StockNames;
 
             var ds = new MovingEnhancedAverageDataSet2(stockNames, dates, data, -1, -1);
-            var avg1 = ds.GetFutureMovingAverage(array2, 1);
+            ds.SetRange(1);
+            var avg1 = ds.GetFutureMovingAverage(array2);
             Assert.AreEqual(avg1.Length, array2.Length);
             Assert.AreEqual(avg1[0], 1);
             Assert.AreEqual(avg1[2], 5);
             Assert.AreEqual(avg1[4], 9);
             Assert.AreEqual(avg1[8], 5);
 
-            var avg2 = ds.GetFutureMovingAverage(array2, 2);
+            ds.SetRange(2);
+            var avg2 = ds.GetFutureMovingAverage(array2);
             Assert.AreEqual(avg2.Length, array2.Length);
-            Assert.AreEqual(avg2[0], 2);
-            Assert.AreEqual(avg2[2], 5);
-            Assert.AreEqual(avg2[4], (7.0 + 9.0 + 15.0) / 3.0);
+            Assert.AreEqual(avg2[0], 1);
+            Assert.AreEqual(avg2[2], 4);
+            Assert.AreEqual(avg2[4], (7.0 + 9.0) / 2.0);
             Assert.AreEqual(avg2[8], 6);
 
-            var avg3 = ds.GetFutureMovingAverage(array2, 3);
+            ds.SetRange(3);
+            var avg3 = ds.GetFutureMovingAverage(array2);
             Assert.AreEqual(avg3.Length, array2.Length);
-            Assert.AreEqual(avg3[0], 3);
-            Assert.AreEqual(avg3[1], 4);
+            Assert.AreEqual(avg3[0], (1.0 + 3.0) / 2.0);
+            Assert.AreEqual(avg3[1], (1.0 + 3.0 + 5.0) / 3.0);
             Assert.AreEqual(avg3[2], 5);
-            Assert.AreEqual(avg3[5], 9.4);
-            Assert.AreEqual(avg3[7], 9);
-            Assert.AreEqual(avg3[8], 7);
+            Assert.AreEqual(avg3[5], 11);
+            Assert.AreEqual(avg3[7], 7);
+            Assert.AreEqual(avg3[8], 6);
         }
     }
 }

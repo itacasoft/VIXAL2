@@ -63,7 +63,6 @@ namespace VIXAL2.Data
         /// Returns an array with average centered in the current value
         /// </summary>
         /// <param name="values"></param>
-        /// <param name="range"></param>
         /// <returns></returns>
         public virtual double[] GetFutureMovingAverage(double[] values)
         {

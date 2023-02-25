@@ -58,6 +58,22 @@ namespace VIXAL2.Data
             get { return 1; }
         }
 
+        public virtual int DelayDays
+        {
+            get 
+            {
+                int result = 0;
+                for (int i=0; i<originalData.Dates.Length; i++)
+                {
+                    if (originalData.Dates[i] == this.MinDate)
+                        return result;
+
+                    result++;
+                }
+                return result;
+            }
+        }
+
         public override TimeSerieArrayExt GetTrainArrayY()
         {
             var result = base.GetTrainArrayY();

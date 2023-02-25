@@ -95,7 +95,7 @@ namespace VIXAL2.GUI
             {
                 //disegno il modello calcolato dallo stesso primo valore del trainingLine
                 //int sample = orchestrator.DataSet.PredictDays + 1;
-                int sample = orchestrator.DataSet.PredictDays + orchestrator.DataSet.Range;
+                int sample = 1 + orchestrator.DataSet.PredictDays + orchestrator.DataSet.DelayDays;
 
                 modelLine.Clear();
                 lossDataLine.Clear();

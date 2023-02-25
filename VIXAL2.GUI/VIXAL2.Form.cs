@@ -315,7 +315,7 @@ namespace VIXAL2.GUI
 
             //disegno il trainingDataY dal giorno PredictDay così mi ritrovo allineato con i
             //prezzi reali (non sono sicuro che vada bene così però)
-            int sample = ds.PredictDays + ds.Range;
+            int sample = 1 + ds.PredictDays + ds.DelayDays;
 
             for (int i = 0; i < trainDataY.Length; i++)
             {
@@ -357,7 +357,7 @@ namespace VIXAL2.GUI
 
         private void DrawTestSeparationLine(StocksDataset ds)
         {
-            int sample = ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.Range;
+            int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DelayDays;
             TimeSerieArray testDataY = ds.GetTestArrayY();
 
             separationline.Clear();

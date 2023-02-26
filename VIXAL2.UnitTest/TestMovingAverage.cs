@@ -110,13 +110,13 @@ namespace VIXAL2.UnitTest
 
             DateTime[] dates = new DateTime[15];
             dates[0] = minDate;
-            for (int i=1; i<dates.Length; i++)
+            for (int i = 1; i < dates.Length; i++)
             {
-                dates[i] = dates[i-1].AddDays(1);
+                dates[i] = dates[i - 1].AddDays(1);
             }
 
             double[][] data = new double[15][];
-            for (int i=0; i<data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 data[i] = new double[1];
                 data[i][0] = i + 1;
@@ -139,7 +139,7 @@ namespace VIXAL2.UnitTest
 
             Assert.AreEqual(data.Length, 10);
             Assert.AreEqual(data[0], 1);
-            Assert.AreNotEqual(value1, data[data.Length-1]);
+            Assert.AreNotEqual(value1, data[data.Length - 1]);
         }
 
         [TestMethod]
@@ -289,8 +289,8 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(avg2.Length, array2.Length);
             Assert.AreEqual(avg2[0], double.NaN);
             Assert.AreEqual(avg2[2], (3.0 + 5.0) / 2.0);
-            Assert.AreEqual(avg2[3], (5.0+7.0)/2.0);
-            Assert.AreEqual(avg2[4], (7.0 + 9.0)/2.0);
+            Assert.AreEqual(avg2[3], (5.0 + 7.0) / 2.0);
+            Assert.AreEqual(avg2[4], (7.0 + 9.0) / 2.0);
             Assert.AreEqual(avg2[8], (7.0 + 5.0) / 2.0);
 
             ds.SetRange(3);
@@ -338,6 +338,57 @@ namespace VIXAL2.UnitTest
             Assert.AreEqual(avg3[5], 11);
             Assert.AreEqual(avg3[7], 7);
             Assert.AreEqual(avg3[8], 6);
+        }
+
+        private int GetDelayDaysCalculatedFromDates(StocksDataset ds)
+        {
+            int result = 0;
+            for (int i = 0; i < ds.OriginalData.Dates.Length; i++)
+            {
+                if (ds.OriginalData.Dates[i] == ds.MinDate)
+                {
+                    break;
+                }
+
+                result++;
+            }
+            return result;
+        }
+
+        [TestMethod]
+        public void Test_DelayDays_is_equal_as_calculated_from_days()
+        {
+            var ds = GetMovingEnhancedAverageDataset(40);
+            ds.SetRange(10);
+            ds.Prepare();
+
+            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+
+            ds = GetMovingEnhancedAverageDataset(40);
+            ds.SetRange(9);
+            ds.Prepare();
+
+            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+
+            ds = GetMovingEnhancedAverageDataset(40);
+            ds.SetRange(3);
+            ds.Prepare();
+
+            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+
+            ds = GetMovingEnhancedAverageDataset(40);
+            ds.SetRange(1);
+            ds.Prepare();
+
+            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+
+            var ds1 = GetMovingAverageDataset(40);
+            ds1.SetRange(10);
+            ds1.Prepare();
+            var gg1 = GetDelayDaysCalculatedFromDates(ds1);
+
+            Assert.AreEqual(ds1.DelayDays, gg1);
+
         }
     }
 }

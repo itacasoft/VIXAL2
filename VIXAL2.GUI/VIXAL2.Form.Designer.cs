@@ -64,6 +64,8 @@
             this.testDataXBar = new System.Windows.Forms.Button();
             this.trainDataXBar = new System.Windows.Forms.Button();
             this.totalBar = new System.Windows.Forms.Button();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.zedGraphControl4 = new ZedGraph.ZedGraphControl();
             this.listView1 = new System.Windows.Forms.ListView();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBoxRange = new System.Windows.Forms.TextBox();
@@ -72,8 +74,6 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.lblPerformance2 = new System.Windows.Forms.Label();
             this.btnPrint = new System.Windows.Forms.Button();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.zedGraphControl4 = new ZedGraph.ZedGraphControl();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -501,6 +501,34 @@
             this.toolTip1.SetToolTip(this.totalBar, "Pinco Pallino");
             this.totalBar.UseVisualStyleBackColor = false;
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.zedGraphControl4);
+            this.tabPage5.Location = new System.Drawing.Point(4, 29);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(655, 399);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "Trading";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // zedGraphControl4
+            // 
+            this.zedGraphControl4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.zedGraphControl4.Location = new System.Drawing.Point(3, 3);
+            this.zedGraphControl4.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.zedGraphControl4.Name = "zedGraphControl4";
+            this.zedGraphControl4.ScrollGrace = 0D;
+            this.zedGraphControl4.ScrollMaxX = 0D;
+            this.zedGraphControl4.ScrollMaxY = 0D;
+            this.zedGraphControl4.ScrollMaxY2 = 0D;
+            this.zedGraphControl4.ScrollMinX = 0D;
+            this.zedGraphControl4.ScrollMinY = 0D;
+            this.zedGraphControl4.ScrollMinY2 = 0D;
+            this.zedGraphControl4.Size = new System.Drawing.Size(649, 393);
+            this.zedGraphControl4.TabIndex = 2;
+            this.zedGraphControl4.UseExtendedPrintDialog = true;
+            // 
             // listView1
             // 
             this.listView1.Activation = System.Windows.Forms.ItemActivation.OneClick;
@@ -587,34 +615,6 @@
             this.btnPrint.UseVisualStyleBackColor = true;
             this.btnPrint.Click += new System.EventHandler(this.button1_Click);
             // 
-            // tabPage5
-            // 
-            this.tabPage5.Controls.Add(this.zedGraphControl4);
-            this.tabPage5.Location = new System.Drawing.Point(4, 29);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(655, 399);
-            this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "Trading";
-            this.tabPage5.UseVisualStyleBackColor = true;
-            // 
-            // zedGraphControl4
-            // 
-            this.zedGraphControl4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.zedGraphControl4.Location = new System.Drawing.Point(3, 3);
-            this.zedGraphControl4.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
-            this.zedGraphControl4.Name = "zedGraphControl4";
-            this.zedGraphControl4.ScrollGrace = 0D;
-            this.zedGraphControl4.ScrollMaxX = 0D;
-            this.zedGraphControl4.ScrollMaxY = 0D;
-            this.zedGraphControl4.ScrollMaxY2 = 0D;
-            this.zedGraphControl4.ScrollMinX = 0D;
-            this.zedGraphControl4.ScrollMinY = 0D;
-            this.zedGraphControl4.ScrollMinY2 = 0D;
-            this.zedGraphControl4.Size = new System.Drawing.Size(649, 393);
-            this.zedGraphControl4.TabIndex = 2;
-            this.zedGraphControl4.UseExtendedPrintDialog = true;
-            // 
             // VIXAL2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -649,7 +649,7 @@
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.listView1);
             this.Name = "VIXAL2Form";
-            this.Text = "VIXAL2.Form";
+            this.Text = "VIXAL2.Form (disallineamento date 30/05 con enh)";
             this.Load += new System.EventHandler(this.VIXAL2Form_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);

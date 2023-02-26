@@ -4,7 +4,7 @@ using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
 {
-    public class MovingEnhancedAverageDataSet : StocksDataset, IAverageRangeDataSet
+    public class MovingEnhancedAverageDataSet : StocksDataset, IFutureAverageRangeDataSet
     {
         protected int range = 3;
         protected int rangePrevious = 2;

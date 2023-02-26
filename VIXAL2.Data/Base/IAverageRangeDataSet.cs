@@ -15,4 +15,10 @@ namespace VIXAL2.Data.Base
 
         void SetRange(int value);
     }
+
+    public interface IFutureAverageRangeDataSet: IAverageRangeDataSet
+    {
+        double[] GetFutureMovingAverage(double[] values);
+    }
+
 }

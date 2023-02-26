@@ -62,11 +62,14 @@ namespace VIXAL2.Data
         {
             get 
             {
+                //int result = this.Range / 2;
                 int result = 0;
-                for (int i=0; i<originalData.Dates.Length; i++)
+                for (int i = 0; i < this.OriginalData.Dates.Length; i++)
                 {
-                    if (originalData.Dates[i] == this.MinDate)
-                        return result;
+                    if (this.OriginalData.Dates[i] == this.MinDate)
+                    {
+                        break;
+                    }
 
                     result++;
                 }

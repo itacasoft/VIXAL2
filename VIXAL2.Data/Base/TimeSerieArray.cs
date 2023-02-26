@@ -66,7 +66,7 @@ namespace VIXAL2.Data.Base
             }
         }
 
-        internal DateTime[] Dates
+        public DateTime[] Dates
         {
             get
             {

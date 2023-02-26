@@ -15,8 +15,8 @@ namespace VIXAL2.Data
         private double[][] trainDataX, trainDataY;
         private double[][] validDataX, validDataY;
         private double[][] testDataX, testDataY;
-        private float trainPercent = 0.60F;
-        private float validPercent = 0.20F;
+        private float trainPercent = 0.80F;
+        private float validPercent = 0.00F;
         private int predictDays = 20;
         private bool prepared = false;
         protected int firstColumnToPredict;
@@ -530,26 +530,49 @@ namespace VIXAL2.Data
             }
         }
 
+
+
+
         public bool Forward(int steps = 1)
         {
-            if (ValidCount > 0)
-            {
-                throw new InvalidOperationException("Forward cannot be used if ValidCount > 0");
-            }
-
             if (steps >= TestCount)
                 return false;
 
-            for (int i = 0; i < steps; i++)
+            if (ValidCount > 0)
             {
-                //take first row of test if any
-                double[] dataXToMove = TestDataX[0];
-                trainDataX = trainDataX.InsertRow(dataXToMove);
-                testDataX = testDataX.RemoveAt(0);
+                for (int i = 0; i < steps; i++)
+                {
+                    //take first row of test if any
+                    double[] dataXToMove = TestDataX[0];
+                    validDataX = validDataX.InsertRow(dataXToMove);
+                    testDataX = testDataX.RemoveAt(0);
 
-                double[] dataYToMove = TestDataY[0];
-                trainDataY = trainDataY.InsertRow(dataYToMove);
-                testDataY = testDataY.RemoveAt(0);
+                    dataXToMove = validDataX[0];
+                    trainDataX = trainDataX.InsertRow(dataXToMove);
+                    validDataX = validDataX.RemoveAt(0);
+
+                    double[] dataYToMove = TestDataY[0];
+                    validDataY = validDataY.InsertRow(dataYToMove);
+                    testDataY = testDataY.RemoveAt(0);
+
+                    dataYToMove = validDataY[0];
+                    trainDataY = trainDataY.InsertRow(dataYToMove);
+                    validDataY = validDataY.RemoveAt(0);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < steps; i++)
+                {
+                    //take first row of test if any
+                    double[] dataXToMove = TestDataX[0];
+                    trainDataX = trainDataX.InsertRow(dataXToMove);
+                    testDataX = testDataX.RemoveAt(0);
+
+                    double[] dataYToMove = TestDataY[0];
+                    trainDataY = trainDataY.InsertRow(dataYToMove);
+                    testDataY = testDataY.RemoveAt(0);
+                }
             }
 
             return true;

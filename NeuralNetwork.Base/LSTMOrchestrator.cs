@@ -76,22 +76,24 @@ namespace NeuralNetwork.Base
         {
             indexColumnToPredict = firstColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
-            DataSet.TrainPercent = 0.95F;
-            DataSet.ValidPercent = 0.0F;
-            DataSet.PredictDays = predictDays;
-
+            
             if (DataSet is IAverageRangeDataSet)
             {
                 ((IAverageRangeDataSet)DataSet).SetRange(range);
             }
-            else if (DataSet.GetType() == typeof(MovingEnhancedAverageDataSet2))
+
+            //se il dataset fa la media anche su dati futuri, devo escluderli dal test, quindi 
+            //creo anche dati di validation
+            if (DataSet is IFutureAverageRangeDataSet)
             {
-                ((MovingEnhancedAverageDataSet2)DataSet).SetRange(range);
+                int dd = range / 2;
+                DataSet.ValidPercent = (float)(dd) / (float)(DataSet.Dates.Count);
             }
 
+            DataSet.TrainPercent = 1.0F - DataSet.ValidPercent - 0.05F;
+            DataSet.PredictDays = predictDays;
+
             DataSet.Prepare();
-            //SlopePerformances = new List<Performance>();
-            //DiffPerformance = new List<PerformanceDiff>();
             Trades = new List<Trade>();
         }
 
@@ -227,6 +229,32 @@ namespace NeuralNetwork.Base
             return result;
         }
 
+        public List<DoubleDatedValue> CurrentModelValidation()
+        {
+            var result = new List<DoubleDatedValue>();
+            //get validdatay so I have the correct dates
+            var validDataY = DataSet.GetValidArrayY();
+
+            //get the next minibatch amount of data
+            int mydateIndex = 0;
+
+            foreach (var miniBatchData in GetBatchesForValidation())
+            {
+                var oData = currentLSTMTrainer.CurrentModelTest(miniBatchData.X);
+
+                foreach (var y in oData)
+                {
+                    if (DataSet.NormalizeFirst)
+                        result.Add(new DoubleDatedValue(validDataY.GetDate(mydateIndex), validDataY.GetFutureDate(mydateIndex), y[0]));
+                    else
+                        result.Add(new DoubleDatedValue(validDataY.GetDate(mydateIndex), validDataY.GetFutureDate(mydateIndex), DataSet.Decode(y[0], indexColumnToPredict)));
+
+                    mydateIndex++;
+                }
+            }
+            return result;
+        }
+
 
         public List<DoubleDatedValue> CurrentModelTest()
         {
@@ -292,6 +320,11 @@ namespace NeuralNetwork.Base
         private IEnumerable<(float[] X, float[] Y)> GetBatchesForTraining()
         {
             return nextBatch(DataSet["features"].train, DataSet["label"].train, _batchSize);
+        }
+
+        private IEnumerable<(float[] X, float[] Y)> GetBatchesForValidation()
+        {
+            return nextBatch(DataSet["features"].valid, DataSet["label"].valid, _batchSize);
         }
 
         private IEnumerable<(float[] X, float[] Y)> GetBatchesForTest()

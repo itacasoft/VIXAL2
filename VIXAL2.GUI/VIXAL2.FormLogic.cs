@@ -105,6 +105,7 @@ namespace VIXAL2.GUI
             lossDataLine.Clear();
 
             currentModelEvaluation(ref sampleIndex);
+            currentModelValidation(ref sampleIndex);
             currentModelTest(ref sampleIndex);
             currentModelTestExtreme(ref sampleIndex);
 
@@ -216,6 +217,23 @@ namespace VIXAL2.GUI
                 sampleIndex++;
             }
         }
+
+        private void currentModelValidation(ref int sampleIndex)
+        {
+            var predictedList = orchestrator.CurrentModelValidation();
+            if (predictedList.Count == 0) return;
+
+            foreach (var predicted in predictedList)
+            {
+                var p = new PointPair(sampleIndex, predicted.Value);
+                p.Tag = "(PREDICTEDY - on " + predicted.PredictionDate.ToShortDateString() + " (value of " + predicted.Date.ToShortDateString() + "): " + predicted.Value + " )";
+                modelLine.AddPoint(p);
+                sampleIndex++;
+            }
+
+            zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
+        }
+
 
         private void currentModelTest(ref int sampleIndex)
         {

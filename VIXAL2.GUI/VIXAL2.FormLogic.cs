@@ -23,7 +23,7 @@ namespace VIXAL2.GUI
             {
                 orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)(comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (ex is IndexOutOfRangeException)
                 {
@@ -93,24 +93,27 @@ namespace VIXAL2.GUI
 
             if (iteration == Convert.ToInt32(textBoxIterations.Text))
             {
-                //disegno il modello calcolato dallo stesso primo valore del trainingLine
-                //int sample = orchestrator.DataSet.PredictDays + 1;
-                int sample = 1 + orchestrator.DataSet.PredictDays + orchestrator.DataSet.DelayDays;
-
-                modelLine.Clear();
-                lossDataLine.Clear();
-
-                currentModelEvaluation(iteration, ref sample);
-                currentModelTest(iteration, ref sample);
-                currentModelTestExtreme(ref sample);
-
-                zedGraphControl1.Refresh();
+                UseTrainedModel();
             }
-            else
-            {
-                lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
-                zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
-            }
+
+            lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
+            zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
+        }
+
+        private void UseTrainedModel()
+        {
+            //disegno il modello calcolato dallo stesso primo valore del trainingLine
+            //int sample = orchestrator.DataSet.PredictDays + 1;
+            int sampleIndex = 1 + orchestrator.DataSet.PredictDays + orchestrator.DataSet.DelayDays;
+
+            modelLine.Clear();
+            lossDataLine.Clear();
+
+            currentModelEvaluation(ref sampleIndex);
+            currentModelTest(ref sampleIndex);
+            currentModelTestExtreme(ref sampleIndex);
+
+            zedGraphControl1.Refresh();
         }
 
         void OnReportEnd(int iteration)
@@ -206,29 +209,29 @@ namespace VIXAL2.GUI
             return trades;
         }
 
-        private void currentModelTestExtreme(ref int sample)
+        private void currentModelTestExtreme(ref int sampleIndex)
         {
             var predictedList = orchestrator.CurrentModelTestExtreme();
 
             foreach (var predicted in predictedList)
             {
-                var p = new PointPair(sample, predicted.Value);
+                var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(EXTTEST - prediction for " + predicted.Date.ToShortDateString() + ": " + predicted.Value + " )";
                 modelLine.AddPoint(p);
-                sample++;
+                sampleIndex++;
             }
         }
 
-        private void currentModelTest(int iteration, ref int sample)
+        private void currentModelTest(ref int sampleIndex)
         {
             var predictedList = orchestrator.CurrentModelTest();
 
             foreach (var predicted in predictedList)
             {
-                var p = new PointPair(sample, predicted.Value);
+                var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(PREDICTEDY - on " + predicted.PredictionDate.ToShortDateString() + " (value of " + predicted.Date.ToShortDateString() + "): " + predicted.Value + " )";
                 modelLine.AddPoint(p);
-                sample++;
+                sampleIndex++;
             }
 
             int columnToPredict = 0;
@@ -401,13 +404,13 @@ namespace VIXAL2.GUI
         }
 
 
-        private void currentModelEvaluation(int iteration, ref int sample)
+        private void currentModelEvaluation(ref int sampleIndex)
         {
             var list = orchestrator.CurrentModelEvaluation();
             foreach (var y in list)
             {
-                modelLine.AddPoint(new PointPair(sample, y));
-                sample++;
+                modelLine.AddPoint(new PointPair(sampleIndex, y));
+                sampleIndex++;
             }
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }

@@ -33,10 +33,10 @@ namespace NeuralNetwork.Base
         public PredictedData PredictedData;
 
         private NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
-        private Action<int> _progressReport;
-        private Action<StocksDataset> _reloadReport;
-        private Action<int> _endReport;
-        private Action _finalEndReport;
+        private Action<int> onTrainingProgress;
+        private Action<StocksDataset> onReloadDataset;
+        private Action onTrainingEnded;
+        private Action onSimulationEnded;
         private int _batchSize;
         private static string featuresName = "feature";
         private static string labelsName = "label";
@@ -48,12 +48,12 @@ namespace NeuralNetwork.Base
         public const int DAYS_FOR_PERFORMANCE = 15;
         public int Iterations;
 
-        public LSTMOrchestrator(Action<StocksDataset> reloadReport, Action<int> progressReport, Action<int> endReport, Action finalEndReport, int batchSize)
+        public LSTMOrchestrator(Action<StocksDataset> onReloadDataset, Action<int> onTrainingProgress, Action onTrainingEnded, Action onSimulationEnded, int batchSize)
         {
-            _progressReport = progressReport;
-            _reloadReport = reloadReport;
-            _endReport = endReport;
-            _finalEndReport = finalEndReport;
+            this.onTrainingProgress = onTrainingProgress;
+            this.onReloadDataset = onReloadDataset;
+            this.onTrainingEnded = onTrainingEnded;
+            this.onSimulationEnded = onSimulationEnded;
             _batchSize = batchSize;
 
             MAX_DAYS_FOR_TRADE = Convert.ToInt32(ConfigurationManager.AppSettings["MaxDaysForTradesSimulation"]);
@@ -115,12 +115,14 @@ namespace NeuralNetwork.Base
             bool result = DataSet.Forward(1);
             if ((!result) || (currentLSTMTrainer.StopNow))
             {
-                PerformEnd(iteration);
-                PerformFinalEnd();
+                if (currentLSTMTrainer.StopNow) 
+                    onTrainingEnded();
+
+                onSimulationEnded();
                 return;
             }
 
-            _reloadReport(DataSet);
+            onReloadDataset(DataSet);
 
             int ouDim = DataSet.TrainDataY[0].Length;
             int inDim = DataSet.ColNames.Length;
@@ -132,20 +134,6 @@ namespace NeuralNetwork.Base
 
             taskA.ContinueWith(antecedent => ReiterateTrainingAfterForward(hiddenLayersDim, cellsNumber, iteration));
         }
-
-        private void PerformEnd(int iteration)
-        {
-//            SlopePerformances.RemoveRange(16, SlopePerformances.Count-16);
-//            DiffPerformance.RemoveRange(16, DiffPerformance.Count - 16);
-
-            _endReport(iteration);
-        }
-
-        private void PerformFinalEnd()
-        {
-            _finalEndReport();
-        }
-
 
         public void StopTrainingNow()
         {
@@ -211,10 +199,10 @@ namespace NeuralNetwork.Base
 
         void TrainingProgress(int iteration)
         {
-            _progressReport(iteration);
+            onTrainingProgress(iteration);
             if (iteration == Iterations)
             {
-                PerformEnd(iteration);
+                onTrainingEnded();
             }
         }
 

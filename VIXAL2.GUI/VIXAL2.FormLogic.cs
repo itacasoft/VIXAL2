@@ -18,7 +18,7 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, OnReportProgress, OnReportEnd, OnReportFinalEnd, Convert.ToInt32(textBoxBatchSize.Text));
+            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, Convert.ToInt32(textBoxBatchSize.Text));
             try
             {
                 orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)(comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
@@ -59,7 +59,7 @@ namespace VIXAL2.GUI
         }
 
 
-        void OnReportProgress(int iteration)
+        void OnTrainingProgress(int iteration)
         {
             if (this.InvokeRequired)
             {
@@ -69,14 +69,14 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            PerformReportProgress(iteration);
+                            DoTrainingProgress(iteration);
                         }
                     }
                     ));
             }
             else
             {
-                PerformReportProgress(iteration);
+                DoTrainingProgress(iteration);
             }
         }
 
@@ -84,17 +84,12 @@ namespace VIXAL2.GUI
         /// Updates the graphs for each iteration 
         /// </summary>
         /// <param name="iteration"></param>
-        private void PerformReportProgress(int iteration)
+        private void DoTrainingProgress(int iteration)
         {
             //output training process
             label3.Text = "Current iteration: " + iteration.ToString();
             label11.Text = "Loss value: " + orchestrator.GetPreviousLossAverage().ToString();
             progressBar1.Value = iteration;
-
-            if (iteration == Convert.ToInt32(textBoxIterations.Text))
-            {
-                UseTrainedModel();
-            }
 
             lossDataLine.AddPoint(new PointPair(iteration, orchestrator.GetPreviousLossAverage()));
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
@@ -116,7 +111,7 @@ namespace VIXAL2.GUI
             zedGraphControl1.Refresh();
         }
 
-        void OnReportEnd(int iteration)
+        void OnTrainingEnded()
         {
             if (this.InvokeRequired)
             {
@@ -126,18 +121,18 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            PerformReportEnd();
+                            DoTrainingEnded();
                         }
                     }
                     ));
             }
             else
             {
-                PerformReportEnd();
+                DoTrainingEnded();
             }
         }
 
-        void OnReportFinalEnd()
+        void OnSimulationEnded()
         {
             if (this.InvokeRequired)
             {
@@ -147,21 +142,21 @@ namespace VIXAL2.GUI
                     {
                         if (!this.IsDisposed)
                         {
-                            PerformReportFinalEnd();
+                            DoSimulationEnded();
                         }
                     }
                     ));
             }
             else
             {
-                PerformReportFinalEnd();
+                DoSimulationEnded();
             }
         }
 
         /// <summary>
         /// Updates graphs and performs actions at the end of all series of simulatios for a stock 
         /// </summary>
-        private void PerformReportFinalEnd()
+        private void DoSimulationEnded()
         {
             var trades = SimulateFinTrades(false);
             var tradesWithCommissions = SimulateFinTrades(true);
@@ -286,8 +281,10 @@ namespace VIXAL2.GUI
         /// <summary>
         /// Updates graphs and performs actions at the end of one serie of iteration for a stock 
         /// </summary>
-        private void PerformReportEnd()
+        private void DoTrainingEnded()
         {
+            UseTrainedModel();
+
             Performance[] performances = orchestrator.SlopePerformances;
             PerformanceDiff[] diffPerformances = orchestrator.DiffPerformance;
 

@@ -98,9 +98,46 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public override TimeSerieArrayExt GetExtendedArrayX(bool normalized = false)
+        private DateTime GetFutureStockDate(DateTime date, int days)
         {
-            var result = base.GetExtendedArrayX(normalized);
+            DateTime? result = null;
+
+            for (int i = 0; i < OriginalData.Dates.Length - days; i++)
+            {
+                if (dates[i] == date)
+                {
+                    result = OriginalData.Dates[i + days];
+                    break;
+                }
+            }
+
+            if (result == null)
+                result = SharpML.Types.Utils.AddBusinessDays(date, days);
+
+            return result.Value;
+        }
+
+        /// <summary>
+        /// This method returns a copy of dataX for latest PredictGap days 
+        /// </summary>
+        public virtual TimeSerieArrayExt GetExtendedArrayX(bool normalized = false)
+        {
+            TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - TestCount, dataList[0].Length);
+            result.PredictDays = PredictDays;
+
+            for (int row = 0; row < result.Length; row++)
+            {
+                for (int col = 0; col < result.Columns; col++)
+                {
+                    DateTime date = dates[row + TrainCount + ValidCount + TestCount];
+                    DateTime futureDate = GetFutureStockDate(dates[row + TrainCount + ValidCount + TestCount], PredictDays + 1);
+                    var currentValue = dataList[row + TrainCount + ValidCount + TestCount][col];
+                    if (normalized)
+                        currentValue = Normalize(currentValue, col);
+                    result.SetValue(row, col, date, futureDate, currentValue);
+                }
+            }
+
             result.Range = this.Range;
             return result;
         }

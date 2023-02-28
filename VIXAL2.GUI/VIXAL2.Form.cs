@@ -21,7 +21,7 @@ namespace VIXAL2.GUI
         /// <summary>
         /// Line calculated by the NN
         /// </summary>
-        LineItem modelLine;
+        LineItem predictedLine;
         /// <summary>
         /// Line that is used for training
         /// </summary>
@@ -34,10 +34,28 @@ namespace VIXAL2.GUI
         /// Line representing the original price (close price)
         /// </summary>
         LineItem originalLine;
+        /// <summary>
+        /// Linea che rappresenza la precisione del calcolo (???)
+        /// </summary>
         LineItem lossDataLine;
+        /// <summary>
+        /// Linea che rappresenza la performance del calcolo stimata sulla 
+        /// corridpondenza della pendenza
+        /// </summary>
         LineItem slopePerformanceDataLine;
+        /// <summary>
+        /// Linea che rappresenza la performance del calcolo stimata sulla 
+        /// corridpondenza dei valori
+        /// </summary>
         LineItem diffPerformanceDataLine;
-        LineItem longTradesLine, shortTradesLine;
+        /// <summary>
+        /// Linea che rappresenta i trading LONG
+        /// </summary>
+        LineItem longTradesLine;
+        /// <summary>
+        /// Linea che rappresenta i trading LONG
+        /// </summary>
+        LineItem shortTradesLine;
         LineItem originalLine2;
 
         public VIXAL2Form()
@@ -68,11 +86,11 @@ namespace VIXAL2.GUI
             trainingDataLine.Symbol.Fill = new Fill(Color.Blue);
             trainingDataLine.Symbol.Size = 1;
 
-            if (modelLine != null) modelLine.Clear();
+            if (predictedLine != null) predictedLine.Clear();
             else
-                modelLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
-            modelLine.Symbol.Fill = new Fill(Color.Red);
-            modelLine.Symbol.Size = 1;
+                predictedLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
+            predictedLine.Symbol.Fill = new Fill(Color.Red);
+            predictedLine.Symbol.Size = 1;
 
             if (originalLine != null) originalLine.Clear();
             else
@@ -135,7 +153,7 @@ namespace VIXAL2.GUI
             this.zedGraphControl1.GraphPane.CurveList.Clear();
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
-            this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
+            this.zedGraphControl1.GraphPane.CurveList.Add(predictedLine);
             this.zedGraphControl1.GraphPane.CurveList.Add(originalLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
@@ -348,7 +366,7 @@ namespace VIXAL2.GUI
             }
 
             trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + "" +  ")";
-            modelLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + ")";
+            predictedLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + ")";
 
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - (I:" + textBoxIterations.Text + ", Hidden:" + textBoxHidden.Text + ", Cells:" + textBoxCells.Text + ")";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -2;

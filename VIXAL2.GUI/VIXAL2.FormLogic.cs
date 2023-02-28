@@ -95,13 +95,17 @@ namespace VIXAL2.GUI
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
         }
 
+        /// <summary>
+        /// Utilizza il modello dopo il training, per calcolare i vaori anche per validazione
+        /// e test
+        /// </summary>
         private void UseTrainedModel()
         {
             //disegno il modello calcolato dallo stesso primo valore del trainingLine
             //int sample = orchestrator.DataSet.PredictDays + 1;
             int sampleIndex = 1 + orchestrator.DataSet.PredictDays + orchestrator.DataSet.DelayDays;
 
-            modelLine.Clear();
+            predictedLine.Clear();
             lossDataLine.Clear();
 
             currentModelEvaluation(ref sampleIndex);
@@ -213,7 +217,7 @@ namespace VIXAL2.GUI
             {
                 var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(EXTTEST - prediction for " + predicted.Date.ToShortDateString() + ": " + predicted.Value + " )";
-                modelLine.AddPoint(p);
+                predictedLine.AddPoint(p);
                 sampleIndex++;
             }
         }
@@ -227,7 +231,7 @@ namespace VIXAL2.GUI
             {
                 var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(PREDICTEDY - on " + predicted.PredictionDate.ToShortDateString() + " (value of " + predicted.Date.ToShortDateString() + "): " + predicted.Value + " )";
-                modelLine.AddPoint(p);
+                predictedLine.AddPoint(p);
                 sampleIndex++;
             }
 
@@ -243,7 +247,7 @@ namespace VIXAL2.GUI
             {
                 var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(PREDICTEDY - on " + predicted.PredictionDate.ToShortDateString() + " (value of " + predicted.Date.ToShortDateString() + "): " + predicted.Value + " )";
-                modelLine.AddPoint(p);
+                predictedLine.AddPoint(p);
                 sampleIndex++;
             }
 
@@ -424,7 +428,7 @@ namespace VIXAL2.GUI
             var list = orchestrator.CurrentModelEvaluation();
             foreach (var y in list)
             {
-                modelLine.AddPoint(new PointPair(sampleIndex, y));
+                predictedLine.AddPoint(new PointPair(sampleIndex, y));
                 sampleIndex++;
             }
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);

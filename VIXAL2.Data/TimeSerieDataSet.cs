@@ -73,10 +73,11 @@ namespace VIXAL2.Data
 
             for (int row = 0; row < result.Length; row++)
             {
+                DateTime date = dates[row + TrainCount + ValidCount];
+                DateTime futureDate = dates[row + TrainCount + ValidCount + predictDays];
+
                 for (int col = 0; col < columnsToPredict; col++)
                 {
-                    DateTime date = dates[row + TrainCount + ValidCount];
-                    DateTime futureDate = dates[row + TrainCount + ValidCount + predictDays];
                     var futureValue = dataList[row + TrainCount + ValidCount + predictDays][firstColumnToPredict + col];
                     result.SetValue(row, col, date, futureDate, futureValue);
                 }
@@ -97,10 +98,11 @@ namespace VIXAL2.Data
 
             for (int row = 0; row < result.Length; row++)
             {
+                DateTime date = dates[row];
+                DateTime futureDate = dates[row + predictDays];
+
                 for (int col = 0; col < columnsToPredict; col++)
                 {
-                    DateTime date = dates[row];
-                    DateTime futureDate = dates[row + predictDays];
                     var futureValue = dataList[row + predictDays][firstColumnToPredict + col];
                     result.SetValue(row, col, date, futureDate, futureValue);
                 }

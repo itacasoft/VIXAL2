@@ -100,21 +100,40 @@ namespace VIXAL2.Data
 
         private DateTime GetFutureStockDate(DateTime date, int days)
         {
-            DateTime? result = null;
+            DateTime? resultFromOriginal = null;
+            int remainingDays = 0;
 
-            for (int i = 0; i < OriginalData.Dates.Length - days; i++)
+            for (int i = 0; i < OriginalData.Dates.Length; i++)
             {
-                if (dates[i] == date)
+                if (OriginalData.Dates[i] == date)
                 {
-                    result = OriginalData.Dates[i + days];
+                    //se il calendario dei dati originali non è abbastanza lungo
+                    //calcolo quanti giorni mi mancano e per il momento prendo l'ultimo giorno
+                    if (i + days > OriginalData.Dates.Length-1)
+                    {
+                        remainingDays = days - (OriginalData.Dates.Length - 1 - i);
+                        resultFromOriginal = OriginalData.Dates[OriginalData.Dates.Length - 1];
+                    }
+                    else
+                        resultFromOriginal = OriginalData.Dates[i + days];
                     break;
                 }
             }
 
-            if (result == null)
-                result = SharpML.Types.Utils.AddBusinessDays(date, days);
+            //se non trovo valori nel calendario, come fallback me lo calcolo io
+            if (resultFromOriginal == null)
+            {
+                var resultFromBusiness = SharpML.Types.Utils.AddBusinessDays(date, days);
+                return resultFromBusiness;
+            }
 
-            return result.Value;
+            //se rimangono dei giorni da calcolare, me li calcolo io
+            if (remainingDays > 0)
+            {
+                resultFromOriginal = SharpML.Types.Utils.AddBusinessDays(resultFromOriginal.Value, remainingDays);
+            }
+
+            return resultFromOriginal.Value;
         }
 
         /// <summary>
@@ -127,10 +146,11 @@ namespace VIXAL2.Data
 
             for (int row = 0; row < result.Length; row++)
             {
+                DateTime date = dates[row + TrainCount + ValidCount + TestCount];
+                DateTime futureDate = GetFutureStockDate(dates[row + TrainCount + ValidCount + TestCount], PredictDays);
+
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    DateTime date = dates[row + TrainCount + ValidCount + TestCount];
-                    DateTime futureDate = GetFutureStockDate(dates[row + TrainCount + ValidCount + TestCount], PredictDays + 1);
                     var currentValue = dataList[row + TrainCount + ValidCount + TestCount][col];
                     if (normalized)
                         currentValue = Normalize(currentValue, col);

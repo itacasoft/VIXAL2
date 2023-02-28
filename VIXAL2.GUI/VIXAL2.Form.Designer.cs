@@ -649,7 +649,7 @@
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.listView1);
             this.Name = "VIXAL2Form";
-            this.Text = "VIXAL2.Form (disallineamento date 30/05 con enh)";
+            this.Text = "VIXAL2";
             this.Load += new System.EventHandler(this.VIXAL2Form_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);

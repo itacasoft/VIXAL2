@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CNTK.UnitTestProject", "CNT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIXAL2.GUI", "VIXAL2.GUI\VIXAL2.GUI.csproj", "{CC467AF6-FFE3-4C0F-ACD1-18728ACC701D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIXAL2", "VIXAL2\VIXAL2.csproj", "{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,14 @@ Global
 		{CC467AF6-FFE3-4C0F-ACD1-18728ACC701D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CC467AF6-FFE3-4C0F-ACD1-18728ACC701D}.Release|x64.ActiveCfg = Release|Any CPU
 		{CC467AF6-FFE3-4C0F-ACD1-18728ACC701D}.Release|x64.Build.0 = Release|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Debug|x64.Build.0 = Debug|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Release|x64.ActiveCfg = Release|Any CPU
+		{2BE89BE1-CE77-42B4-AD30-078AB2AB7BC0}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

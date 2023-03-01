@@ -3,11 +3,7 @@ using SharpML.Types;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
 
@@ -46,6 +42,8 @@ namespace VIXAL2
         /// Tipo di dataset utilizzato per la simulazione
         /// </summary>
         static DataSetType dsType;
+        static int hiddenLayers;
+        static int cellsCount;
         const double MONEY = 10000.00;
         const double COMMISSION = 0.0019;
 
@@ -78,8 +76,8 @@ namespace VIXAL2
 
         static void StartTraining(int iterations)
         {
-            int hiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
-            int cellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
+            hiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
+            cellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
 
             Utils.DrawMessage(prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, 0), ConsoleColor.Gray);
             if (mustReiterate)
@@ -122,6 +120,9 @@ namespace VIXAL2
 
             var predictedListExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
+
+            var man = new ReportManager(trainingIterations, hiddenLayers, cellsCount );
+            man.PrintGraphs(orchestrator.DataSet, predictedListE);
         }
 
         static void OnSimulationEnded()

@@ -104,41 +104,21 @@ namespace VIXAL2
         {
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 0.0), ConsoleColor.Gray);
             var predictedListE = orchestrator.CurrentModelEvaluation();
+            
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 25.0), ConsoleColor.Gray);
             var predictedListV = orchestrator.CurrentModelValidation();
+            
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 50.0), ConsoleColor.Gray);
             var predictedListT = orchestrator.CurrentModelTest();
+            
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 75.0), ConsoleColor.Gray);
 
-            int columnToPredict = 0;
-            orchestrator.ComparePredictedAgainstDataY(predictedListT, columnToPredict);
-
-            orchestrator.SetDatesOnPerformances(ref orchestrator.SlopePerformances);
-            orchestrator.SetDatesOnPerformances(ref orchestrator.DiffPerformance);
+            orchestrator.ComputePerformances(predictedListT);
 
             //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
             var tradeResult = orchestrator.SimulateTrades(predictedListT, MONEY, COMMISSION);
             //DrawTrades(tradeResult);
-
-            if (orchestrator.PredictedData == null)
-            {
-                List<DatedValue> originalData = new List<DatedValue>();
-
-                for (int i = 0; i < predictedListT.Count; i++)
-                {
-                    var myDate = predictedListT[i].Date;
-                    var value = orchestrator.DataSet.OriginalData.GetValue(myDate, stockIndex);
-                    DatedValue item = new DatedValue(myDate, value);
-                    originalData.Add(item);
-                }
-
-                //creo il PredictedData passandogli l'intera lista di valori originali
-                orchestrator.PredictedData = new PredictedData(originalData);
-                orchestrator.PredictedData.StockName = orchestrator.DataSet.OriginalData.GetColName(stockIndex);
-            }
-
-            orchestrator.PredictedData.AddPredictedCurve(predictedListT);
 
             var predictedListExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);

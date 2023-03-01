@@ -40,6 +40,9 @@ namespace NeuralNetwork.Base
         private int _batchSize;
         private static string featuresName = "feature";
         private static string labelsName = "label";
+        /// <summary>
+        /// Indice dello stock che voglio predire
+        /// </summary>
         private int indexColumnToPredict;
         
         int MAX_DAYS_FOR_TRADE = 5;
@@ -72,10 +75,10 @@ namespace NeuralNetwork.Base
             }
         }
 
-        public void LoadAndPrepareDataSet(string inputCsv, int firstColumnToPredict, int predictCount, DataSetType dataSetType, int predictDays, int range = 20)
+        public void LoadAndPrepareDataSet(string inputCsv, int indexColumnToPredict, int predictCount, DataSetType dataSetType, int predictDays, int range = 20)
         {
-            indexColumnToPredict = firstColumnToPredict;
-            DataSet = DatasetFactory.CreateDataset(inputCsv, firstColumnToPredict, predictCount, dataSetType);
+            this.indexColumnToPredict = indexColumnToPredict;
+            DataSet = DatasetFactory.CreateDataset(inputCsv, indexColumnToPredict, predictCount, dataSetType);
             
             if (DataSet is IAverageRangeDataSet)
             {
@@ -213,24 +216,35 @@ namespace NeuralNetwork.Base
             return tradeSim.Trades;
         }
 
-        public void ComparePredictedAgainstDataY(List<DoubleDatedValue> predicted, int columnToPredict)
+        public void ComputePerformances(List<DoubleDatedValue> predictedTestData)
         {
-            double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, columnToPredict);
-            LSTMUtils.CompareSlopes(dataYList, DoubleDatedValue.ToDoubleArray(predicted), ref SlopePerformances);
+            //la colonna del TestDataY è sempre la prima perchè ha solo una colonna
+            double[] dataYList = Utils.GetVectorFromArray(DataSet.TestDataY, 0);
+            
+            LSTMUtils.CompareSlopes(dataYList, DoubleDatedValue.ToDoubleArray(predictedTestData), ref SlopePerformances);
+            LSTMUtils.CompareDifferences(dataYList, DoubleDatedValue.ToDoubleArray(predictedTestData), ref DiffPerformance);
 
-            //calcolo diff performance solo su DAYS_FOR_PERFORMANCE elementi
-            /*
+            SetDatesOnPerformances(ref SlopePerformances);
+            SetDatesOnPerformances(ref DiffPerformance);
 
-                        if (dataYList.Length >= DAYS_FOR_PERFORMANCE)
-                        {
-                            var dataY_to_compare = dataYList.Take(DAYS_FOR_PERFORMANCE);
-                            var predicted_to_compare = DoubleDatedValue.ToDoubleArray(predicted).Take(DAYS_FOR_PERFORMANCE);
-                            var diff = LSTMUtils.CompareDifferences(dataY_to_compare, predicted_to_compare);
-                            DiffPerformance.Add(diff);
-                        }
-            */
+            if (PredictedData == null)
+            {
+                List<DatedValue> originalData = new List<DatedValue>();
 
-            LSTMUtils.CompareDifferences(dataYList, DoubleDatedValue.ToDoubleArray(predicted), ref DiffPerformance);
+                for (int i = 0; i < predictedTestData.Count; i++)
+                {
+                    var myDate = predictedTestData[i].Date;
+                    var value = DataSet.OriginalData.GetValue(myDate, indexColumnToPredict);
+                    DatedValue item = new DatedValue(myDate, value);
+                    originalData.Add(item);
+                }
+
+                //creo il PredictedData passandogli l'intera lista di valori originali
+                PredictedData = new PredictedData(originalData);
+                PredictedData.StockName = DataSet.OriginalData.GetColName(indexColumnToPredict);
+            }
+
+            PredictedData.AddPredictedCurve(predictedTestData);
         }
 
         public double GetPreviousLossAverage()

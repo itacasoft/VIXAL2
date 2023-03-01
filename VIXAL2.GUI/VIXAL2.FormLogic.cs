@@ -251,35 +251,13 @@ namespace VIXAL2.GUI
                 sampleIndex++;
             }
 
-            int columnToPredict = 0;
-            orchestrator.ComparePredictedAgainstDataY(predictedList, columnToPredict);
-
-            orchestrator.SetDatesOnPerformances(ref orchestrator.SlopePerformances);
-            orchestrator.SetDatesOnPerformances(ref orchestrator.DiffPerformance);
+            orchestrator.ComputePerformances(predictedList);
 
             //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
             var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
             DrawTrades(tradeResult);
 
-            if (orchestrator.PredictedData == null)
-            {
-                List<DatedValue> originalData = new List<DatedValue>();
-
-                for (int i = 0; i < predictedList.Count; i++)
-                {
-                    var myDate = predictedList[i].Date;
-                    var value = orchestrator.DataSet.OriginalData.GetValue(myDate, Convert.ToInt32(textBoxYIndex.Text));
-                    DatedValue item = new DatedValue(myDate, value);
-                    originalData.Add(item);
-                }
-
-                //creo il PredictedData passandogli l'intera lista di valori originali
-                orchestrator.PredictedData = new PredictedData(originalData);
-                orchestrator.PredictedData.StockName = orchestrator.DataSet.OriginalData.GetColName(Convert.ToInt32(textBoxYIndex.Text));
-            }
-
-            orchestrator.PredictedData.AddPredictedCurve(predictedList);
         }
 
         /// <summary>

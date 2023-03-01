@@ -34,7 +34,7 @@ namespace NeuralNetwork.Base
 
         private NeuralNetwork.Base.LSTMTrainer currentLSTMTrainer;
         private Action<int> onTrainingProgress;
-        private Action<StocksDataset> onReloadDataset;
+        private Action<StocksDataset> onReiterate;
         private Action onTrainingEnded;
         private Action onSimulationEnded;
         private int _batchSize;
@@ -48,10 +48,10 @@ namespace NeuralNetwork.Base
         public const int DAYS_FOR_PERFORMANCE = 15;
         public int Iterations;
 
-        public LSTMOrchestrator(Action<StocksDataset> onReloadDataset, Action<int> onTrainingProgress, Action onTrainingEnded, Action onSimulationEnded, int batchSize)
+        public LSTMOrchestrator(Action<StocksDataset> onReiterate, Action<int> onTrainingProgress, Action onTrainingEnded, Action onSimulationEnded, int batchSize)
         {
             this.onTrainingProgress = onTrainingProgress;
-            this.onReloadDataset = onReloadDataset;
+            this.onReiterate = onReiterate;
             this.onTrainingEnded = onTrainingEnded;
             this.onSimulationEnded = onSimulationEnded;
             _batchSize = batchSize;
@@ -112,6 +112,20 @@ namespace NeuralNetwork.Base
                 taskA.ContinueWith(antecedent => ReiterateTrainingAfterForward(hiddenLayersDim, cellsNumber, iterations));
         }
 
+        public void StartTraining_Sync(int iterations, int hiddenLayersDim, int cellsNumber, bool reiterate)
+        {
+            this.Iterations = iterations;
+            int ouDim = DataSet.TrainDataY[0].Length;
+            int inDim = DataSet.ColNames.Length;
+
+            currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
+
+            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iterations, _batchSize, TrainingProgress, NeuralNetwork.Base.DeviceType.CPUDevice);
+
+            if (reiterate)
+                ReiterateTrainingAfterForward_Sync(hiddenLayersDim, cellsNumber, iterations);
+        }
+
         private void ReiterateTrainingAfterForward(int hiddenLayersDim, int cellsNumber, int iteration)
         {
             bool result = DataSet.Forward(1);
@@ -124,7 +138,7 @@ namespace NeuralNetwork.Base
                 return;
             }
 
-            onReloadDataset(DataSet);
+            onReiterate(DataSet);
 
             int ouDim = DataSet.TrainDataY[0].Length;
             int inDim = DataSet.ColNames.Length;
@@ -136,6 +150,31 @@ namespace NeuralNetwork.Base
 
             taskA.ContinueWith(antecedent => ReiterateTrainingAfterForward(hiddenLayersDim, cellsNumber, iteration));
         }
+
+        private void ReiterateTrainingAfterForward_Sync(int hiddenLayersDim, int cellsNumber, int iteration)
+        {
+            bool result = DataSet.Forward(1);
+            if ((!result) || (currentLSTMTrainer.StopNow))
+            {
+                if (currentLSTMTrainer.StopNow)
+                    onTrainingEnded();
+
+                onSimulationEnded();
+                return;
+            }
+
+            onReiterate(DataSet);
+
+            int ouDim = DataSet.TrainDataY[0].Length;
+            int inDim = DataSet.ColNames.Length;
+
+            currentLSTMTrainer = new NeuralNetwork.Base.LSTMTrainer(inDim, ouDim, featuresName, labelsName);
+
+            currentLSTMTrainer.Train(DataSet.GetFeatureLabelDataSet(), hiddenLayersDim, cellsNumber, iteration, _batchSize, TrainingProgress, NeuralNetwork.Base.DeviceType.CPUDevice);
+
+            ReiterateTrainingAfterForward_Sync(hiddenLayersDim, cellsNumber, iteration);
+        }
+
 
         public void StopTrainingNow()
         {
@@ -418,5 +457,24 @@ namespace NeuralNetwork.Base
                 return avgDiffPerformance;
             }
         }
+
+        public void SetDatesOnPerformances(ref Performance[] performances)
+        {
+            var dad = DataSet.GetExtendedArrayX(false);
+            for (int i = 0; (i < dad.Length && i < performances.Count()); i++)
+            {
+                performances[i].Date = dad.GetFutureDate(i);
+            }
+        }
+
+        public void SetDatesOnPerformances(ref PerformanceDiff[] performances)
+        {
+            var dad = DataSet.GetExtendedArrayX(false);
+            for (int i = 0; (i < dad.Length && i < performances.Count()); i++)
+            {
+                performances[i].Date = dad.GetFutureDate(i);
+            }
+        }
+
     }
 }

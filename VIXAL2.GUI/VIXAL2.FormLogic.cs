@@ -18,7 +18,7 @@ namespace VIXAL2.GUI
         {
             InitiGraphs();
 
-            orchestrator = new LSTMOrchestrator(DrawTestSeparationLine, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, Convert.ToInt32(textBoxBatchSize.Text));
+            orchestrator = new LSTMOrchestrator(OnReiterate, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, Convert.ToInt32(textBoxBatchSize.Text));
             try
             {
                 orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)(comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
@@ -254,8 +254,8 @@ namespace VIXAL2.GUI
             int columnToPredict = 0;
             orchestrator.ComparePredictedAgainstDataY(predictedList, columnToPredict);
 
-            SetDatesOnPerformances(ref orchestrator.SlopePerformances);
-            SetDatesOnPerformances(ref orchestrator.DiffPerformance);
+            orchestrator.SetDatesOnPerformances(ref orchestrator.SlopePerformances);
+            orchestrator.SetDatesOnPerformances(ref orchestrator.DiffPerformance);
 
             //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
@@ -280,24 +280,6 @@ namespace VIXAL2.GUI
             }
 
             orchestrator.PredictedData.AddPredictedCurve(predictedList);
-        }
-
-        private void SetDatesOnPerformances(ref Performance[] performances)
-        {
-            var dad = orchestrator.DataSet.GetExtendedArrayX(false);
-            for (int i = 0; (i < dad.Length && i < performances.Count()); i++)
-            {
-                performances[i].Date = dad.GetFutureDate(i);
-            }
-        }
-
-        private void SetDatesOnPerformances(ref PerformanceDiff[] performances)
-        {
-            var dad = orchestrator.DataSet.GetExtendedArrayX(false);
-            for (int i = 0; (i < dad.Length && i < performances.Count()); i++)
-            {
-                performances[i].Date = dad.GetFutureDate(i);
-            }
         }
 
         /// <summary>

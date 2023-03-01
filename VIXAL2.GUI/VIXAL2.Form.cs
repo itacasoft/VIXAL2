@@ -373,6 +373,11 @@ namespace VIXAL2.GUI
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
 
+        private void OnReiterate(StocksDataset ds)
+        {
+            DrawTestSeparationLine(ds);
+        }
+
         private void DrawTestSeparationLine(StocksDataset ds)
         {
             int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DelayDays;

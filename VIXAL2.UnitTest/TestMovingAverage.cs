@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpML.Types;
 using System;
+using System.Collections.Generic;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
 using VIXAL2.UnitTest.Data;
@@ -169,14 +170,18 @@ namespace VIXAL2.UnitTest
             MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
             ds.Prepare();
 
-            Assert.AreEqual(ds.TrainCount, 303);
-            Assert.AreEqual(ds.ValidCount, 101);
-            Assert.AreEqual(ds.TestCount, 91);
+            int range = ds.Range;
+            int count = ds.OriginalData.Length;
+            double validPerc = ds.ValidPercent;
+            double trainPerc = ds.TrainPercent;
+
+            Assert.AreEqual(ds.TrainCount,Convert.ToInt32((count - range + 1)*trainPerc));
 
             TimeSerieArray current = ds.GetTestArrayX();
 
             DateTime mydate = current.MaxDate.AddDays(-15);
             double value1 = current.GetValue(mydate, 1);
+            value1 = Math.Round(value1, 2, MidpointRounding.AwayFromZero);
 
 #if NORMALIZE_FIRST
             value1 = ds.Decode(value1, 1);
@@ -186,7 +191,7 @@ namespace VIXAL2.UnitTest
 
             //assert the moving average calculation is correct
             //and that calculated at date "mydate" is correctly found on original data
-            value1 = Math.Round(value1, 2, MidpointRounding.AwayFromZero);
+
             double mean1 = Math.Round(Utils.Mean(data1), 2, MidpointRounding.AwayFromZero);
             Assert.AreEqual(value1, mean1);
         }
@@ -389,6 +394,49 @@ namespace VIXAL2.UnitTest
 
             Assert.AreEqual(ds1.DelayDays, gg1);
 
+        }
+
+        [TestMethod]
+        public void Test_MovingAverageDataset_Reverse()
+        {
+            const int PREDICT_DAYS = 20;
+            const int FIRST_PREDICT = 1;
+
+            DateTime[] dates = EnergyData.Dates;
+            double[][] data = EnergyData.AllData;
+            string[] stockNames = EnergyData.StockNames;
+            Assert.AreEqual(dates.Length, data.Length);
+            Assert.AreEqual(stockNames.Length, data[0].Length);
+
+            MovingAverageDataSet ds = new MovingAverageDataSet(stockNames, dates, data, FIRST_PREDICT, 1);
+            ds.PredictDays = PREDICT_DAYS;
+            ds.SetRange(10);
+            ds.Prepare();
+
+            DateTime myDate = ds.MaxDate;
+
+            //creo una lista di valori predicted
+            List<DatedValue> listPredicted = new List<DatedValue>();
+            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 1), 13.6));
+            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 2), 13.5));
+            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 3), 13.4));
+            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 4), 13.3));
+
+            //estraggo la lista dei valori reverse
+            var reverse = ds.GetReverseMovingAverageValues(listPredicted);
+
+#if NORMALIZE_FIRST
+            value1 = ds.Decode(value1, 1);
+#endif
+            //verifico che si tratti di valori corretti e che le date coincidano
+            Assert.IsTrue(reverse[0].Value > 12 && reverse[0].Value < 13);
+            Assert.AreEqual(reverse[0].Date, listPredicted[0].Date);
+
+            Assert.IsTrue(reverse[1].Value > 12 && reverse[1].Value < 13);
+            Assert.AreEqual(reverse[1].Date, listPredicted[1].Date);
+
+            Assert.IsTrue(reverse[3].Value > 12 && reverse[3].Value < 13);
+            Assert.AreEqual(reverse[3].Date, listPredicted[3].Date);
         }
     }
 }

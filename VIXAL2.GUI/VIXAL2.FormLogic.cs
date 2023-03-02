@@ -34,7 +34,6 @@ namespace VIXAL2.GUI
             LoadListView(orchestrator.DataSet);
             //disegno il grafico dei prezzi reali
             LoadOriginalLine(orchestrator.DataSet);
-            LoadOriginalLine2(orchestrator.DataSet);
 
             LoadGraphs(orchestrator.DataSet);
 
@@ -109,9 +108,15 @@ namespace VIXAL2.GUI
             lossDataLine.Clear();
 
             currentModelEvaluation(ref sampleIndex);
-            currentModelValidation(ref sampleIndex);
-            currentModelTest(ref sampleIndex);
-            currentModelTestExtreme(ref sampleIndex);
+            var listV = currentModelValidation(ref sampleIndex);
+            var listT = currentModelTest(ref sampleIndex);
+            var listEx = currentModelTestExtreme(ref sampleIndex);
+
+            //var allLists = listV.Concat(listT).Concat(listEx);
+            var allLists = listEx;
+
+            if (orchestrator.DataSet is Data.MovingAverageDataSet)
+                LoadPredictedLine2(orchestrator.DataSet as Data.MovingAverageDataSet, allLists.ToList<DoubleDatedValue>());
 
             zedGraphControl1.Refresh();
         }
@@ -209,7 +214,7 @@ namespace VIXAL2.GUI
             return trades;
         }
 
-        private void currentModelTestExtreme(ref int sampleIndex)
+        private List<DoubleDatedValue> currentModelTestExtreme(ref int sampleIndex)
         {
             var predictedList = orchestrator.CurrentModelTestExtreme();
 
@@ -220,12 +225,14 @@ namespace VIXAL2.GUI
                 predictedLine.AddPoint(p);
                 sampleIndex++;
             }
+
+            return predictedList;
         }
 
-        private void currentModelValidation(ref int sampleIndex)
+        private List<DoubleDatedValue> currentModelValidation(ref int sampleIndex)
         {
             var predictedList = orchestrator.CurrentModelValidation();
-            if (predictedList.Count == 0) return;
+            if (predictedList.Count == 0) return new List<DoubleDatedValue>();
 
             foreach (var predicted in predictedList)
             {
@@ -236,10 +243,11 @@ namespace VIXAL2.GUI
             }
 
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
+            return predictedList;
         }
 
 
-        private void currentModelTest(ref int sampleIndex)
+        private List<DoubleDatedValue> currentModelTest(ref int sampleIndex)
         {
             var predictedList = orchestrator.CurrentModelTest();
 
@@ -257,7 +265,7 @@ namespace VIXAL2.GUI
 
             var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
             DrawTrades(tradeResult);
-
+            return predictedList;
         }
 
         /// <summary>

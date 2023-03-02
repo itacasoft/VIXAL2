@@ -42,7 +42,13 @@ namespace VIXAL2
         /// Tipo di dataset utilizzato per la simulazione
         /// </summary>
         static DataSetType dsType;
+        /// <summary>
+        /// Numero di hidden layers della rete neurale
+        /// </summary>
         static int hiddenLayers;
+        /// <summary>
+        /// Numero di celle della rete neurale
+        /// </summary>
         static int cellsCount;
         const double MONEY = 10000.00;
         const double COMMISSION = 0.0019;

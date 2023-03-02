@@ -1,5 +1,6 @@
 ﻿using SharpML.Types;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
@@ -82,6 +83,51 @@ namespace VIXAL2.Data
                     result[row][col] = movingAverage[row];
                 }
             }
+            return result;
+        }
+
+        public List<DatedValue> GetReverseMovingAverageValues(List<DoubleDatedValue> avgValues)
+        {
+            var avgValues1 = new List<DatedValue>();
+            for (int i=0; i<avgValues.Count; i++)
+            {
+                avgValues1.Add(avgValues[i]);       
+            }
+
+            return GetReverseMovingAverageValues(avgValues1);
+        }
+
+        /// <summary>
+        /// Restituisce il valore normale data la sua media mobile
+        /// </summary>
+        /// <param name="date">data del valore</param>
+        /// <param name="value">valore della media mobile</param>
+        /// <returns></returns>
+        public List<DatedValue> GetReverseMovingAverageValues(List<DatedValue> avgValues)
+        {
+            List<DatedValue> result = new List<DatedValue>();
+
+            DateTime firstDateAvg = avgValues[0].Date;
+            DateTime lastDateActual = this.OriginalData.MaxDate;
+            //il calcolo funziona solo se avgValues è contiguo con i dati originali
+            if (Utils.AddBusinessDays(lastDateActual, 1) != firstDateAvg)
+                throw new Exception("Impossible to calculate ReverseMoving from not contiguous arrays");
+
+            List<double> actualValues = this.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(lastDateActual, this.range-1, firstColumnToPredict).ToList<double>();
+
+            //double resultItem = avgValues[0].Value * range - actualValues.Sum(x => x);
+            //actualValues.Add(resultItem);
+            //actualValues.RemoveAt(0);
+            //result.Add(new DatedValue(avgValues[0].Date, resultItem));
+
+            for (int i=0; i< avgValues.Count; i++)
+            {
+                double resultItem = avgValues[i].Value * range - actualValues.Sum(x => x);
+                actualValues.Add(resultItem);
+                actualValues.RemoveAt(0);
+                result.Add(new DatedValue(avgValues[i].Date, resultItem));
+            }
+
             return result;
         }
     }

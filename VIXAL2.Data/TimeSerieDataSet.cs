@@ -19,8 +19,8 @@ namespace VIXAL2.Data
         private float validPercent = 0.00F;
         private int predictDays = 20;
         private bool prepared = false;
-        protected int firstColumnToPredict;
-        protected int columnsToPredict;
+        private int firstColumnToPredict;
+        private int columnsToPredict;
 
         public TimeSerieDataSet(string[] colNames, DateTime[] dates, double[][] data, int firstColumnToPredict, int columnsToPredict) : base(data)
         {
@@ -507,7 +507,15 @@ namespace VIXAL2.Data
             }
         }
 
-
+        public int FirstColumnToPredict
+        {
+            get { return firstColumnToPredict; }
+        }
+        
+        public int ColumnsToPredict
+        {
+            get { return columnsToPredict; }
+        }
 
 
         public bool Forward(int steps = 1)

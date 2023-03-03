@@ -75,11 +75,8 @@ namespace NeuralNetwork.Base
             }
         }
 
-        public void LoadAndPrepareDataSet(string inputCsv, int indexColumnToPredict, int predictCount, DataSetType dataSetType, int predictDays, int range = 20)
+        private void BaseLoadAndPrepareDataSet(int predictDays, int range = 20)
         {
-            this.indexColumnToPredict = indexColumnToPredict;
-            DataSet = DatasetFactory.CreateDataset(inputCsv, indexColumnToPredict, predictCount, dataSetType);
-            
             if (DataSet is IAverageRangeDataSet)
             {
                 ((IAverageRangeDataSet)DataSet).SetRange(range);
@@ -98,6 +95,22 @@ namespace NeuralNetwork.Base
 
             DataSet.Prepare();
             Trades = new List<Trade>();
+        }
+
+        public void LoadAndPrepareDataSet(string inputCsv, int indexColumnToPredict, int predictCount, DataSetType dataSetType, int predictDays, int range = 20)
+        {
+            this.indexColumnToPredict = indexColumnToPredict;
+            DataSet = DatasetFactory.CreateDataset(inputCsv, indexColumnToPredict, predictCount, dataSetType);
+
+            BaseLoadAndPrepareDataSet(predictDays, range);
+        }
+
+        public void LoadAndPrepareDataSet(StocksDataset ds, int predictDays, int range = 20)
+        {
+            this.indexColumnToPredict = ds.FirstColumnToPredict;
+            DataSet = ds;
+
+            BaseLoadAndPrepareDataSet(predictDays, range);
         }
 
         public void StartTraining(int iterations, int hiddenLayersDim, int cellsNumber, bool reiterate)
@@ -262,22 +275,28 @@ namespace NeuralNetwork.Base
         }
 
 
-        public List<double> CurrentModelEvaluation()
+        public List<double> CurrentModelTrain()
         {
             var result = new List<double>();
+
+            var result1 = new List<DoubleDatedValue>();
+            //get traindatay so I have the correct dates
+            //var evalDataY = DataSet.GetTrainArrayY();
+
             //get the next minibatch amount of data
             foreach (var miniBatchData in GetBatchesForTraining())
             {
                 var oData = currentLSTMTrainer.CurrentModelEvaluate(miniBatchData.X, miniBatchData.Y); 
                 foreach (var y in oData)
                 {
-                    result.Add(y[0]);
+                    //result.Add(y[0]);
+                    //denormalize before return
+                    if (DataSet.NormalizeFirst)
+                        result.Add(y[0]);
+                    else
+                        result.Add(DataSet.Decode(y[0], indexColumnToPredict));
                 }
             }
-
-            //denormalize before return
-            if (!DataSet.NormalizeFirst)
-                result = DataSet.Decode(result, indexColumnToPredict);
 
             return result;
         }
@@ -370,17 +389,17 @@ namespace NeuralNetwork.Base
             return result;
         }
 
-        private IEnumerable<(float[] X, float[] Y)> GetBatchesForTraining()
+        public IEnumerable<(float[] X, float[] Y)> GetBatchesForTraining()
         {
             return nextBatch(DataSet["features"].train, DataSet["label"].train, _batchSize);
         }
 
-        private IEnumerable<(float[] X, float[] Y)> GetBatchesForValidation()
+        public IEnumerable<(float[] X, float[] Y)> GetBatchesForValidation()
         {
             return nextBatch(DataSet["features"].valid, DataSet["label"].valid, _batchSize);
         }
 
-        private IEnumerable<(float[] X, float[] Y)> GetBatchesForTest()
+        public IEnumerable<(float[] X, float[] Y)> GetBatchesForTest()
         {
             return nextBatch(DataSet["features"].test, DataSet["label"].test, _batchSize);
         }

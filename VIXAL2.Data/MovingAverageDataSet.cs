@@ -113,7 +113,7 @@ namespace VIXAL2.Data
             if (Utils.AddBusinessDays(lastDateActual, 1) != firstDateAvg)
                 throw new Exception("Impossible to calculate ReverseMoving from not contiguous arrays");
 
-            List<double> actualValues = this.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(lastDateActual, this.range-1, firstColumnToPredict).ToList<double>();
+            List<double> actualValues = this.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(lastDateActual, this.range-1, FirstColumnToPredict).ToList<double>();
 
             //double resultItem = avgValues[0].Value * range - actualValues.Sum(x => x);
             //actualValues.Add(resultItem);

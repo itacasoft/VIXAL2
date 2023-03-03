@@ -64,6 +64,15 @@ namespace VIXAL2.Data.Base
             return normalizer.Normalize(values, col);
         }
 
+        public void Normalize(ref TimeSerieArrayExt tsArray, int col)
+        {
+            for (int i=0; i< tsArray.Values.Length; i++)
+            {
+                tsArray.Values[i] = Normalize(tsArray.Values[i], col);
+            }
+        }
+
+
         public double[][] Normalize(double[][] values)
         {
             return normalizer.Normalize(values);

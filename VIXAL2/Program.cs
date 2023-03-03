@@ -107,7 +107,7 @@ namespace VIXAL2
         static void OnTrainingEnded()
         {
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 0.0), ConsoleColor.Gray);
-            var predictedListE = orchestrator.CurrentModelEvaluation();
+            var predictedListE = orchestrator.CurrentModelTrain();
             
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 25.0), ConsoleColor.Gray);
             var predictedListV = orchestrator.CurrentModelValidation();

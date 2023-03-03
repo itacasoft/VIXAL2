@@ -63,6 +63,7 @@
     <Compile Include="TestMovingAverage.cs" />
     <Compile Include="TestNormalization.cs" />
     <Compile Include="DiscontinuousDataSetTest.cs" />
+    <Compile Include="TestOrchestrator.cs" />
     <Compile Include="TestPerformanceAvg.cs" />
     <Compile Include="TestPerformances.cs" />
     <Compile Include="TestFinTrades.cs" />

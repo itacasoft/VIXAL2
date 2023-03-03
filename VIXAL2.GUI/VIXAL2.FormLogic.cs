@@ -107,7 +107,7 @@ namespace VIXAL2.GUI
             predictedLine.Clear();
             lossDataLine.Clear();
 
-            currentModelEvaluation(ref sampleIndex);
+            currentModelTrain(ref sampleIndex);
             var listV = currentModelValidation(ref sampleIndex);
             var listT = currentModelTest(ref sampleIndex);
             var listEx = currentModelTestExtreme(ref sampleIndex);
@@ -391,9 +391,9 @@ namespace VIXAL2.GUI
         }
 
 
-        private void currentModelEvaluation(ref int sampleIndex)
+        private void currentModelTrain(ref int sampleIndex)
         {
-            var list = orchestrator.CurrentModelEvaluation();
+            var list = orchestrator.CurrentModelTrain();
             foreach (var y in list)
             {
                 predictedLine.AddPoint(new PointPair(sampleIndex, y));

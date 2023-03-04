@@ -103,29 +103,37 @@ namespace VIXAL2.Data
         /// <param name="date">data del valore</param>
         /// <param name="value">valore della media mobile</param>
         /// <returns></returns>
-        public List<DatedValue> GetReverseMovingAverageValues(List<DatedValue> avgValues)
+        public List<DatedValue> GetReverseMovingAverageValues(List<DatedValue> movingAvgValues)
         {
             List<DatedValue> result = new List<DatedValue>();
 
-            DateTime firstDateAvg = avgValues[0].Date;
-            DateTime lastDateActual = this.OriginalData.MaxDate;
-            //il calcolo funziona solo se avgValues è contiguo con i dati originali
-            if (Utils.AddBusinessDays(lastDateActual, 1) != firstDateAvg)
+            DateTime firstDateAvg = movingAvgValues[0].Date;
+            DateTime lastDateOriginal = this.OriginalData.MaxDate;
+
+            List<double> originalValues;
+
+            //il calcolo funziona solo se avgValues si sovrappone o è contiguo con i dati originali
+            if (Utils.AddBusinessDays(lastDateOriginal, 1) >= firstDateAvg)
+            {
+                var beforeFirstDateAvg = this.OriginalData.GetPreviousDate(firstDateAvg);
+                originalValues = this.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(beforeFirstDateAvg.Value, this.range - 1, FirstColumnToPredict).ToList<double>();
+                //aggiusta i valori per rimuovere lo scalino
+                var delta = movingAvgValues[0].Value - Utils.Mean(originalValues);
+
+                for (int i=0; i<originalValues.Count; i++)
+                {
+                    originalValues[i] = originalValues[i] + delta;
+                }
+            }
+            else 
                 throw new Exception("Impossible to calculate ReverseMoving from not contiguous arrays");
 
-            List<double> actualValues = this.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(lastDateActual, this.range-1, FirstColumnToPredict).ToList<double>();
-
-            //double resultItem = avgValues[0].Value * range - actualValues.Sum(x => x);
-            //actualValues.Add(resultItem);
-            //actualValues.RemoveAt(0);
-            //result.Add(new DatedValue(avgValues[0].Date, resultItem));
-
-            for (int i=0; i< avgValues.Count; i++)
+            for (int i=0; i< movingAvgValues.Count; i++)
             {
-                double resultItem = avgValues[i].Value * range - actualValues.Sum(x => x);
-                actualValues.Add(resultItem);
-                actualValues.RemoveAt(0);
-                result.Add(new DatedValue(avgValues[i].Date, resultItem));
+                double resultItem = movingAvgValues[i].Value * range - originalValues.Sum(x => x);
+                originalValues.Add(resultItem);
+                originalValues.RemoveAt(0);
+                result.Add(new DatedValue(movingAvgValues[i].Date, resultItem));
             }
 
             return result;

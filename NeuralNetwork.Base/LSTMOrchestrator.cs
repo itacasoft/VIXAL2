@@ -275,13 +275,12 @@ namespace NeuralNetwork.Base
         }
 
 
-        public List<double> CurrentModelTrain()
+        public List<DoubleDatedValue> CurrentModelTrain()
         {
-            var result = new List<double>();
-
-            var result1 = new List<DoubleDatedValue>();
+            var result = new List<DoubleDatedValue>();
             //get traindatay so I have the correct dates
-            //var evalDataY = DataSet.GetTrainArrayY();
+            var evalDataY = DataSet.GetTrainArrayY();
+            int mydateIndex = 0;
 
             //get the next minibatch amount of data
             foreach (var miniBatchData in GetBatchesForTraining())
@@ -292,9 +291,11 @@ namespace NeuralNetwork.Base
                     //result.Add(y[0]);
                     //denormalize before return
                     if (DataSet.NormalizeFirst)
-                        result.Add(y[0]);
+                        //result.Add(y[0]);
+                        result.Add(new DoubleDatedValue(evalDataY.GetDate(mydateIndex), evalDataY.GetFutureDate(mydateIndex), y[0]));
                     else
-                        result.Add(DataSet.Decode(y[0], indexColumnToPredict));
+                        //result.Add(DataSet.Decode(y[0], indexColumnToPredict));
+                        result.Add(new DoubleDatedValue(evalDataY.GetDate(mydateIndex), evalDataY.GetFutureDate(mydateIndex), DataSet.Decode(y[0], indexColumnToPredict)));
                 }
             }
 

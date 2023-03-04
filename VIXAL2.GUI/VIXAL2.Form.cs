@@ -244,7 +244,7 @@ namespace VIXAL2.GUI
         {
             predictedLine2.Clear();
             //disegno il grafico dei prezzi predetti a partire dalla media mobile predetta
-            var sample1 = 1;// + ds.PredictDays;
+            var sample1 = ds.PredictDays + ds.Range;
 
             var data = ds.GetReverseMovingAverageValues(predictedList);
 

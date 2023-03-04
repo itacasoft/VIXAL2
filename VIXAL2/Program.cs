@@ -1,7 +1,7 @@
 ﻿using NeuralNetwork.Base;
 using SharpML.Types;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Configuration;
 using System.IO;
 using VIXAL2.Data;
@@ -107,28 +107,30 @@ namespace VIXAL2
         static void OnTrainingEnded()
         {
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 0.0), ConsoleColor.Gray);
-            var predictedListE = orchestrator.CurrentModelTrain();
+            var listE = orchestrator.CurrentModelTrain();
             
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 25.0), ConsoleColor.Gray);
-            var predictedListV = orchestrator.CurrentModelValidation();
+            var listV = orchestrator.CurrentModelValidation();
             
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 50.0), ConsoleColor.Gray);
-            var predictedListT = orchestrator.CurrentModelTest();
+            var listT = orchestrator.CurrentModelTest();
             
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 75.0), ConsoleColor.Gray);
 
-            orchestrator.ComputePerformances(predictedListT);
+            orchestrator.ComputePerformances(listT);
 
             //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
-            var tradeResult = orchestrator.SimulateTrades(predictedListT, MONEY, COMMISSION);
+            var tradeResult = orchestrator.SimulateTrades(listT, MONEY, COMMISSION);
             //DrawTrades(tradeResult);
 
-            var predictedListExt = orchestrator.CurrentModelTestExtreme();
+            var listExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
 
+            var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
+
             var man = new ReportManager(trainingIterations, hiddenLayers, cellsCount );
-            man.PrintGraphs(orchestrator.DataSet, predictedListE);
+            man.PrintGraphs(orchestrator.DataSet, allLists);
         }
 
         static void OnSimulationEnded()

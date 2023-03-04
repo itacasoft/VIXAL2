@@ -195,6 +195,12 @@ namespace SharpML.Types
             return sum / values.Length;
         }
 
+        public static double Mean(IEnumerable<double> values)
+        {
+            return values.Average();
+        }
+
+
         public static long ToUnixTimestamp(DateTime value)
         {
             return (long)(value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds;

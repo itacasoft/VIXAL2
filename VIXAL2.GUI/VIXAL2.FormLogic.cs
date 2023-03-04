@@ -107,16 +107,15 @@ namespace VIXAL2.GUI
             predictedLine.Clear();
             lossDataLine.Clear();
 
-            currentModelTrain(ref sampleIndex);
+            var ListE = currentModelTrain(ref sampleIndex);
             var listV = currentModelValidation(ref sampleIndex);
             var listT = currentModelTest(ref sampleIndex);
             var listEx = currentModelTestExtreme(ref sampleIndex);
 
-            //var allLists = listV.Concat(listT).Concat(listEx);
-            var allLists = listEx;
+            var allLists = ListE.Concat(listV).Concat(listT).Concat(listEx).ToList();
 
             if (orchestrator.DataSet is Data.MovingAverageDataSet)
-                LoadPredictedLine2(orchestrator.DataSet as Data.MovingAverageDataSet, allLists.ToList<DoubleDatedValue>());
+                LoadPredictedLine2(orchestrator.DataSet as Data.MovingAverageDataSet, allLists);
 
             zedGraphControl1.Refresh();
         }
@@ -391,15 +390,17 @@ namespace VIXAL2.GUI
         }
 
 
-        private void currentModelTrain(ref int sampleIndex)
+        private List<DoubleDatedValue> currentModelTrain(ref int sampleIndex)
         {
             var list = orchestrator.CurrentModelTrain();
             foreach (var y in list)
             {
-                predictedLine.AddPoint(new PointPair(sampleIndex, y));
+                predictedLine.AddPoint(new PointPair(sampleIndex, y.Value));
                 sampleIndex++;
             }
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);
+
+            return list;
         }
     }
 }

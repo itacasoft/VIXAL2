@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpML.Types;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
@@ -399,44 +400,57 @@ namespace VIXAL2.UnitTest
         [TestMethod]
         public void Test_MovingAverageDataset_Reverse()
         {
-            const int PREDICT_DAYS = 20;
+            const int PREDICT_DAYS = 10;
             const int FIRST_PREDICT = 1;
+            const int RANGE = 5;
 
-            DateTime[] dates = EnergyData.Dates;
-            double[][] data = EnergyData.AllData;
+            /* ENI
+            8.97,
+            7.099296,
+            7.156265,
+            7.055473,
+            5.777599,
+            6.057189,
+            5.689953,
+            6.017749,
+            5.866998,
+            6.104518,
+            */
+
+
+            DateTime[] dates = EnergyData.Dates.Take(100).ToArray();
+            double[][] data = EnergyData.AllData.Take(100).ToArray();
             string[] stockNames = EnergyData.StockNames;
             Assert.AreEqual(dates.Length, data.Length);
             Assert.AreEqual(stockNames.Length, data[0].Length);
 
             MovingAverageDataSet ds = new MovingAverageDataSet(stockNames, dates, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
-            ds.SetRange(10);
+            ds.SetRange(RANGE);
             ds.Prepare();
 
             DateTime myDate = ds.MaxDate;
 
-            //creo una lista di valori predicted
-            List<DatedValue> listPredicted = new List<DatedValue>();
-            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 1), 13.6));
-            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 2), 13.5));
-            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 3), 13.4));
-            listPredicted.Add(new DatedValue(Utils.AddBusinessDays(myDate, 4), 13.3));
+            //prendo la lista di valori direttamente dal ds
+            var mavg = ds.GetTrainArrayY();
+            List<DatedValue> listAvg = new List<DatedValue>();
+            for (int i = 0; i < mavg.Dates.Length; i++)
+            {
+                listAvg.Add(new DatedValue(mavg.Dates[i], mavg.Values[i][0]));
+            }
 
             //estraggo la lista dei valori reverse
-            var reverse = ds.GetReverseMovingAverageValues(listPredicted);
+            var reverse = ds.GetReverseMovingAverageValues(listAvg);
 
 #if NORMALIZE_FIRST
             value1 = ds.Decode(value1, 1);
 #endif
             //verifico che si tratti di valori corretti e che le date coincidano
-            Assert.IsTrue(reverse[0].Value > 12 && reverse[0].Value < 13);
-            Assert.AreEqual(reverse[0].Date, listPredicted[0].Date);
+            Assert.AreEqual(reverse[0].Date, ds.OriginalData.Dates[4]);
+            Assert.AreEqual(reverse[0].Value, ds.OriginalData.Values[4][1]);
 
-            Assert.IsTrue(reverse[1].Value > 12 && reverse[1].Value < 13);
-            Assert.AreEqual(reverse[1].Date, listPredicted[1].Date);
-
-            Assert.IsTrue(reverse[3].Value > 12 && reverse[3].Value < 13);
-            Assert.AreEqual(reverse[3].Date, listPredicted[3].Date);
+            Assert.AreEqual(reverse[10].Date, ds.OriginalData.Dates[14]);
+            Assert.AreEqual(reverse[10].Value, ds.OriginalData.Values[14][1]);
         }
     }
 }

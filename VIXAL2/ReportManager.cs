@@ -113,7 +113,7 @@ namespace VIXAL2
             trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ", R:" + ds.Range + "" + ")";
         }
 
-        private void DrawPredictedLine(StocksDataset ds, List<double> predictedList)
+        private void DrawPredictedLine(StocksDataset ds, List<DoubleDatedValue> predictedList)
         {
             var testDataY = ds.GetTestArrayY();
 
@@ -128,13 +128,13 @@ namespace VIXAL2
 
             foreach (var y in predictedList)
             {
-                predictedLine.AddPoint(new PointPair(sampleIndex, y));
+                predictedLine.AddPoint(new PointPair(sampleIndex, y.Value));
                 sampleIndex++;
             }
         }
 
 
-        public Image PrintGraphs(StocksDataset ds, List<double> predictedList)
+        public Image PrintGraphs(StocksDataset ds, List<DoubleDatedValue> predictedList)
         {
             DrawTrainingLine(ds);
 

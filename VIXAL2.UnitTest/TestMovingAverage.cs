@@ -53,11 +53,13 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 10;
 
             MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
+            ds.ValidPercent = 0.1F;
+            ds.TrainPercent = 0.8F;
             ds.Prepare();
 
-            Assert.AreEqual(ds.TrainCount, 303);
-            Assert.AreEqual(ds.ValidCount, 101);
-            Assert.AreEqual(ds.TestCount, 91);
+            Assert.AreEqual(ds.TrainCount, 404);
+            Assert.AreEqual(ds.ValidCount, 50);
+            Assert.AreEqual(ds.TestCount, 41);
 
             //checks lenght of 2 arrays are the same
             var futureTrain1 = ds.TrainDataY;
@@ -400,26 +402,32 @@ namespace VIXAL2.UnitTest
         [TestMethod]
         public void Test_MovingAverageDataset_Reverse()
         {
+            const int RANGE = 5;
+            double[] MyStock =
+            {
+                10,11,12,13,14,15,16,17,18,19,20,21,22,23
+            };
+
+            var movingAvg = MovingAverageDataSet.GetMovingAverage(MyStock, RANGE);
+            movingAvg = movingAvg.Where(x => !double.IsNaN(x)).ToArray();
+
+            var reverse = MovingAverageDataSet.GetReverseMovingAverage(movingAvg, RANGE, MyStock.Take(RANGE - 1).ToArray());
+
+            Assert.AreEqual(MyStock.Length, reverse.Length);
+            Assert.AreEqual(MyStock[0], reverse[0]);
+            Assert.AreEqual(MyStock[3], reverse[3]);
+            Assert.AreEqual(MyStock[MyStock.Length-1], reverse[MyStock.Length-1]);
+        }
+
+        [TestMethod]
+        public void Test_MovingAverageDataset_Reverse2()
+        {
             const int PREDICT_DAYS = 10;
             const int FIRST_PREDICT = 1;
             const int RANGE = 5;
 
-            /* ENI
-            8.97,
-            7.099296,
-            7.156265,
-            7.055473,
-            5.777599,
-            6.057189,
-            5.689953,
-            6.017749,
-            5.866998,
-            6.104518,
-            */
-
-
-            DateTime[] dates = EnergyData.Dates.Take(100).ToArray();
-            double[][] data = EnergyData.AllData.Take(100).ToArray();
+            DateTime[] dates = EnergyData.Dates.Take(60).ToArray();
+            double[][] data = EnergyData.AllData.Take(60).ToArray();
             string[] stockNames = EnergyData.StockNames;
             Assert.AreEqual(dates.Length, data.Length);
             Assert.AreEqual(stockNames.Length, data[0].Length);
@@ -436,7 +444,7 @@ namespace VIXAL2.UnitTest
             List<DatedValue> listAvg = new List<DatedValue>();
             for (int i = 0; i < mavg.Dates.Length; i++)
             {
-                listAvg.Add(new DatedValue(mavg.Dates[i], mavg.Values[i][0]));
+                listAvg.Add(new DatedValue(mavg.FutureDates[i], mavg.Values[i][0]));
             }
 
             //estraggo la lista dei valori reverse
@@ -446,11 +454,15 @@ namespace VIXAL2.UnitTest
             value1 = ds.Decode(value1, 1);
 #endif
             //verifico che si tratti di valori corretti e che le date coincidano
-            Assert.AreEqual(reverse[0].Date, ds.OriginalData.Dates[4]);
-            Assert.AreEqual(reverse[0].Value, ds.OriginalData.Values[4][1]);
+            Assert.AreEqual(reverse.Count, mavg.Length + RANGE-1);
+            Assert.AreEqual(reverse[0].Date, ds.OriginalData.Dates[PREDICT_DAYS]);
+            Assert.AreEqual(Math.Round(reverse[0].Value, 2), Math.Round(ds.OriginalData.Values[PREDICT_DAYS][1], 2));
 
-            Assert.AreEqual(reverse[10].Date, ds.OriginalData.Dates[14]);
-            Assert.AreEqual(reverse[10].Value, ds.OriginalData.Values[14][1]);
+            Assert.AreEqual(reverse[5].Date, ds.OriginalData.Dates[5 + PREDICT_DAYS]);
+            Assert.AreEqual(Math.Round(reverse[5].Value,2), Math.Round(ds.OriginalData.Values[5+PREDICT_DAYS][1],2));
+
+            Assert.AreEqual(reverse[reverse.Count-1].Date, ds.OriginalData.Dates[reverse.Count - 1 + PREDICT_DAYS]);
+            Assert.AreEqual(Math.Round(reverse[reverse.Count - 1].Value,2), Math.Round(ds.OriginalData.Values[reverse.Count - 1 + PREDICT_DAYS][1],2));
         }
     }
 }

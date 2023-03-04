@@ -100,7 +100,7 @@ namespace VIXAL2.GUI
 
             if (predictedLine2 != null) predictedLine2.Clear();
             else
-                predictedLine2 = new LineItem("Prediction Data 2", null, null, Color.BlueViolet, ZedGraph.SymbolType.None, 1);
+                predictedLine2 = new LineItem("Prediction Data 2", null, null, Color.Yellow, ZedGraph.SymbolType.None, 1);
             predictedLine2.Symbol.Fill = new Fill(Color.Black);
             predictedLine2.Symbol.Size = 1;
 
@@ -244,10 +244,16 @@ namespace VIXAL2.GUI
         {
             predictedLine2.Clear();
             //disegno il grafico dei prezzi predetti a partire dalla media mobile predetta
-            var sample1 = ds.PredictDays + ds.Range;
+            var sample1 = 1 + ds.PredictDays;
 
-            var data = ds.GetReverseMovingAverageValues(predictedList);
-
+#if TEST_WITH_TRAINARRAY_Y
+            //verificato che con il TrainArrayY funziona
+            var mavg = ds.GetTrainArrayY();
+            var listAvg = mavg.GetDatedValueList(true);
+            var data = ds.GetReverseMovingAverageValues(listAvg, true);
+#else
+            var data = ds.GetReverseMovingAverageValues(predictedList, true);
+#endif
             for (int i = 0; i < data.Count; i++)
             {
                 var p = new PointPair(sample1, data[i].Value);

@@ -86,15 +86,15 @@ namespace VIXAL2.Data
             return result;
         }
 
-        public List<DatedValue> GetReverseMovingAverageValues(List<DoubleDatedValue> avgValues)
+        public List<DatedValue> GetReverseMovingAverageValues(List<DoubleDatedValue> avgValues, bool adjustValues = false)
         {
             var avgValues1 = new List<DatedValue>();
             for (int i=0; i<avgValues.Count; i++)
             {
-                avgValues1.Add(avgValues[i]);       
+                avgValues1.Add(new DatedValue(avgValues[i].PredictionDate, avgValues[i].Value));
             }
 
-            return GetReverseMovingAverageValues(avgValues1);
+            return GetReverseMovingAverageValues(avgValues1, adjustValues);
         }
 
         /// <summary>
@@ -103,40 +103,81 @@ namespace VIXAL2.Data
         /// <param name="date">data del valore</param>
         /// <param name="value">valore della media mobile</param>
         /// <returns></returns>
-        public List<DatedValue> GetReverseMovingAverageValues(List<DatedValue> movingAvgValues)
+        public List<DatedValue> GetReverseMovingAverageValues(List<DatedValue> movingAvgValues, bool adjustValues = false)
         {
             List<DatedValue> result = new List<DatedValue>();
 
             DateTime firstDateAvg = movingAvgValues[0].Date;
             DateTime lastDateOriginal = this.OriginalData.MaxDate;
 
-            List<double> originalValues;
+            List<double> originalValues = new List<double>();
+            List<DateTime> originalDates = new List<DateTime>();
 
             //il calcolo funziona solo se avgValues si sovrappone o è contiguo con i dati originali
             if (Utils.AddBusinessDays(lastDateOriginal, 1) >= firstDateAvg)
             {
-                var beforeFirstDateAvg = this.OriginalData.GetPreviousDate(firstDateAvg);
-                originalValues = this.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(beforeFirstDateAvg.Value, this.range - 1, FirstColumnToPredict).ToList<double>();
-                //aggiusta i valori per rimuovere lo scalino
-                var delta = movingAvgValues[0].Value - Utils.Mean(originalValues);
-
-                for (int i=0; i<originalValues.Count; i++)
+                for (int i=range-1; i>0; i--)
                 {
-                    originalValues[i] = originalValues[i] + delta;
+                    var myDateOrig = this.OriginalData.GetPreviousDate(firstDateAvg, i);
+                    var myValue = this.OriginalData.GetValue(myDateOrig.Value, FirstColumnToPredict);
+
+                    originalValues.Add(myValue);
+                    originalDates.Add(myDateOrig.Value);
+                }
+
+                //aggiusta i valori per rimuovere lo scalino
+                if (adjustValues)
+                {
+                    var delta = movingAvgValues[0].Value - Utils.Mean(originalValues);
+
+                    for (int i = 0; i < originalValues.Count; i++)
+                    {
+                        originalValues[i] = originalValues[i] + delta;
+                    }
                 }
             }
             else 
                 throw new Exception("Impossible to calculate ReverseMoving from not contiguous arrays");
 
+            var reverse = MovingAverageDataSet.GetReverseMovingAverage(DatedValue.TakeValues(movingAvgValues), this.range, originalValues);
+
+            for (int i=0; i<originalDates.Count; i++)
+            {
+                result.Add(new DatedValue(originalDates[i], reverse[i]));
+            }
+
             for (int i=0; i< movingAvgValues.Count; i++)
             {
-                double resultItem = movingAvgValues[i].Value * range - originalValues.Sum(x => x);
-                originalValues.Add(resultItem);
-                originalValues.RemoveAt(0);
-                result.Add(new DatedValue(movingAvgValues[i].Date, resultItem));
+                result.Add(new DatedValue(movingAvgValues[i].Date, reverse[i+range-1]));
             }
 
             return result;
+        }
+
+        public static double[] GetReverseMovingAverage(IEnumerable<double> movingAvgValues, int range, IEnumerable<double> firstOriginalValues)
+        {
+            List<double> result = new List<double>();
+
+            //verifico che la lunghezza dell'original sia sufficiente
+            if (firstOriginalValues.Count() < range - 1)
+                throw new Exception("Impossible to calculate ReverseMoving from not consistent arrays");
+
+            var wrong = movingAvgValues.Where(x => double.IsNaN(x)).ToArray();
+            if (wrong.Length > 0)
+                throw new Exception("Impossible to calculate ReverseMoving from NaN values");
+
+            List<double> originalValues = firstOriginalValues.Take(range-1).ToList();
+            result.AddRange(firstOriginalValues);
+
+            foreach  (var v in movingAvgValues)
+            {
+                double resultItem = v * range - originalValues.Sum(x => x);
+                originalValues.Add(resultItem);
+                originalValues.RemoveAt(0);
+                result.Add(resultItem);
+            }
+
+            return result.ToArray();
         }
     }
 }

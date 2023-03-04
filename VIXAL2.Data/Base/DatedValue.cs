@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace VIXAL2.Data.Base
@@ -19,7 +20,7 @@ namespace VIXAL2.Data.Base
             get { return _date; }
         }
 
-        public double Value { 
+        public double Value {
             get { return _value; }
             set { _value = value; }
         }
@@ -36,6 +37,33 @@ namespace VIXAL2.Data.Base
             {
                 result[i] = input[i].Value;
             }
+            return result;
+        }
+
+        public static double[] TakeValues(IEnumerable<DatedValue> list)
+        {
+            List<double> resultX = new List<double>();
+
+            foreach (DatedValue d in list)
+            {
+                resultX.Add(d.Value);
+            }
+
+            return resultX.ToArray();
+        }
+
+        public static IEnumerable<DatedValue> SubstituteValues(IEnumerable<DatedValue> list, IEnumerable<double> values)
+        {
+            List<DatedValue> result = new List<DatedValue>();
+
+            var d = list.ToArray();
+            var x = values.ToArray();
+
+            for(int i=0; i<d.Length; i++)
+            {
+                result.Add(new DatedValue(d[i].Date, x[i])); 
+            }
+
             return result;
         }
     }

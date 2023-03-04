@@ -11,7 +11,7 @@ namespace VIXAL2.Data.Base
     {
         private DateTime[] futureDates;
 
-        internal DateTime[] FutureDates
+        public DateTime[] FutureDates
         {
             get
             {
@@ -53,6 +53,19 @@ namespace VIXAL2.Data.Base
         public string ToStringExt()
         {
             return GetColName(0) + ", PD:" + this.PredictDays;
+        }
+
+        public List<DatedValue> GetDatedValueList(bool futuredate = true)
+        {
+            var listAvg = new List<DatedValue>();
+            for (int i = 0; i < Dates.Length; i++)
+            {
+                if (futuredate)
+                    listAvg.Add(new DatedValue(FutureDates[i], Values[i][0]));
+                else
+                    listAvg.Add(new DatedValue(Dates[i], Values[i][0]));
+            }
+            return listAvg;
         }
     }
 }

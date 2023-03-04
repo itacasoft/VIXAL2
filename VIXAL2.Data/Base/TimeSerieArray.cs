@@ -228,7 +228,7 @@ namespace VIXAL2.Data.Base
             double[] result = new double[lenght];
 
             //int i = 0;
-            DateTime mydate = this.GetPreviousDate(date, lenght).Value;
+            DateTime mydate = this.GetPreviousDate(date, lenght-1).Value;
 
             for (int i = 0; i < lenght; i++)
             {

@@ -54,7 +54,7 @@ namespace VIXAL2.GUI
 
             zedGraphControl3.GraphPane.Title.Text += "Performances";
 
-            orchestrator.StartTraining(iterations, hiddenLayersDim, cellsNumber, checkBox1.Checked);
+            orchestrator.StartTraining(iterations, hiddenLayersDim, cellsNumber, checkBoxForwardIterate.Checked);
         }
 
 

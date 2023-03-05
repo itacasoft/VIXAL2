@@ -26,8 +26,9 @@ namespace VIXAL2.Data
 
         public override void Prepare(float trainPercent, float validPercent)
         {
-            this.Data = GetMovingAverage(Data, range);
-            RemoveNaNs(dataList, Dates);
+            ReloadFromOriginal();
+            this._data = GetMovingAverage(_originalData, range).ToList();
+            RemoveNaNs(_data, Dates);
 
             base.Prepare(trainPercent, validPercent);
         }

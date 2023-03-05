@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
@@ -45,8 +46,9 @@ namespace VIXAL2.Data
 
         public override void Prepare(float trainPercent, float validPercent)
         {
-            this.Data = GetMovingEnhancedAverage(Data);
-            RemoveNaNs(dataList, Dates);
+            ReloadFromOriginal();
+            this._data = GetMovingEnhancedAverage(_originalData).ToList();
+            RemoveNaNs(_data, Dates);
 
             base.Prepare(trainPercent, validPercent);
         }

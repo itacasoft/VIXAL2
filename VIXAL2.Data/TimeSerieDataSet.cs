@@ -11,6 +11,7 @@ namespace VIXAL2.Data
     public class TimeSerieDataSet : NormalizedDataSet
     {
         protected List<DateTime> dates;
+        protected DateTime[] _originalDates;
         protected string[] colNames;
         private double[][] trainDataX, trainDataY;
         private double[][] validDataX, validDataY;
@@ -18,17 +19,23 @@ namespace VIXAL2.Data
         private float trainPercent = 0.80F;
         private float validPercent = 0.00F;
         private int predictDays = 20;
-        private bool prepared = false;
         private int firstColumnToPredict;
         private int columnsToPredict;
 
         public TimeSerieDataSet(string[] colNames, DateTime[] dates, double[][] data, int firstColumnToPredict, int columnsToPredict) : base(data)
         {
             this.colNames = colNames;
+            this._originalDates = dates;
             this.dates = new List<DateTime>();
-            this.dates.AddRange(dates);
+            this.dates.AddRange((DateTime[])_originalDates.Clone());
             this.columnsToPredict = columnsToPredict;
             this.firstColumnToPredict = firstColumnToPredict;
+        }
+
+        protected override void ReloadFromOriginal()
+        {
+            base.ReloadFromOriginal();
+            this.dates = ((DateTime[])_originalDates.Clone()).ToList();
         }
 
         public virtual void Prepare(float trainPercent, float validPercent)
@@ -44,8 +51,7 @@ namespace VIXAL2.Data
             this.validPercent = validPercent;
 #endif
 
-            SplitData(dataList.ToArray());
-            prepared = true;
+            SplitData(_data.ToArray());
         }
 
         /// <summary>
@@ -53,13 +59,13 @@ namespace VIXAL2.Data
         /// </summary>
         public TimeSerieArray GetTestArrayX()
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - TrainCount - ValidCount - predictDays, dataList[0].Length);
+            TimeSerieArray result = new TimeSerieArray(_data.Count - TrainCount - ValidCount - predictDays, _data[0].Length);
 
             for (int row = 0; row < result.Length; row++)
             {
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], dataList[row + TrainCount + ValidCount][col]);
+                    result.SetValue(row, col, dates[row + TrainCount + ValidCount], _data[row + TrainCount + ValidCount][col]);
                     //try to set real date
                     //result.SetValue(row, col, dates[row + TrainCount + ValidCount + predictDays], dataList[row + TrainCount + ValidCount][col]);
                 }
@@ -73,7 +79,7 @@ namespace VIXAL2.Data
         /// </summary>
         public virtual TimeSerieArrayExt GetTestArrayY()
         {
-            TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - predictDays, columnsToPredict);
+            TimeSerieArrayExt result = new TimeSerieArrayExt(_data.Count - TrainCount - ValidCount - predictDays, columnsToPredict);
             result.PredictDays = predictDays;
 
             for (int row = 0; row < result.Length; row++)
@@ -83,7 +89,7 @@ namespace VIXAL2.Data
 
                 for (int col = 0; col < columnsToPredict; col++)
                 {
-                    var futureValue = dataList[row + TrainCount + ValidCount + predictDays][firstColumnToPredict + col];
+                    var futureValue = _data[row + TrainCount + ValidCount + predictDays][firstColumnToPredict + col];
                     result.SetValue(row, col, date, futureDate, futureValue);
                 }
             }
@@ -108,7 +114,7 @@ namespace VIXAL2.Data
 
                 for (int col = 0; col < columnsToPredict; col++)
                 {
-                    var futureValue = dataList[row + predictDays][firstColumnToPredict + col];
+                    var futureValue = _data[row + predictDays][firstColumnToPredict + col];
                     result.SetValue(row, col, date, futureDate, futureValue);
                 }
             }
@@ -132,7 +138,7 @@ namespace VIXAL2.Data
                 {
                     DateTime date = dates[row + TrainCount];
                     DateTime futureDate = dates[row + TrainCount + predictDays];
-                    var futureValue = dataList[row + TrainCount + predictDays][firstColumnToPredict + col];
+                    var futureValue = _data[row + TrainCount + predictDays][firstColumnToPredict + col];
                     result.SetValue(row, col, date, futureDate, futureValue);
                 }
             }
@@ -258,12 +264,12 @@ namespace VIXAL2.Data
 
         protected void SplitData(double[][] input)
         {
-            int trainTo = Convert.ToInt32(dataList.Count * trainPercent);
+            int trainTo = Convert.ToInt32(_data.Count * trainPercent);
             int trainCount = trainTo;
             int validFrom = trainTo + 1;
-            int validTo = Convert.ToInt32(dataList.Count * validPercent) + validFrom;
+            int validTo = Convert.ToInt32(_data.Count * validPercent) + validFrom;
             int validCount = validTo - validFrom;
-            int testCount = dataList.Count - validCount - trainCount - predictDays;
+            int testCount = _data.Count - validCount - trainCount - predictDays;
 
             if (testCount <= 0)
                 throw new InvalidProgramException("TestCount cannot be < 0");
@@ -331,11 +337,11 @@ namespace VIXAL2.Data
 
         public TimeSerieArray GetColumnData(int col, int gap=0)
         {
-            TimeSerieArray result = new TimeSerieArray(dataList.Count - gap, 1);
+            TimeSerieArray result = new TimeSerieArray(_data.Count - gap, 1);
 
             for (int row=0; row< result.Length; row++)
             {
-                result.SetValue(row, 0, dates[row+gap],dataList[row+gap][col]);
+                result.SetValue(row, 0, dates[row+gap],_data[row+gap][col]);
             }
             return result;
         }
@@ -344,7 +350,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return dataList;
+                return _data;
             }
         }
 
@@ -490,7 +496,11 @@ namespace VIXAL2.Data
                 bool removeThis = false;
                 for (int col = 0; col < mydata[row].Length; col++)
                 {
-                    if (double.IsNaN(mydata[row][col])) removeThis = true;
+                    if (double.IsNaN(mydata[row][col]))
+                    {
+                        removeThis = true;
+                        break;
+                    }
                 }
 
                 if (removeThis)
@@ -511,48 +521,66 @@ namespace VIXAL2.Data
             get { return columnsToPredict; }
         }
 
+        private float PercentTick
+        {
+            get
+            {
+                return 1.0F / (float)Count;
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                return _data.Count;
+            }
+        }
 
         public bool Forward(int steps = 1)
         {
             if (steps >= TestCount)
                 return false;
 
-            if (ValidCount > 0)
-            {
-                for (int i = 0; i < steps; i++)
-                {
-                    //take first row of test if any
-                    double[] dataXToMove = TestDataX[0];
-                    validDataX = validDataX.InsertRow(dataXToMove);
-                    testDataX = testDataX.RemoveAt(0);
+            trainPercent += PercentTick;
+            Prepare(trainPercent, validPercent);
 
-                    dataXToMove = validDataX[0];
-                    trainDataX = trainDataX.InsertRow(dataXToMove);
-                    validDataX = validDataX.RemoveAt(0);
+            //if (ValidCount > 0)
+            //{
+            //    for (int i = 0; i < steps; i++)
+            //    {
+            //        //take first row of test if any
+            //        double[] dataXToMove = TestDataX[0];
+            //        validDataX = validDataX.InsertRow(dataXToMove);
+            //        testDataX = testDataX.RemoveAt(0);
 
-                    double[] dataYToMove = TestDataY[0];
-                    validDataY = validDataY.InsertRow(dataYToMove);
-                    testDataY = testDataY.RemoveAt(0);
+            //        dataXToMove = validDataX[0];
+            //        trainDataX = trainDataX.InsertRow(dataXToMove);
+            //        validDataX = validDataX.RemoveAt(0);
 
-                    dataYToMove = validDataY[0];
-                    trainDataY = trainDataY.InsertRow(dataYToMove);
-                    validDataY = validDataY.RemoveAt(0);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < steps; i++)
-                {
-                    //take first row of test if any
-                    double[] dataXToMove = TestDataX[0];
-                    trainDataX = trainDataX.InsertRow(dataXToMove);
-                    testDataX = testDataX.RemoveAt(0);
+            //        double[] dataYToMove = TestDataY[0];
+            //        validDataY = validDataY.InsertRow(dataYToMove);
+            //        testDataY = testDataY.RemoveAt(0);
 
-                    double[] dataYToMove = TestDataY[0];
-                    trainDataY = trainDataY.InsertRow(dataYToMove);
-                    testDataY = testDataY.RemoveAt(0);
-                }
-            }
+            //        dataYToMove = validDataY[0];
+            //        trainDataY = trainDataY.InsertRow(dataYToMove);
+            //        validDataY = validDataY.RemoveAt(0);
+            //    }
+            //}
+            //else
+            //{
+            //    for (int i = 0; i < steps; i++)
+            //    {
+            //        //take first row of test if any
+            //        double[] dataXToMove = TestDataX[0];
+            //        trainDataX = trainDataX.InsertRow(dataXToMove);
+            //        testDataX = testDataX.RemoveAt(0);
+
+            //        double[] dataYToMove = TestDataY[0];
+            //        trainDataY = trainDataY.InsertRow(dataYToMove);
+            //        testDataY = testDataY.RemoveAt(0);
+            //    }
+            //}
 
             return true;
         }

@@ -56,11 +56,6 @@ namespace VIXAL2.GUI
         /// Linea che rappresenta i trading LONG
         /// </summary>
         LineItem shortTradesLine;
-        /// <summary>
-        /// Linea costruita dalla media mobile predetta
-        /// </summary>
-        /// <remarks>Solo per media mobile</remarks>
-        LineItem predictedLine2;
 
         public VIXAL2Form()
         {
@@ -97,12 +92,6 @@ namespace VIXAL2.GUI
             originalLine.Symbol.Fill = new Fill(Color.Black);
             originalLine.Symbol.Size = 1;
             originalLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
-
-            if (predictedLine2 != null) predictedLine2.Clear();
-            else
-                predictedLine2 = new LineItem("Prediction Data 2", null, null, Color.Yellow, ZedGraph.SymbolType.None, 1);
-            predictedLine2.Symbol.Fill = new Fill(Color.Black);
-            predictedLine2.Symbol.Size = 1;
 
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Training Loss";
             zedGraphControl2.GraphPane.XAxis.Title.Text = "Iteration";
@@ -153,7 +142,7 @@ namespace VIXAL2.GUI
             this.zedGraphControl1.GraphPane.CurveList.Add(predictedLine);
             this.zedGraphControl1.GraphPane.CurveList.Add(originalLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
-            this.zedGraphControl1.GraphPane.CurveList.Add(predictedLine2);
+
 
             this.zedGraphControl2.GraphPane.CurveList.Clear();
             this.zedGraphControl2.GraphPane.CurveList.Add(lossDataLine);
@@ -242,7 +231,25 @@ namespace VIXAL2.GUI
 
         private void LoadPredictedLine2(MovingAverageDataSet ds, List<DoubleDatedValue> predictedList)
         {
-            predictedLine2.Clear();
+            LineItem predictedLine2 = null;
+            foreach  (LineItem l in this.zedGraphControl1.GraphPane.CurveList)
+            {
+                if (l.Label.Text == "Reverse")
+                {
+                    predictedLine2 = l;
+                    break;
+                }
+            }
+
+            if (predictedLine2 != null) predictedLine2.Clear();
+            else
+            {
+                predictedLine2 = new LineItem("Prediction Data 2", null, null, Color.Yellow, ZedGraph.SymbolType.None, 1);
+                this.zedGraphControl1.GraphPane.CurveList.Add(predictedLine2);
+            }
+            predictedLine2.Symbol.Fill = new Fill(Color.Black);
+            predictedLine2.Symbol.Size = 1;
+
             //disegno il grafico dei prezzi predetti a partire dalla media mobile predetta
             var sample1 = 1 + ds.PredictDays;
 

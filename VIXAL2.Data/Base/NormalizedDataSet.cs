@@ -8,19 +8,28 @@ namespace VIXAL2.Data.Base
 {
     public abstract class NormalizedDataSet
     {
-        private double[][] _data;
+        protected List<double[]> _data;
+        protected double[][] _originalData;
         bool normalizeFirst = false;
 
-        protected double[][] Data
+        public NormalizedDataSet(double[][] data)
+        {
+            _data = data.ToList();
+            _originalData = (double[][])data.Clone();
+            string normalizerType = ConfigurationManager.AppSettings["NormalizerType"];
+            normalizer = Normalizer.Constructor(normalizerType);
+        }
+
+        protected virtual void ReloadFromOriginal()
+        {
+            _data = ((double[][])_originalData.Clone()).ToList();
+        }
+
+        protected List<double[]> Data
         {
             get 
             {
                 return _data; 
-            }
-            set 
-            {
-                _data = value;
-                dataList = _data.ToList<double[]>();
             }
         }
 
@@ -29,28 +38,20 @@ namespace VIXAL2.Data.Base
             get { return normalizeFirst; }
         }
 
-        protected List<double[]> dataList;
         protected INormalizer normalizer;
-
-        public NormalizedDataSet(double[][] data)
-        {
-            Data = data;
-            string normalizerType = ConfigurationManager.AppSettings["NormalizerType"];
-            normalizer = Normalizer.Constructor(normalizerType);
-        }
 
         public void Prepare()
         {
 #if NORMALIZE_FIRST
 #else
-            normalizer.Initialize(dataList);
+            normalizer.Initialize(_data);
 #endif
         }
 
         protected void NormalizeAllData()
         {
-            normalizer.Initialize(dataList);
-            normalizer.NormalizeByRef(dataList);
+            normalizer.Initialize(_data);
+            normalizer.NormalizeByRef(_data);
             normalizeFirst = true;
         }
 

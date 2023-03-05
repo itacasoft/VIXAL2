@@ -141,7 +141,7 @@ namespace VIXAL2.Data
         /// </summary>
         public virtual TimeSerieArrayExt GetExtendedArrayX(bool normalized = false)
         {
-            TimeSerieArrayExt result = new TimeSerieArrayExt(dataList.Count - TrainCount - ValidCount - TestCount, dataList[0].Length);
+            TimeSerieArrayExt result = new TimeSerieArrayExt(_data.Count - TrainCount - ValidCount - TestCount, _data[0].Length);
             result.PredictDays = PredictDays;
 
             for (int row = 0; row < result.Length; row++)
@@ -151,7 +151,7 @@ namespace VIXAL2.Data
 
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    var currentValue = dataList[row + TrainCount + ValidCount + TestCount][col];
+                    var currentValue = _data[row + TrainCount + ValidCount + TestCount][col];
                     if (normalized)
                         currentValue = Normalize(currentValue, col);
                     result.SetValue(row, col, date, futureDate, currentValue);

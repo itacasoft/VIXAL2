@@ -1,7 +1,7 @@
 ﻿using SharpML.Types;
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
@@ -27,8 +27,9 @@ namespace VIXAL2.Data
 
         public override void Prepare(float trainPercent, float validPercent)
         {
-            this.Data = GetRsi(Data, range);
-            RemoveNaNs(dataList, Dates);
+            ReloadFromOriginal();
+            this._data = GetRsi(_originalData, range).ToList();
+            RemoveNaNs(_data, Dates);
 
             base.Prepare(trainPercent, validPercent);
         }

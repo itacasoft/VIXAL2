@@ -54,6 +54,7 @@ namespace VIXAL2.Data
 
         public override void Prepare(float trainPercent, float validPercent)
         {
+            ReloadFromOriginal();
             base.Prepare(trainPercent, validPercent);
 
             for (int col = 0; col < TrainDataY[0].Length; col++)

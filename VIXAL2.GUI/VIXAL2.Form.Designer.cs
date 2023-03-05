@@ -65,7 +65,7 @@
             this.trainDataXBar = new System.Windows.Forms.Button();
             this.totalBar = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkBoxForwardIterate = new System.Windows.Forms.CheckBox();
             this.textBoxRange = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.checkBoxIterateOnStocks = new System.Windows.Forms.CheckBox();
@@ -515,18 +515,18 @@
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
             // 
-            // checkBox1
+            // checkBoxForwardIterate
             // 
-            this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Checked = true;
-            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(1068, 183);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(144, 24);
-            this.checkBox1.TabIndex = 66;
-            this.checkBox1.Text = "Forward Iterate";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBoxForwardIterate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBoxForwardIterate.AutoSize = true;
+            this.checkBoxForwardIterate.Checked = true;
+            this.checkBoxForwardIterate.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxForwardIterate.Location = new System.Drawing.Point(1068, 183);
+            this.checkBoxForwardIterate.Name = "checkBoxForwardIterate";
+            this.checkBoxForwardIterate.Size = new System.Drawing.Size(144, 24);
+            this.checkBoxForwardIterate.TabIndex = 66;
+            this.checkBoxForwardIterate.Text = "Forward Iterate";
+            this.checkBoxForwardIterate.UseVisualStyleBackColor = true;
             // 
             // textBoxRange
             // 
@@ -593,7 +593,7 @@
             this.Controls.Add(this.checkBoxIterateOnStocks);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.textBoxRange);
-            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.checkBoxForwardIterate);
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
@@ -659,7 +659,7 @@
         private System.Windows.Forms.TabPage tabPage3;
         private ZedGraph.ZedGraphControl zedGraphControl3;
         private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkBoxForwardIterate;
         private System.Windows.Forms.TextBox textBoxRange;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.CheckBox checkBoxIterateOnStocks;

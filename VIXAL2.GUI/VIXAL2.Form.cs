@@ -451,12 +451,13 @@ namespace VIXAL2.GUI
             this.toolTip1.SetToolTip(this.trainDataXBar, trainDataXBar.Text);
 
             validDataXBar.Width = totalBarLen * ds.ValidDataX.Length / ds.Dates.Count;
-            validDataXBar.Left = trainDataXBar.Right;
+            if (validDataXBar.Width<4) validDataXBar.Width = 4;
+            validDataXBar.Left = trainDataXBar.Right + 1;
             validDataXBar.Text = "ValidDataX: " + ds.ValidDataX.Length.ToString();
             this.toolTip1.SetToolTip(this.validDataXBar, validDataXBar.Text);
 
             testDataXBar.Width = totalBarLen * ds.TestDataX.Length / ds.Dates.Count;
-            testDataXBar.Left = validDataXBar.Right;
+            testDataXBar.Left = validDataXBar.Right + 1;
             testDataXBar.Text = "TestDataX: " + ds.TestDataX.Length.ToString();
             this.toolTip1.SetToolTip(this.testDataXBar, testDataXBar.Text);
 
@@ -466,12 +467,13 @@ namespace VIXAL2.GUI
             this.toolTip1.SetToolTip(this.trainDataYBar, trainDataYBar.Text);
 
             validDataYBar.Width = totalBarLen * ds.ValidDataY.Length / ds.Dates.Count;
-            validDataYBar.Left = trainDataYBar.Right;
+            if (validDataYBar.Width < 4) validDataYBar.Width = 4;
+            validDataYBar.Left = trainDataYBar.Right + 1;
             validDataYBar.Text = "TrainDataY: " + ds.ValidDataY.Length.ToString();
             this.toolTip1.SetToolTip(this.validDataYBar, validDataYBar.Text);
 
             testDataYBar.Width = totalBarLen * ds.TestDataY.Length / ds.Dates.Count;
-            testDataYBar.Left = validDataYBar.Right;
+            testDataYBar.Left = validDataYBar.Right + 1;
             testDataYBar.Text = "TestDataY: " + ds.TestDataY.Length.ToString();
             this.toolTip1.SetToolTip(this.testDataYBar, testDataYBar.Text);
 

@@ -53,9 +53,7 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 10;
 
             MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
-            ds.ValidPercent = 0.1F;
-            ds.TrainPercent = 0.8F;
-            ds.Prepare();
+            ds.Prepare(0.8F, 0.1F);
 
             Assert.AreEqual(ds.TrainCount, 404);
             Assert.AreEqual(ds.ValidCount, 50);

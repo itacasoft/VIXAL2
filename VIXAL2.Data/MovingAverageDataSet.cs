@@ -24,12 +24,12 @@ namespace VIXAL2.Data
             range = value;
         }
 
-        public override void Prepare()
+        public override void Prepare(float trainPercent, float validPercent)
         {
             this.Data = GetMovingAverage(Data, range);
             RemoveNaNs(dataList, Dates);
 
-            base.Prepare();
+            base.Prepare(trainPercent, validPercent);
         }
 
         public override string ClassShortName

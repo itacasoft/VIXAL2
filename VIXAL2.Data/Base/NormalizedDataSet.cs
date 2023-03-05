@@ -39,7 +39,7 @@ namespace VIXAL2.Data.Base
             normalizer = Normalizer.Constructor(normalizerType);
         }
 
-        public virtual void Prepare()
+        public void Prepare()
         {
 #if NORMALIZE_FIRST
 #else

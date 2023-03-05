@@ -480,9 +480,7 @@ namespace VIXAL2.UnitTest
             MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
             ds.SetRange(RANGE);
-            ds.ValidPercent = 0;
-            ds.TrainPercent = 0.8F;
-            ds.Prepare();
+            ds.Prepare(0.8F, 0);
 
             //train count
             Assert.AreEqual(EXPECTED_TRAINCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.TrainPercent));

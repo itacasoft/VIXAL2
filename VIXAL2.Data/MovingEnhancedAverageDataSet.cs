@@ -43,12 +43,12 @@ namespace VIXAL2.Data
             }
         }
 
-        public override void Prepare()
+        public override void Prepare(float trainPercent, float validPercent)
         {
             this.Data = GetMovingEnhancedAverage(Data);
             RemoveNaNs(dataList, Dates);
 
-            base.Prepare();
+            base.Prepare(trainPercent, validPercent);
         }
 
         public override string ClassShortName

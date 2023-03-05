@@ -458,11 +458,9 @@ namespace LSTMTimeSeriesDemo
             InitiGraphs();
 
             DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, (DataSetType)( comboBox1.SelectedIndex + 1));
-            DataSet.TrainPercent = 0.8F;
-            DataSet.ValidPercent = 0.0F;
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
                 ((MovingAverageDataSet)DataSet).PredictDays = Convert.ToInt32(textBox6.Text);
-            DataSet.Prepare();
+            DataSet.Prepare(0.8F, 0.0F);
 
             loadListView(DataSet);
             loadGraphs(DataSet);

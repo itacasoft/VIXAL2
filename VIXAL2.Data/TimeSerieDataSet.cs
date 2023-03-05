@@ -31,12 +31,17 @@ namespace VIXAL2.Data
             this.firstColumnToPredict = firstColumnToPredict;
         }
 
-        public override void Prepare()
+        public virtual void Prepare(float trainPercent, float validPercent)
         {
+            if (trainPercent + validPercent >= 1)
+                throw new ArgumentOutOfRangeException("TrainPercent + ValidPercent cannot be equal or greater than 1");
+
 #if NORMALIZE_FIRST
             NormalizeAllData();
 #else
             base.Prepare();
+            this.trainPercent = trainPercent;
+            this.validPercent = validPercent;
 #endif
 
             SplitData(dataList.ToArray());
@@ -217,15 +222,6 @@ namespace VIXAL2.Data
             {
                 return trainPercent;
             }
-            set
-            {
-                if ((value > 1) || (value < 0))
-                    throw new ArgumentOutOfRangeException("TrainPercent must be between 0 and 1");
-                if (prepared)
-                    throw new InvalidOperationException("TrainPercent cannot be changed when DataSet is prepared");
-
-                trainPercent = value;
-            }
         }
 
         public float ValidPercent
@@ -234,18 +230,16 @@ namespace VIXAL2.Data
             {
                 return validPercent;
             }
-            set
-            {
-                if ((value > 1) || (value < 0))
-                    throw new ArgumentOutOfRangeException("ValidPercent must be between 0 and 1");
-
-                if (prepared)
-                    throw new InvalidOperationException("ValidPercent cannot be changed when DataSet is prepared");
-
-                validPercent = value;
-            }
-
         }
+
+        public float TestPercent
+        {
+            get
+            {
+                return 1 - validPercent - trainPercent;
+            }
+        }
+
 
         public int PredictDays
         {

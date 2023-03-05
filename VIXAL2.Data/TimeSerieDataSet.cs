@@ -545,43 +545,6 @@ namespace VIXAL2.Data
             trainPercent += PercentTick;
             Prepare(trainPercent, validPercent);
 
-            //if (ValidCount > 0)
-            //{
-            //    for (int i = 0; i < steps; i++)
-            //    {
-            //        //take first row of test if any
-            //        double[] dataXToMove = TestDataX[0];
-            //        validDataX = validDataX.InsertRow(dataXToMove);
-            //        testDataX = testDataX.RemoveAt(0);
-
-            //        dataXToMove = validDataX[0];
-            //        trainDataX = trainDataX.InsertRow(dataXToMove);
-            //        validDataX = validDataX.RemoveAt(0);
-
-            //        double[] dataYToMove = TestDataY[0];
-            //        validDataY = validDataY.InsertRow(dataYToMove);
-            //        testDataY = testDataY.RemoveAt(0);
-
-            //        dataYToMove = validDataY[0];
-            //        trainDataY = trainDataY.InsertRow(dataYToMove);
-            //        validDataY = validDataY.RemoveAt(0);
-            //    }
-            //}
-            //else
-            //{
-            //    for (int i = 0; i < steps; i++)
-            //    {
-            //        //take first row of test if any
-            //        double[] dataXToMove = TestDataX[0];
-            //        trainDataX = trainDataX.InsertRow(dataXToMove);
-            //        testDataX = testDataX.RemoveAt(0);
-
-            //        double[] dataYToMove = TestDataY[0];
-            //        trainDataY = trainDataY.InsertRow(dataYToMove);
-            //        testDataY = testDataY.RemoveAt(0);
-            //    }
-            //}
-
             return true;
         }
     }

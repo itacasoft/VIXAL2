@@ -48,14 +48,6 @@ namespace VIXAL2.GUI
         /// corridpondenza dei valori
         /// </summary>
         LineItem diffPerformanceDataLine;
-        /// <summary>
-        /// Linea che rappresenta i trading LONG
-        /// </summary>
-        LineItem longTradesLine;
-        /// <summary>
-        /// Linea che rappresenta i trading LONG
-        /// </summary>
-        LineItem shortTradesLine;
 
         public VIXAL2Form()
         {
@@ -115,26 +107,6 @@ namespace VIXAL2.GUI
             diffPerformanceDataLine.Symbol.Fill = new Fill(Color.DarkOliveGreen);
             diffPerformanceDataLine.Symbol.Size = 5;
 
-            if (longTradesLine != null) longTradesLine.Clear();
-            else
-                longTradesLine = new LineItem("Long Trades", null, null, Color.ForestGreen, ZedGraph.SymbolType.Circle, 1);
-            longTradesLine.Symbol.Fill = new Fill(Color.CadetBlue);
-            longTradesLine.Symbol.Size = 5;
-            var p1 = new PointPair(1, 0.5);
-            var p2 = new PointPair(11, 0.5);
-            longTradesLine.AddPoint(p1);
-            longTradesLine.AddPoint(p2);
-
-            if (shortTradesLine != null) shortTradesLine.Clear();
-            else
-                shortTradesLine = new LineItem("Short Trades", null, null, Color.PaleVioletRed, ZedGraph.SymbolType.Circle, 1);
-            shortTradesLine.Symbol.Fill = new Fill(Color.RosyBrown);
-            shortTradesLine.Symbol.Size = 5;
-            var p3 = new PointPair(1, 0.5);
-            var p4 = new PointPair(11, 0.5);
-            shortTradesLine.AddPoint(p3);
-            shortTradesLine.AddPoint(p4);
-
             //Add line to graph
             this.zedGraphControl1.GraphPane.CurveList.Clear();
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
@@ -154,8 +126,6 @@ namespace VIXAL2.GUI
             zedGraphControl3.GraphPane.YAxis.Title.Text = "Success Percentage";
             zedGraphControl3.GraphPane.CurveList.Add(slopePerformanceDataLine);
             zedGraphControl3.GraphPane.CurveList.Add(diffPerformanceDataLine);
-            zedGraphControl3.GraphPane.CurveList.Add(shortTradesLine);
-            zedGraphControl3.GraphPane.CurveList.Add(longTradesLine);
             zedGraphControl3.GraphPane.AxisChange(this.CreateGraphics());
             if (zedGraphControl3.GraphPane.GraphObjList.Count > 0)
                 zedGraphControl3.GraphPane.GraphObjList.Clear();

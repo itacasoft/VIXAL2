@@ -263,7 +263,7 @@ namespace VIXAL2.GUI
             //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
             var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
-            DrawTrades(tradeResult);
+
             return predictedList;
         }
 
@@ -298,95 +298,6 @@ namespace VIXAL2.GUI
 
             lblPerformance1.Text = "SlopePerformance (first): " + orchestrator.SlopePerformances[1].ToString();
             lblPerformance2.Text = "DiffPerformance (first): " + orchestrator.DiffPerformance[0].ToString();
-        }
-
-        private void DrawTrades(List<Trade> trades)
-        {
-            int longCount = 0, shortCount = 0, longSuccessCount = 0, shortSuccessCount = 0;
-            double avgGainLong = 0, avgGainShort = 0;
-
-            for (int i = 0; i < trades.Count; i++)
-            {
-                if (trades[i].PredictedTrend == 1)
-                {
-                    avgGainLong += trades[i].Gain;
-                    longCount++;
-                    if (trades[i].Gain > 0)
-                        longSuccessCount++;
-                }
-            }
-            avgGainLong = avgGainLong / longCount;
-            double gainLongPerc = avgGainLong / MONEY;
-
-            for (int i = 0; i < trades.Count; i++)
-            {
-                if (trades[i].PredictedTrend == -1)
-                {
-                    avgGainShort += trades[i].Gain;
-                    shortCount++;
-                    if (trades[i].Gain > 0)
-                        shortSuccessCount++;
-                }
-            }
-            avgGainShort = avgGainShort / shortCount;
-            double gainShortPerc = avgGainShort / MONEY;
-
-            for (int i = 0; i < trades.Count; i++)
-            {
-                if (trades[i].PredictedTrend == 1)
-                {
-                    var p1 = longTradesLine[0];
-                    p1.Tag = "Long Trade START (" + trades[i].StartMoney.ToString("F") + ")";
-                    var p2 = longTradesLine[1];
-                    p2.Tag = "Long (success =" + longSuccessCount + "/" + longCount + "; gain % = " + gainLongPerc.ToString("F") + ")";
-                    p2.Y = (avgGainLong + MONEY) / (MONEY * 2.0D);
-                }
-                else
-                {
-                    var p1 = shortTradesLine[0];
-                    p1.Tag = "Short Trade START (" + trades[i].StartMoney.ToString("F") + ")";
-                    var p2 = shortTradesLine[1];
-                    p2.Tag = "Short (success =" + shortSuccessCount + "/" + shortCount + "; gain % = " + gainShortPerc.ToString("F") + ")";
-                    p2.Y = (avgGainShort + MONEY) / (MONEY * 2.0D);
-                }
-            }
-
-            //calcolo il numero delle volte in cui c'è stato un guadagno
-            double totalGains = 0;
-            for (int i = 0; i < trades.Count; i++)
-            {
-                if (trades[i].Gain > 0) totalGains++;
-            }
-            double totalGainPerc = totalGains / trades.Count;
-
-            if (zedGraphControl3.GraphPane.GraphObjList.Count > 0)
-                zedGraphControl3.GraphPane.GraphObjList.Clear();
-
-            //aggiungo il testo
-            var pp1 = shortTradesLine[1];
-            var pp2 = longTradesLine[1];
-            double spaziaturaGrafica;
-            if (pp1.Y >= pp2.Y)
-                spaziaturaGrafica = 0.02;
-            else spaziaturaGrafica = -0.02;
-
-            TextObj text = new TextObj((string)pp1.Tag, pp1.X, pp1.Y + spaziaturaGrafica);
-            text.FontSpec.FontColor = Color.Black;
-            text.Location.AlignH = AlignH.Left;
-            text.Location.AlignV = AlignV.Center;
-            text.FontSpec.Fill.IsVisible = false;
-            text.FontSpec.Border.IsVisible = false;
-            zedGraphControl3.GraphPane.GraphObjList.Add(text);
-
-            text = new TextObj((string)pp2.Tag, pp2.X, pp2.Y - spaziaturaGrafica);
-            text.FontSpec.FontColor = Color.Black;
-            text.Location.AlignH = AlignH.Left;
-            text.Location.AlignV = AlignV.Center;
-            text.FontSpec.Fill.IsVisible = false;
-            text.FontSpec.Border.IsVisible = false;
-            zedGraphControl3.GraphPane.GraphObjList.Add(text);
-
-            zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
         }
 
 

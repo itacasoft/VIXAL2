@@ -231,6 +231,10 @@ namespace NeuralNetwork.Base
             return tradeSim.Trades;
         }
 
+        /// <summary>
+        /// Calcola slope e difference performance
+        /// </summary>
+        /// <param name="predictedTestData"></param>
         public void ComputePerformances(List<DoubleDatedValue> predictedTestData)
         {
             //la colonna del TestDataY è sempre la prima perchè ha solo una colonna

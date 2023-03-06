@@ -117,6 +117,10 @@ namespace VIXAL2.GUI
             if (orchestrator.DataSet is Data.MovingAverageDataSet)
                 LoadPredictedLine2(orchestrator.DataSet as Data.MovingAverageDataSet, allLists);
 
+            orchestrator.ComputePerformances(listT);
+
+            //orchestrator.SimulateTrades(listT, MONEY, COMMISSION);
+
             zedGraphControl1.Refresh();
         }
 
@@ -257,12 +261,6 @@ namespace VIXAL2.GUI
                 predictedLine.AddPoint(p);
                 sampleIndex++;
             }
-
-            orchestrator.ComputePerformances(predictedList);
-
-            //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
-
-            var tradeResult = orchestrator.SimulateTrades(predictedList, MONEY, COMMISSION);
 
             return predictedList;
         }

@@ -473,8 +473,7 @@ namespace VIXAL2.GUI
             orchestrator.StopTrainingNow();
         }
 
-      
-        private void button1_Click(object sender, EventArgs e)
+        private void btnPrint_Click(object sender, EventArgs e)
         {
             PrintReport();
         }

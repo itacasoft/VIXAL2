@@ -11,7 +11,6 @@ namespace NeuralNetwork.Base
 
         public TradesSimulator(int maxDaysForATrade, int tradeLenght): base()
         {
-
             MaxDaysForATrade = maxDaysForATrade;
             TradeLenght = tradeLenght;
         }

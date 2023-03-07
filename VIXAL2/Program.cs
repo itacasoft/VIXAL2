@@ -21,7 +21,7 @@ namespace VIXAL2
         /// <summary>
         /// Indica se la reiterazione è richiesta
         /// </summary>
-        static bool mustReiterate = true;
+        static bool mustReiterate = false;
         /// <summary>
         /// Numero di re-iterazioni totali
         /// </summary>
@@ -57,27 +57,60 @@ namespace VIXAL2
         static void Main(string[] args)
         {
             if (args.Length == 0)
-                throw new ArgumentNullException("Null argument passed, first argument must be the full Dataset file");
+            {
+                throw new ArgumentNullException("Null argument passed");
+            }
+
+            if (args[0] == "/?")
+            {
+                DisplayHelp();
+                return;
+            }
 
             string inputFile = args[0];
             if (!File.Exists(inputFile))
                 throw new FileNotFoundException("File " + inputFile + " not found");
 
-            stockIndex = Convert.ToInt32(args[1]);
-            dsType = (DataSetType)Convert.ToInt32(args[2]);
-            predictDays = Convert.ToInt32(args[3]);
-            range = Convert.ToInt32(args[4]);
-            trainingIterations = Convert.ToInt32(args[5]);
-
-            if (args.Length > 6)
-                mustReiterate = Convert.ToBoolean(args[6]);
-
+            for (var x = 1; x < args.Count(); x++)
+            {
+                switch (args[x].Trim().ToLower())
+                {
+                    case "/s":
+                    case "/si":
+                        stockIndex = Convert.ToInt32(args[x+1]);
+                        break;
+                    case "/t":
+                        dsType = (DataSetType)Convert.ToInt32(args[x+1]);
+                        break;
+                    case "/p":
+                        predictDays = Convert.ToInt32(args[x+1]); 
+                        break;
+                    case "/r":
+                        range = Convert.ToInt32(args[x+1]);
+                        break;
+                    case "/i":
+                        trainingIterations = Convert.ToInt32(args[x+1]);
+                        break;
+                    case "/re":
+                        mustReiterate = true; 
+                        break;
+                }
+            }
+            
             int batchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
 
             orchestrator = new LSTMOrchestrator(OnReiterate, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, batchSize);
             orchestrator.LoadAndPrepareDataSet(inputFile, stockIndex, 1, dsType, predictDays, range);
 
             StartTraining(trainingIterations);
+        }
+
+        static void DisplayHelp()
+        {
+            Console.WriteLine("Calculates trend of stocks using LSTM");
+            Console.WriteLine();
+            Console.WriteLine("VIXAL2 [filename] /s [stock index] /t [Dataset type] /i [iterations] /p [predict days] /r [range] /re");
+            Console.WriteLine();
         }
 
         static void StartTraining(int iterations)

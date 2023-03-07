@@ -52,7 +52,7 @@ namespace VIXAL2.Data.Base
 
         public string ToStringExt()
         {
-            return GetColName(0) + ", PD:" + this.PredictDays;
+            return "PD:" + this.PredictDays;
         }
 
         public List<DatedValue> GetDatedValueList(bool futuredate = true)

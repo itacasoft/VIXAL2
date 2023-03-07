@@ -22,29 +22,7 @@ namespace VIXAL2
             this.iterations = iterations;
             this.hidden = hiddenLayers;
             this.cells = cells;
-            Pane = new GraphPane(new RectangleF(0, 0, 4000, 2000), "Model Evaluation", "Samples", "Observed/Predicted");
-        }
-
-
-        public static Image PrintGraph()
-        {
-            GraphPane myPane = new GraphPane(new RectangleF(0, 0, 3000, 2000), "Title", "xTitle", "yTitle");
-
-            PointPairList list = new PointPairList();
-
-            for (int i = 0; i < 18; i++)
-                list.Add((double)i, Math.Sin(i / 9.0 * Math.PI));
-
-            myPane.AddCurve("Sine", list, Color.Blue, SymbolType.Diamond);
-
-            Bitmap bm = new Bitmap(10, 10);
-            Graphics g = Graphics.FromImage(bm);
-            myPane.AxisChange(g);
-
-            Image im = myPane.GetImage();
-
-            im.Save("ZGImage.png");
-            return im;
+            Pane = new GraphPane(new RectangleF(0, 0, 8000, 2000), "Model Evaluation", "Samples", "Observed/Predicted");
         }
 
         private void DrawTestSeparationLine(StocksDataset ds)
@@ -125,7 +103,6 @@ namespace VIXAL2
 
             int sampleIndex = 1 + ds.PredictDays + ds.DelayDays;
 
-
             foreach (var y in predictedList)
             {
                 predictedLine.AddPoint(new PointPair(sampleIndex, y.Value));
@@ -133,16 +110,46 @@ namespace VIXAL2
             }
         }
 
+        private void DrawOriginalLine(StocksDataset ds)
+        {
+            LineItem originalLine = new LineItem("Real Data", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
+            originalLine.Symbol.Fill = new Fill(Color.Black);
+            originalLine.Symbol.Size = 1;
+            originalLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
+            Pane.CurveList.Add(originalLine);
+
+            TimeSerieArray realData;
+
+            if (ds.NormalizeFirst)
+                realData = ds.OriginalNormalizedData;
+            else
+                realData = ds.OriginalData;
+
+            var sample1 = 1;// + ds.PredictDays;
+            int sampleIndex = 0;
+
+            for (int i = sampleIndex; i < realData.Length; i++)
+            {
+                var p = new PointPair(sample1, realData.Values[i][ds.FirstColumnToPredict]);
+                p.Tag = "[" + sample1.ToString() + "] " + realData.GetDate(i).ToShortDateString() + ": " + realData.Values[i][ds.FirstColumnToPredict] + "";
+                originalLine.AddPoint(p);
+                sample1++;
+            }
+
+            originalLine.Label.Text = "Close Price (" + realData.GetColName(ds.FirstColumnToPredict) + ")";
+        }
 
         public Image PrintGraphs(StocksDataset ds, List<DoubleDatedValue> predictedList)
         {
+            DrawOriginalLine(ds);
+
             DrawTrainingLine(ds);
 
             DrawTestSeparationLine(ds);
 
             DrawPredictedLine(ds, predictedList);
 
-            Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (I:" + iterations + ", Hidden:" + hidden + ", Cells:" + cells + ")";
+            Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.ClassShortName + ", Iterations:" + iterations + ", Hidden:" + hidden + ", Cells:" + cells + ")";
 
 
             Bitmap bm = new Bitmap(10, 10);

@@ -109,5 +109,35 @@ namespace VIXAL2.Data
             }
             return result;
         }
+
+        public override TimeSerieArrayExt GetExtendedArrayX(bool normalized = false)
+        {
+            int deltaDate = 0;
+            
+            //il delta vale solo per questa classe, non le derivate
+            if (this.GetType() == typeof(MovingEnhancedAverageDataSet))
+                deltaDate = rangeNext - 1;
+
+            TimeSerieArrayExt result = new TimeSerieArrayExt(_data.Count - TrainCount - ValidCount - TestCount - deltaDate, _data[0].Length);
+            result.PredictDays = PredictDays;
+
+            for (int row = 0; row < result.Length; row++)
+            {
+                DateTime date = dates[row + TrainCount + ValidCount + TestCount + deltaDate];
+                DateTime futureDate = GetFutureStockDate(date, PredictDays);
+
+                for (int col = 0; col < result.Columns; col++)
+                {
+                    var currentValue = _data[row + TrainCount + ValidCount + TestCount + deltaDate][col];
+                    if (normalized)
+                        currentValue = Normalize(currentValue, col);
+                    result.SetValue(row, col, date, futureDate, currentValue);
+                }
+            }
+
+            result.Range = this.Range;
+            return result;
+        }
+
     }
 }

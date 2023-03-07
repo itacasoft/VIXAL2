@@ -361,7 +361,6 @@ namespace NeuralNetwork.Base
             return result;
         }
 
-
         public List<DoubleDatedValue> CurrentModelTestExtreme()
         {
             var result = new List<DoubleDatedValue>();

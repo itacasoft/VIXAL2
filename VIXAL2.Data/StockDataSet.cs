@@ -98,7 +98,7 @@ namespace VIXAL2.Data
             return result;
         }
 
-        private DateTime GetFutureStockDate(DateTime date, int days)
+        protected DateTime GetFutureStockDate(DateTime date, int days)
         {
             DateTime? resultFromOriginal = null;
             int remainingDays = 0;

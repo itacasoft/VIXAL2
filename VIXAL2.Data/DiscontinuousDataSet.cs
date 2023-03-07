@@ -9,6 +9,10 @@ namespace VIXAL2.Data
         {
         }
 
+        public DiscontinuousDataSet(string stockName, DateTime[] dates, double[] singleStockData) : this(Utils.StringToStrings(stockName), dates, Utils.VectorToArray(singleStockData), 0, 1)
+        {
+        }
+
         public override string ClassShortName
         {
             get

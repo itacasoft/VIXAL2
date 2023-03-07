@@ -32,6 +32,10 @@ namespace VIXAL2.Data
             this.firstColumnToPredict = firstColumnToPredict;
         }
 
+        public TimeSerieDataSet(string colName, DateTime[] dates, double[] data) : this(Utils.StringToStrings(colName), dates, Utils.VectorToArray(data), 0, 1)
+        {
+        }
+
         protected override void ReloadFromOriginal()
         {
             base.ReloadFromOriginal();

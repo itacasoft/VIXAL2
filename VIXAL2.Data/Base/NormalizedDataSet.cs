@@ -40,7 +40,7 @@ namespace VIXAL2.Data.Base
 
         protected INormalizer normalizer;
 
-        public void Prepare()
+        protected void Prepare()
         {
 #if NORMALIZE_FIRST
 #else

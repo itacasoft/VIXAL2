@@ -47,7 +47,7 @@ namespace VIXAL2.UnitTest
 
             TimeSerieDataSet ds = new TimeSerieDataSet(keys.ToArray(), dates.ToArray(), data, FIRST_PREDICT, PREDICT_COUNT);
             ds.PredictDays = PREDICT_DAYS;
-            ds.Prepare();
+            ds.Prepare(0.6F, 0.2F);
 
             Assert.AreEqual(ds.TrainCount, 61);
             Assert.AreEqual(ds.ValidCount, 20);
@@ -97,7 +97,7 @@ namespace VIXAL2.UnitTest
             const int COLUMN_TO_CHECK = 1;
 
             StocksDataset ds = GetDataset(PREDICT_DAYS);
-            ds.Prepare();
+            ds.Prepare(0.6F, 0.2F);
 
             Assert.AreEqual(ds.TrainCount, 314);
             Assert.AreEqual(ds.ValidCount, 105);
@@ -128,7 +128,7 @@ namespace VIXAL2.UnitTest
             const int COLUMN_TO_CHECK = 1;
 
             StocksDataset ds = GetDataset(PREDICT_DAYS);
-            ds.Prepare();
+            ds.Prepare(0.6F, 0.2F);
 
             Assert.AreEqual(ds.TrainCount, 314);
             Assert.AreEqual(ds.ValidCount, 105);
@@ -165,7 +165,7 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 10;
 
             StocksDataset ds = GetDataset(PREDICT_DAYS);
-            ds.Prepare();
+            ds.Prepare(0.6F, 0.2F);
 
             Assert.AreEqual(ds.TrainCount, 314);
             Assert.AreEqual(ds.ValidCount, 105);
@@ -183,7 +183,7 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 10;
 
             StocksDataset ds = GetDataset(PREDICT_DAYS);
-            ds.Prepare();
+            ds.Prepare(0.6F, 0.2F);
 
             Assert.AreEqual(ds.TrainCount, 314);
             Assert.AreEqual(ds.ValidCount, 105);

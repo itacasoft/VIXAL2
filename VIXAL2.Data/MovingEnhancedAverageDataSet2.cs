@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SharpML.Types;
+using System;
 using System.Collections.Generic;
-using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
 {
@@ -10,6 +10,9 @@ namespace VIXAL2.Data
         {
         }
 
+        public MovingEnhancedAverageDataSet2(string stockName, DateTime[] dates, double[] singleStockData) : this(Utils.StringToStrings(stockName), dates, Utils.VectorToArray(singleStockData), 0, 1)
+        {
+        }
 
         public override string ClassShortName
         {

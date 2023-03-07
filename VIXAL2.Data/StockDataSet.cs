@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpML.Types;
+using System;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
@@ -24,6 +25,10 @@ namespace VIXAL2.Data
 
             if (predictCount > allData[0].Length)
                 throw new ArgumentException("Columns to predict is larger than input columns");
+        }
+
+        public StocksDataset(string stockName, DateTime[] dates, double[] singleStockData) : this(Utils.StringToStrings(stockName), dates, Utils.VectorToArray(singleStockData), 0, 1)
+        {
         }
 
         public override string ClassShortName

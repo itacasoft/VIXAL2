@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using VIXAL2.Data.Base;
+using SharpML.Types;
 
 namespace VIXAL2.Data
 {
@@ -12,6 +13,10 @@ namespace VIXAL2.Data
         protected int rangeNext = 1;
 
         public MovingEnhancedAverageDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
+        {
+        }
+
+        public MovingEnhancedAverageDataSet(string stockName, DateTime[] dates, double[] singleStockData) : this(Utils.StringToStrings(stockName), dates, Utils.VectorToArray(singleStockData), 0, 1)
         {
         }
 

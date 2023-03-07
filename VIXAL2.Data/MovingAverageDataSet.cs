@@ -14,6 +14,10 @@ namespace VIXAL2.Data
         {
         }
 
+        public MovingAverageDataSet(string stockName, DateTime[] dates, double[] singleStockData) : this(Utils.StringToStrings(stockName), dates, Utils.VectorToArray(singleStockData), 0, 1)
+        {
+        }
+
         public override int Range
         {
             get { return range; }

@@ -161,28 +161,28 @@ namespace VIXAL2.UnitTest
             Assert.AreNotEqual(value1, data[0]);
         }
 
-
         [TestMethod]
-        public void Test_MovingAverageDataset_MeanCalculation()
+        public void Test_MovingAverageDataset_MeanCalculation_Simple()
         {
-            const int PREDICT_DAYS = 10;
-            const int COLUMN_TO_CHECK = 1;
+            const int PREDICT_DAYS = 5;
+            const int COLUMN_TO_CHECK = 0;
+            const int RANGE = 5;
 
-            MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
-            ds.Prepare();
+            DateTime[] dates = EnergyData.Dates.Take(20).ToArray();
+            double[] data = EnergyData.Eni.Take(20).ToArray();
+            string stockName = "ENI";
+            Assert.AreEqual(dates.Length, data.Length);
+            //Assert.AreEqual(stockNames.Length, data[0].Length);
 
-            int range = ds.Range;
-            int count = ds.OriginalData.Length;
-            double validPerc = ds.ValidPercent;
-            double trainPerc = ds.TrainPercent;
-
-            Assert.AreEqual(ds.TrainCount,Convert.ToInt32((count - range + 1)*trainPerc));
+            MovingAverageDataSet ds = new MovingAverageDataSet(stockName, dates, data);
+            ds.PredictDays = PREDICT_DAYS;
+            ds.SetRange(RANGE);
+            ds.Prepare(0.2F, 0.0F);
 
             TimeSerieArray current = ds.GetTestArrayX();
 
-            DateTime mydate = current.MaxDate.AddDays(-15);
-            double value1 = current.GetValue(mydate, 1);
-            value1 = Math.Round(value1, 2, MidpointRounding.AwayFromZero);
+            DateTime mydate = current.MaxDate; //26-03
+            double value1 = current.GetValue(mydate, COLUMN_TO_CHECK);
 
 #if NORMALIZE_FIRST
             value1 = ds.Decode(value1, 1);
@@ -193,8 +193,43 @@ namespace VIXAL2.UnitTest
             //assert the moving average calculation is correct
             //and that calculated at date "mydate" is correctly found on original data
 
-            double mean1 = Math.Round(Utils.Mean(data1), 2, MidpointRounding.AwayFromZero);
-            Assert.AreEqual(value1, mean1);
+            double mean1 = Utils.Mean(data1);
+            Assert.AreEqual(Math.Round(value1, 2, MidpointRounding.AwayFromZero), Math.Round(mean1, 2, MidpointRounding.AwayFromZero));
+
+        }
+
+        [TestMethod]
+        public void Test_MovingAverageDataset_MeanCalculation()
+        {
+            const int PREDICT_DAYS = 10;
+            const int COLUMN_TO_CHECK = 2;
+
+            MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
+            ds.Prepare(0.8F, 0.0F);
+
+            int range = ds.Range;
+            int count = ds.OriginalData.Length;
+            double validPerc = ds.ValidPercent;
+            double trainPerc = ds.TrainPercent;
+
+            Assert.AreEqual(ds.TrainCount,Convert.ToInt32((count - range + 1)*trainPerc));
+
+            TimeSerieArray current = ds.GetTestArrayX();
+
+            DateTime mydate = current.MaxDate.AddDays(-15); //07-02
+            double value1 = current.GetValue(mydate, COLUMN_TO_CHECK);
+
+#if NORMALIZE_FIRST
+            value1 = ds.Decode(value1, 1);
+#endif
+
+            double[] data1 = ds.OriginalData.GetPreviousValuesFromColumnIncludingCurrent(mydate, ds.Range, COLUMN_TO_CHECK);
+
+            //assert the moving average calculation is correct
+            //and that calculated at date "mydate" is correctly found on original data
+
+            double mean1 = Utils.Mean(data1);
+            Assert.AreEqual(Math.Round(value1, 2, MidpointRounding.AwayFromZero), Math.Round(mean1, 2, MidpointRounding.AwayFromZero));
         }
 
         [TestMethod]
@@ -204,7 +239,7 @@ namespace VIXAL2.UnitTest
             const int COLUMN_TO_CHECK = 1;
 
             MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
-            ds.Prepare();
+            ds.Prepare(0.6F, 0.2F);
 
             Assert.AreEqual(ds.TrainCount, 303);
             Assert.AreEqual(ds.ValidCount, 101);
@@ -366,31 +401,31 @@ namespace VIXAL2.UnitTest
         {
             var ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(10);
-            ds.Prepare();
+            ds.Prepare(0.8F, 0.0F);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(9);
-            ds.Prepare();
+            ds.Prepare(0.8F, 0.0F);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(3);
-            ds.Prepare();
+            ds.Prepare(0.8F, 0.0F);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(1);
-            ds.Prepare();
+            ds.Prepare(0.8F, 0.0F);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             var ds1 = GetMovingAverageDataset(40);
             ds1.SetRange(10);
-            ds1.Prepare();
+            ds1.Prepare(0.8F, 0.0F);
             var gg1 = GetDelayDaysCalculatedFromDates(ds1);
 
             Assert.AreEqual(ds1.DelayDays, gg1);
@@ -433,7 +468,7 @@ namespace VIXAL2.UnitTest
             MovingAverageDataSet ds = new MovingAverageDataSet(stockNames, dates, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
             ds.SetRange(RANGE);
-            ds.Prepare();
+            ds.Prepare(0.8F, 0.0F);
 
             DateTime myDate = ds.MaxDate;
 

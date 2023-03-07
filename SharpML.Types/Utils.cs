@@ -163,6 +163,25 @@ namespace SharpML.Types
             return result;
         }
 
+        public static string[] StringToStrings(string aString)
+        {
+            string[] result = new string[1];
+            result[0] = aString;
+            return result;
+        }
+
+        public static double[][] VectorToArray(double[] aVector)
+        {
+            double[][] result = new double[aVector.Length][];
+            for (int row = 0; row < aVector.Length; row++)
+            {
+                result[row] = new double[1];
+                result[row][0] = aVector[row];
+            }
+            return result;
+        }
+
+
         public static void SetArrayFromVector(double[] input, int column, double[][] output)
         {
             double[] result = new double[input.Length];

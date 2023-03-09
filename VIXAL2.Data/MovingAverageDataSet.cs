@@ -41,7 +41,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return "MovingAverageDs";
+                return "MovAvg";
             }
         }
 

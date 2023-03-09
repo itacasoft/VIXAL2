@@ -6,6 +6,7 @@ using System.Configuration;
 using System.IO;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
+using System.Collections.Generic;
 
 namespace VIXAL2
 {
@@ -154,8 +155,8 @@ namespace VIXAL2
 
             //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
-            var tradeResult = orchestrator.SimulateTrades(listT, MONEY, COMMISSION);
-            //DrawTrades(tradeResult);
+            List<FinTrade> tradeResult = null;
+            //tradeResult = orchestrator.SimulateFinTrades(true);
 
             var listExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
@@ -163,7 +164,7 @@ namespace VIXAL2
             var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
 
             var man = new ReportManager(trainingIterations, hiddenLayers, cellsCount );
-            man.PrintGraphs(orchestrator.DataSet, allLists);
+            man.PrintGraphs(orchestrator.DataSet, allLists, tradeResult, true);
         }
 
         static void OnSimulationEnded()

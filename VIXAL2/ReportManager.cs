@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.IO;
+using System.Xml.Serialization;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
 using ZedGraph;
@@ -11,8 +12,8 @@ namespace VIXAL2
 {
     internal class ReportManager
     {
-
         GraphPane Pane;
+        LineItem originalLine;
         int iterations;
         int hidden;
         int cells;
@@ -112,7 +113,7 @@ namespace VIXAL2
 
         private void DrawOriginalLine(StocksDataset ds)
         {
-            LineItem originalLine = new LineItem("Real Data", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
+            originalLine = new LineItem("Real Data", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
             originalLine.Symbol.Fill = new Fill(Color.Black);
             originalLine.Symbol.Size = 1;
             originalLine.Line.Style = System.Drawing.Drawing2D.DashStyle.Dash;
@@ -139,7 +140,7 @@ namespace VIXAL2
             originalLine.Label.Text = "Close Price (" + realData.GetColName(ds.FirstColumnToPredict) + ")";
         }
 
-        public Image PrintGraphs(StocksDataset ds, List<DoubleDatedValue> predictedList)
+        public void PrintGraphs(StocksDataset ds, List<DoubleDatedValue> predictedList, List<FinTrade> trades, bool saveToFile)
         {
             DrawOriginalLine(ds);
 
@@ -149,20 +150,83 @@ namespace VIXAL2
 
             DrawPredictedLine(ds, predictedList);
 
+            if (trades != null)
+            {
+                DrawTrades(ds, trades);
+                SaveToFile(ds.GetTestArrayY().GetColName(0), trades);
+            }
+
             Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.ClassShortName + ", Iterations:" + iterations + ", Hidden:" + hidden + ", Cells:" + cells + ")";
 
+            SaveToFile(ds.GetTestArrayY().GetColName(0), ds.ClassShortName, Pane);
+        }
 
+        private void DrawTrades(StocksDataset ds, List<FinTrade> trades)
+        {
+            TimeSerieArray originalData;
+
+            if (ds.NormalizeFirst)
+                originalData = ds.OriginalNormalizedData;
+            else
+                originalData = ds.OriginalData;
+
+            if (originalLine.Points.Count != originalData.Length)
+                throw new Exception("Points.Count different from Original Data lenght");
+
+            for (int i = 0; i < trades.Count; i++)
+            {
+                int? tradeStartIndex = originalData.DateToSampleIndex(trades[i].StartDate);
+                int? tradeEndIndex = originalData.DateToSampleIndex(trades[i].EndDate);
+
+                var p0 = originalLine.Points[tradeStartIndex.Value];
+                var p1 = originalLine.Points[tradeEndIndex.Value];
+
+                LineItem l;
+                if (trades[i].TradingPosition == TradingPosition.Long)
+                {
+                    l = new LineItem("Trade" + (i + 1).ToString() + " (" + (int)(trades[i].GainPerc * 100) + "%)", null, null, Color.Green, ZedGraph.SymbolType.Diamond, 3);
+                }
+                else
+                {
+                    l = new LineItem("Trade" + (i + 1).ToString() + " (" + (int)(trades[i].GainPerc * 100) + "%)", null, null, Color.DarkMagenta, ZedGraph.SymbolType.Diamond, 3);
+                }
+
+                l.AddPoint(p0);
+                l.AddPoint(p1);
+            }
+
+            Pane.XAxis.Scale.Min = -20;
+        }
+
+        public static void SaveToFile(string stockName, List<FinTrade> trades)
+        {
+            var serializer = new XmlSerializer(typeof(List<FinTrade>));
+            string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
+            string filename = Path.Combine(reportFolder, stockName + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
+
+            using (var writer = new StreamWriter(filename))
+            {
+                serializer.Serialize(writer, trades);
+            }
+
+        }
+
+        public static void SaveToFile(string stockName, string dsType, GraphPane pane)
+        {
             Bitmap bm = new Bitmap(10, 10);
             Graphics g = Graphics.FromImage(bm);
-            Pane.AxisChange(g);
+            pane.AxisChange(g);
 
-            Image im = Pane.GetImage();
+            Image im = pane.GetImage();
 
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
-            string filename = Path.Combine(reportFolder, "graph_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".png");
+
+            string directoryName = Path.Combine(reportFolder, dsType + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm"));
+            System.IO.Directory.CreateDirectory(directoryName);
+
+            string filename = Path.Combine(directoryName, "graph_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".png");
 
             im.Save(filename);
-            return im;
         }
     }
 }

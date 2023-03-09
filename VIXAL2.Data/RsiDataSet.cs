@@ -38,7 +38,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return "RsiDs";
+                return "Rsi";
             }
         }
 

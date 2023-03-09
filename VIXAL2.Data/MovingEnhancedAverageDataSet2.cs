@@ -18,7 +18,7 @@ namespace VIXAL2.Data
         {
             get
             {
-                return "MovingEnhancedAverageDs2";
+                return "MovAvgEnh2";
             }
         }
 

@@ -17,6 +17,7 @@ namespace VIXAL2
         int iterations;
         int hidden;
         int cells;
+        public static DateTime ReportDate;
 
         public ReportManager(int iterations, int hiddenLayers, int cells)
         {
@@ -153,7 +154,6 @@ namespace VIXAL2
             if (trades != null)
             {
                 DrawTrades(ds, trades);
-                SaveToFile(ds.GetTestArrayY().GetColName(0), trades);
             }
 
             Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.ClassShortName + ", Iterations:" + iterations + ", Hidden:" + hidden + ", Cells:" + cells + ")";
@@ -198,11 +198,16 @@ namespace VIXAL2
             Pane.XAxis.Scale.Min = -20;
         }
 
-        public static void SaveToFile(string stockName, List<FinTrade> trades)
+        public static void SaveToFile(string stockName, string dsType, List<FinTrade> trades)
         {
             var serializer = new XmlSerializer(typeof(List<FinTrade>));
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
-            string filename = Path.Combine(reportFolder, stockName + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
+
+            string directoryName = Path.Combine(reportFolder, dsType + "_" + ReportDate.ToString("yyyyMMdd_HHmm"));
+            if (!System.IO.Directory.Exists(directoryName))
+                System.IO.Directory.CreateDirectory(directoryName);
+
+            string filename = Path.Combine(directoryName, stockName + "_trades_" + ReportDate.ToString("yyyyMMdd_HHmm") + ".xml");
 
             using (var writer = new StreamWriter(filename))
             {
@@ -221,8 +226,9 @@ namespace VIXAL2
 
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
 
-            string directoryName = Path.Combine(reportFolder, dsType + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm"));
-            System.IO.Directory.CreateDirectory(directoryName);
+            string directoryName = Path.Combine(reportFolder, dsType + "_" + ReportDate.ToString("yyyyMMdd_HHmm"));
+            if (!System.IO.Directory.Exists(directoryName))
+                System.IO.Directory.CreateDirectory(directoryName);
 
             string filename = Path.Combine(directoryName, "graph_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".png");
 

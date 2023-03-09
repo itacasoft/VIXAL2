@@ -54,7 +54,6 @@ namespace VIXAL2
         const double MONEY = 10000.00;
         const double COMMISSION = 0.0019;
 
-
         static void Main(string[] args)
         {
             if (args.Length == 0)
@@ -103,6 +102,7 @@ namespace VIXAL2
             orchestrator = new LSTMOrchestrator(OnReiterate, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, batchSize);
             orchestrator.LoadAndPrepareDataSet(inputFile, stockIndex, 1, dsType, predictDays, range);
 
+            ReportManager.ReportDate = DateTime.Now;
             StartTraining(trainingIterations);
         }
 
@@ -155,21 +155,24 @@ namespace VIXAL2
 
             //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
 
-            List<FinTrade> tradeResult = null;
-            //tradeResult = orchestrator.SimulateFinTrades(true);
-
             var listExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
 
             var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
 
-            var man = new ReportManager(trainingIterations, hiddenLayers, cellsCount );
-            man.PrintGraphs(orchestrator.DataSet, allLists, tradeResult, true);
+            ReportManager reportMan = new ReportManager(trainingIterations, hiddenLayers, cellsCount);
+            reportMan.PrintGraphs(orchestrator.DataSet, allLists, null, true);
         }
 
         static void OnSimulationEnded()
         {
             Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Trading... ");
+            List<FinTrade> trades = orchestrator.SimulateFinTrades(true);
+
+            ReportManager.SaveToFile(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.ClassShortName, trades);
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Simulation ENDED. Thanks for having used VIXAL2 :)!");
         }
@@ -178,7 +181,7 @@ namespace VIXAL2
         {
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Reiteratating... " + ReiterationProgress);
+            Console.WriteLine("Reiterating... " + ReiterationProgress);
         }
 
         static string ReiterationProgress

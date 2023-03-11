@@ -1,21 +1,13 @@
-﻿using NeuralNetwork.Base;
-using SharpML.Types;
-using System;
+﻿using System;
 using System.Linq;
 using System.Configuration;
 using System.IO;
-using VIXAL2.Data;
 using VIXAL2.Data.Base;
-using System.Collections.Generic;
-using VIXAL2.Data.Report;
 
 namespace VIXAL2
 {
     internal class Program
     {
-        static LSTMOrchestrator orchestrator;
-        static string prefixTraining = "Training...";
-        static string prefixSimulating = "Simulating...";
         /// <summary>
         /// Numero di iterazioni all'interno di un training
         /// </summary>
@@ -25,10 +17,6 @@ namespace VIXAL2
         /// </summary>
         static bool mustReiterate = false;
         /// <summary>
-        /// Numero di re-iterazioni totali
-        /// </summary>
-        static int Reiterations;
-        /// <summary>
         /// Numero di giorni di predizione fra X e Y
         /// </summary>
         static int predictDays;
@@ -37,23 +25,22 @@ namespace VIXAL2
         /// </summary>
         static int range;
         /// <summary>
-        /// Indice della stock da considerare
-        /// </summary>
-        static int stockIndex;
-        /// <summary>
         /// Tipo di dataset utilizzato per la simulazione
         /// </summary>
         static DataSetType dsType;
         /// <summary>
-        /// Numero di hidden layers della rete neurale
+        /// CSV file containing values for training
         /// </summary>
-        static int hiddenLayers;
+        static string inputFile;
         /// <summary>
-        /// Numero di celle della rete neurale
+        /// Stock index where to start simulation from
         /// </summary>
-        static int cellsCount;
-        const double MONEY = 10000.00;
-        const double COMMISSION = 0.0019;
+        static int startStockIndex;
+        /// <summary>
+        /// Stock index where to end simulation
+        /// </summary>
+        static int endStockIndex = 0;
+
 
         static void Main(string[] args)
         {
@@ -68,7 +55,7 @@ namespace VIXAL2
                 return;
             }
 
-            string inputFile = args[0];
+            inputFile = args[0];
             if (!File.Exists(inputFile))
                 throw new FileNotFoundException("File " + inputFile + " not found");
 
@@ -78,7 +65,11 @@ namespace VIXAL2
                 {
                     case "/s":
                     case "/si":
-                        stockIndex = Convert.ToInt32(args[x+1]);
+                        startStockIndex = Convert.ToInt32(args[x+1]);
+                        break;
+                    case "/e":
+                    case "/ei":
+                        endStockIndex = Convert.ToInt32(args[x + 1]);
                         break;
                     case "/t":
                         dsType = (DataSetType)Convert.ToInt32(args[x+1]);
@@ -97,17 +88,33 @@ namespace VIXAL2
                         break;
                 }
             }
-            
-            int batchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
 
-            orchestrator = new LSTMOrchestrator(OnReiterate, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, batchSize);
-            orchestrator.LoadAndPrepareDataSet(inputFile, stockIndex, 1, dsType, predictDays, range);
+            if (endStockIndex < startStockIndex) endStockIndex = startStockIndex;
 
-            hiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
-            cellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
+            SimulationManager.BatchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
+            SimulationManager.HiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
+            SimulationManager.CellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
 
-            ReportManager.InitialConstructor(trainingIterations, hiddenLayers, cellsCount);
-            StartTraining(trainingIterations);
+            ReportManager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Simulation STARTED with parameters: ");
+            Console.Write("StartIndex = " + startStockIndex + ", ");
+            Console.Write("EndIndex = " + endStockIndex + ", ");
+            Console.Write("DsType = " + dsType + ", ");
+            Console.Write("PredictDays = " + predictDays + ", ");
+            Console.Write("Range = " + range + ", ");
+            Console.Write("TrainIterations = " + trainingIterations + ", ");
+            Console.WriteLine("Mustreiterate = " + mustReiterate);
+
+            for (int i = startStockIndex; i <= endStockIndex; i++)
+            {
+                SimulationManager sim = new SimulationManager(inputFile, dsType, predictDays, range, trainingIterations, mustReiterate);
+                sim.StartTraining(i);
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Simulation ENDED. Thanks for having used VIXAL2 :)!");
         }
 
         static void DisplayHelp()
@@ -118,103 +125,5 @@ namespace VIXAL2
             Console.WriteLine();
         }
 
-        static void StartTraining(int iterations)
-        {
-            hiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
-            cellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
-
-            Utils.DrawMessage(prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, 0), ConsoleColor.Gray);
-            if (mustReiterate)
-                Reiterations = orchestrator.DataSet.TestCount;
-
-            orchestrator.StartTraining_Sync(iterations, hiddenLayers, cellsCount, mustReiterate);
-        }
-
-        /// <summary>
-        /// Updates for each iteration 
-        /// </summary>
-        /// <param name="iteration"></param>
-        static void OnTrainingProgress(int iteration)
-        {
-            Utils.DrawMessage(prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, (double)iteration / trainingIterations * 100.0), ConsoleColor.Gray);
-
-            if (iteration == trainingIterations)
-            {
-                Utils.DrawMessage(prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
-                Console.WriteLine();
-            }
-        }
-
-
-        /// <summary>
-        /// Updates graphs and performs actions at the end of one serie of iteration for a stock 
-        /// </summary>
-        static void OnTrainingEnded()
-        {
-            Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 0.0), ConsoleColor.Gray);
-            var listE = orchestrator.CurrentModelTrain();
-            
-            Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 25.0), ConsoleColor.Gray);
-            var listV = orchestrator.CurrentModelValidation();
-            
-            Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 50.0), ConsoleColor.Gray);
-            var listT = orchestrator.CurrentModelTest();
-            
-            Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 75.0), ConsoleColor.Gray);
-
-            orchestrator.ComputePerformances(listT);
-
-            //DrawPerfomances(orchestrator.SlopePerformances, orchestrator.DiffPerformance);
-
-            var listExt = orchestrator.CurrentModelTestExtreme();
-            Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
-
-            var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
-
-            ReportManager reportMan = new ReportManager(orchestrator.DataSet);
-            reportMan.DrawPredicted(allLists);
-            reportMan.Print();
-        }
-
-        /// <summary>
-        /// Updates graphs and performs actions at the end of all series of simulatios for a stock 
-        /// </summary>
-        static void OnSimulationEnded()
-        {
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Trading... ");
-            
-            List<FinTrade> trades = orchestrator.SimulateFinTrades(true);
-            ReportItem item = ReportManager.ReportItemAdd(orchestrator.DataSet, orchestrator.WeightedSlopePerformance, orchestrator.AvgSlopePerformance, orchestrator.AvgDiffPerformance);
-            ReportManager.EnrichReportItemWithTradesData(item, trades);
-            ReportManager.EnrichReportItemWithTradesDataWithCommissions(item, trades);
-
-            ReportManager reportMan = new ReportManager(orchestrator.DataSet);
-            reportMan.DrawLatestPredicted();
-            reportMan.DrawTrades(trades);
-            reportMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
-            reportMan.Print();
-
-            ReportManager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.ClassShortName, trades);
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Simulation ENDED. Thanks for having used VIXAL2 :)!");
-        }
-
-        static void OnReiterate(StocksDataset dataset)
-        {
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Reiterating... " + ReiterationProgress);
-        }
-
-        static string ReiterationProgress
-        {
-            get
-            {
-                return (Reiterations - orchestrator.DataSet.TestCount + 1) + "/" + Reiterations;
-            }
-        }
     }
 }

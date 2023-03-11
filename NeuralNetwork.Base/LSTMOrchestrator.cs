@@ -99,12 +99,13 @@ namespace NeuralNetwork.Base
             Trades = new List<Trade>();
         }
 
-        public void LoadAndPrepareDataSet(string inputCsv, int indexColumnToPredict, int predictCount, DataSetType dataSetType, int predictDays, int range = 20)
+        public StocksDataset LoadAndPrepareDataSet(string inputCsv, int indexColumnToPredict, int predictCount, DataSetType dataSetType, int predictDays, int range = 20)
         {
             this.indexColumnToPredict = indexColumnToPredict;
             DataSet = DatasetFactory.CreateDataset(inputCsv, indexColumnToPredict, predictCount, dataSetType);
 
             BaseLoadAndPrepareDataSet(predictDays, range);
+            return DataSet;
         }
 
         public void LoadAndPrepareDataSet(StocksDataset ds, int predictDays, int range = 20)

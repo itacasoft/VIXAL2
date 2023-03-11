@@ -1,6 +1,5 @@
 ﻿using SharpML.Types;
 using System;
-using System.Collections.Generic;
 using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
@@ -36,6 +35,14 @@ namespace VIXAL2.Data
             get
             {
                 return "StockDs";
+            }
+        }
+
+        public virtual DataSetType DsType
+        {
+            get
+            {
+                return DataSetType.Normal;
             }
         }
 

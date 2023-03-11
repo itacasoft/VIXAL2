@@ -1,6 +1,7 @@
 ﻿using SharpML.Types;
 using System;
 using System.Collections.Generic;
+using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
 {
@@ -21,6 +22,15 @@ namespace VIXAL2.Data
                 return "MovAvgEnh2";
             }
         }
+
+        public override DataSetType DsType
+        {
+            get
+            {
+                return DataSetType.Enh2_MovingAverage;
+            }
+        }
+
 
         /// <summary>
         /// Returns an array with average centered in the current value

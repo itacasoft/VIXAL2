@@ -45,6 +45,14 @@ namespace VIXAL2.Data
             }
         }
 
+        public override DataSetType DsType
+        {
+            get
+            {
+                return DataSetType.MovingAverage;
+            }
+        }
+
         public static double[] GetMovingAverage(double[] values, int range)
         {
             double[] result = new double[values.Length];

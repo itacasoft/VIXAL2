@@ -66,6 +66,15 @@ namespace VIXAL2.Data
             }
         }
 
+        public override DataSetType DsType
+        {
+            get
+            {
+                return DataSetType.Enh_MovingAverage;
+            }
+        }
+
+
         /// <summary>
         /// Returns an array with average centered in the current value
         /// </summary>

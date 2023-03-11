@@ -6,7 +6,6 @@ using VIXAL2.Data;
 using VIXAL2.Data.Report;
 using NeuralNetwork.Base;
 using VIXAL2.Data.Base;
-using System.Configuration;
 
 namespace VIXAL2
 {
@@ -96,7 +95,7 @@ namespace VIXAL2
 
             if (iteration == trainingIterations)
             {
-                Utils.DrawMessage(yStock + "|" + prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
+                Utils.DrawMessage(yStock + "|" + prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.DarkGreen);
                 Console.WriteLine();
             }
         }
@@ -121,13 +120,14 @@ namespace VIXAL2
             orchestrator.ComputePerformances(listT);
 
             var listExt = orchestrator.CurrentModelTestExtreme();
-            Utils.DrawMessage(yStock + "|" + prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
+            Utils.DrawMessage(yStock + "|" + prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.DarkGreen);
 
             var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
 
-            ReportManager reportMan = new ReportManager(orchestrator.DataSet);
-            reportMan.DrawPredicted(allLists);
-            reportMan.Print();
+            ReportManager.latestPredictedList = allLists;
+            //ReportManager reportMan = new ReportManager(orchestrator.DataSet);
+            //reportMan.DrawPredicted(allLists);
+            //reportMan.Print();
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace VIXAL2
         private void OnSimulationEnded()
         {
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine(yStock + "|" + "Trading... ");
 
             List<FinTrade> trades = orchestrator.SimulateFinTrades(true);
@@ -150,13 +150,13 @@ namespace VIXAL2
             reportMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
             reportMan.Print();
 
-            ReportManager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.ClassShortName, trades);
+            ReportManager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
         }
 
         private void OnReiterate(StocksDataset dataset)
         {
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine(yStock + "|" + "Reiterating... " + ReiterationProgress);
         }
 

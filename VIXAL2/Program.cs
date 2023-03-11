@@ -95,10 +95,10 @@ namespace VIXAL2
             SimulationManager.HiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
             SimulationManager.CellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
 
-            ReportManager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount);
+            ReportManager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount, SimulationManager.BatchSize);
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Simulation STARTED with parameters: ");
+            Console.WriteLine("VIXAL2 started with parameters: ");
             Console.Write("StartIndex = " + startStockIndex + ", ");
             Console.Write("EndIndex = " + endStockIndex + ", ");
             Console.Write("DsType = " + dsType + ", ");
@@ -106,15 +106,19 @@ namespace VIXAL2
             Console.Write("Range = " + range + ", ");
             Console.Write("TrainIterations = " + trainingIterations + ", ");
             Console.WriteLine("Mustreiterate = " + mustReiterate);
+            Console.WriteLine("---------------------");
 
             for (int i = startStockIndex; i <= endStockIndex; i++)
             {
+                Console.WriteLine("Simulation " + (i-startStockIndex+1).ToString() + " of " + (endStockIndex-startStockIndex+1).ToString() + " about to start at " + DateTime.Now.ToShortTimeString());
                 SimulationManager sim = new SimulationManager(inputFile, dsType, predictDays, range, trainingIterations, mustReiterate);
                 sim.StartTraining(i);
             }
 
+            ReportManager.PrintOverallReport(dsType.ToString());
+
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Simulation ENDED. Thanks for having used VIXAL2 :)!");
+            Console.WriteLine("VIXAL2 simulation ENDED. That's all folks :)!");
         }
 
         static void DisplayHelp()

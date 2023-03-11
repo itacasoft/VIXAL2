@@ -12,7 +12,7 @@ namespace VIXAL2.Data
 
         public RsiDataSet(string[] stockNames, DateTime[] dates, double[][] allData, int firstColumnToPredict, int predictCount) : base(stockNames, dates, allData, firstColumnToPredict, predictCount)
         {
-            
+
         }
 
         public override int Range
@@ -42,6 +42,13 @@ namespace VIXAL2.Data
             }
         }
 
+        public override DataSetType DsType
+        {
+            get
+            {
+                return DataSetType.RSI;
+            }
+        }
 
         public static double SingleRsi(double[] closePrices)
         {

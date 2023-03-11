@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
@@ -18,17 +19,19 @@ namespace VIXAL2
         public static int Iterations;
         public static int Hidden;
         public static int Cells;
+        public static int BatchSize;
         private static List<ReportItem> reportItems;
         private static ReportHeader reportHeader;
         public static DateTime ReportDate;
 
         public static List<DoubleDatedValue> latestPredictedList;
 
-        public static void InitialConstructor(int iterations, int hiddenLayers, int cells)
+        public static void InitialConstructor(int iterations, int hiddenLayers, int cells, int batchSize)
         {
             Iterations = iterations;
             Hidden = hiddenLayers;
             Cells = cells;
+            BatchSize = batchSize;
             reportItems = new List<ReportItem>();
             ReportDate = DateTime.Now;
         }
@@ -167,7 +170,7 @@ namespace VIXAL2
 
             myPane.Title.Text = "Performance: SlopeDiff(%) = " + AvgSlopePerformance.ToString("P") + "; Diff(%) = " + AvgDiffPerformance.ToString("P");
 
-            SaveToFile(ds.GetTestArrayY().GetColName(0) + "_perf", ds.ClassShortName, myPane);
+            SaveToFile(ds.GetTestArrayY().GetColName(0) + "_perf", ds.DsType.ToString(), myPane);
         }
 
         private void DrawOriginalLine()
@@ -222,18 +225,8 @@ namespace VIXAL2
         /// </summary>
         public void Print()
         {
-            string pre = "";
-            foreach (var c in Pane.CurveList)
-            {
-                if (c.Label.Text.StartsWith("Trade", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    pre = "_trades";
-                    break;
-                }
-            }
-
-            Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.ClassShortName + ", Iterations:" + Iterations + ", Hidden:" + Hidden + ", Cells:" + Cells + ")";
-            SaveToFile(ds.GetTestArrayY().GetColName(0) + pre, ds.ClassShortName, Pane);
+            Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.DsType.ToString() + ", Iterations:" + Iterations + ", Hidden:" + Hidden + ", Cells:" + Cells + ")";
+            SaveToFile(ds.GetTestArrayY().GetColName(0), ds.DsType.ToString(), Pane);
         }
 
 
@@ -374,17 +367,19 @@ namespace VIXAL2
             item.FinTradeComm_GoodTrades = goodTrades;
         }
 
-        private Image MergeImages(Image image1, Image image2, int space)
+        public static void PrintOverallReport(string dsType)
         {
-            Bitmap bitmap = new Bitmap(Math.Max(image1.Width, image2.Width), image1.Height + image2.Height + space);
-            using (Graphics g = Graphics.FromImage(bitmap))
+            List<ReportItem> sortedReportItems = reportItems.OrderBy(o => o.WeightedSlopePerformance).ToList();
+
+            var serializer = new XmlSerializer(typeof(List<ReportItem>));
+
+            string directoryName = CreateAndGetDirectory(dsType);
+            string filename = Path.Combine(directoryName, "overall_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
+
+            using (var writer = new StreamWriter(filename))
             {
-                g.Clear(Color.Black);
-                g.DrawImage(image1, 0, 0);
-                g.DrawImage(image2, 0, image1.Height + space);
+                serializer.Serialize(writer, sortedReportItems);
             }
-            Image img = bitmap;
-            return img;
         }
 
         public static ReportItem ReportItemAdd(StocksDataset ds, double WeightedSlopePerformance, double AvgSlopePerformance, double AvgDiffPerformance)
@@ -393,13 +388,13 @@ namespace VIXAL2
             {
                 reportHeader = new ReportHeader();
                 reportHeader.Title = "Report of " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-                reportHeader.Text.Add("Dataset type: " + ds.ClassShortName);
+                reportHeader.Text.Add("Dataset type: " + ds.DsType.ToString());
                 reportHeader.Text.Add("Predict days: " + ds.PredictDays);
                 reportHeader.Text.Add("Range days: " + ds.Range);
                 reportHeader.Text.Add("Network hidden layers: " + Hidden);
                 reportHeader.Text.Add("Network cells for layer: " + Cells);
                 reportHeader.Text.Add("Iterations: " + Iterations);
-//                reportHeader.Text.Add("Batch size: " + batchsize);
+                reportHeader.Text.Add("Batch size: " + BatchSize);
             }
 
             string stockName = ds.GetTestArrayY().GetColName(0);
@@ -420,5 +415,7 @@ namespace VIXAL2
             reportItems.Add(item);
             return item;
         }
+
+
     }
 }

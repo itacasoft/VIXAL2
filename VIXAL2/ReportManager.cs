@@ -141,8 +141,10 @@ namespace VIXAL2
             originalLine.Label.Text = "Close Price (" + realData.GetColName(ds.FirstColumnToPredict) + ")";
         }
 
-        public void PrintGraphs(StocksDataset ds, List<DoubleDatedValue> predictedList, List<FinTrade> trades, bool saveToFile)
+        public void PrintGraphs(StocksDataset ds, List<DoubleDatedValue> predictedList, List<FinTrade> trades)
         {
+            string pre = "";
+
             DrawOriginalLine(ds);
 
             DrawTrainingLine(ds);
@@ -154,11 +156,12 @@ namespace VIXAL2
             if (trades != null)
             {
                 DrawTrades(ds, trades);
+                pre = "_trades";
             }
 
             Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.ClassShortName + ", Iterations:" + iterations + ", Hidden:" + hidden + ", Cells:" + cells + ")";
 
-            SaveToFile(ds.GetTestArrayY().GetColName(0), ds.ClassShortName, Pane);
+            SaveToFile(ds.GetTestArrayY().GetColName(0) + pre, ds.ClassShortName, Pane);
         }
 
         private void DrawTrades(StocksDataset ds, List<FinTrade> trades)
@@ -179,7 +182,9 @@ namespace VIXAL2
                 int? tradeEndIndex = originalData.DateToSampleIndex(trades[i].EndDate);
 
                 var p0 = originalLine.Points[tradeStartIndex.Value];
+                p0.Tag = trades[i].StartDateAsString;
                 var p1 = originalLine.Points[tradeEndIndex.Value];
+                p1.Tag = trades[i].EndDateAsString;
 
                 LineItem l;
                 if (trades[i].TradingPosition == TradingPosition.Long)
@@ -193,21 +198,19 @@ namespace VIXAL2
 
                 l.AddPoint(p0);
                 l.AddPoint(p1);
+                Pane.CurveList.Add(l);
             }
 
             Pane.XAxis.Scale.Min = -20;
         }
 
-        public static void SaveToFile(string stockName, string dsType, List<FinTrade> trades)
+        public static void SaveToXML(string pre, string dsType, List<FinTrade> trades)
         {
             var serializer = new XmlSerializer(typeof(List<FinTrade>));
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
 
-            string directoryName = Path.Combine(reportFolder, dsType + "_" + ReportDate.ToString("yyyyMMdd_HHmm"));
-            if (!System.IO.Directory.Exists(directoryName))
-                System.IO.Directory.CreateDirectory(directoryName);
-
-            string filename = Path.Combine(directoryName, stockName + "_trades_" + ReportDate.ToString("yyyyMMdd_HHmm") + ".xml");
+            string directoryName = CreateAndGetDirectory(dsType);
+            string filename = Path.Combine(directoryName, pre + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
 
             using (var writer = new StreamWriter(filename))
             {
@@ -216,7 +219,17 @@ namespace VIXAL2
 
         }
 
-        public static void SaveToFile(string stockName, string dsType, GraphPane pane)
+        private static string CreateAndGetDirectory(string dsType)
+        {
+            string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
+
+            string result = Path.Combine(reportFolder, dsType + "_" + ReportDate.ToString("yyyyMMdd_HHmm"));
+            if (!System.IO.Directory.Exists(result))
+                System.IO.Directory.CreateDirectory(result);
+            return result;
+        }
+
+        public static void SaveToFile(string pre, string dsType, GraphPane pane)
         {
             Bitmap bm = new Bitmap(10, 10);
             Graphics g = Graphics.FromImage(bm);
@@ -224,13 +237,8 @@ namespace VIXAL2
 
             Image im = pane.GetImage();
 
-            string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
-
-            string directoryName = Path.Combine(reportFolder, dsType + "_" + ReportDate.ToString("yyyyMMdd_HHmm"));
-            if (!System.IO.Directory.Exists(directoryName))
-                System.IO.Directory.CreateDirectory(directoryName);
-
-            string filename = Path.Combine(directoryName, "graph_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".png");
+            string directoryName = CreateAndGetDirectory(dsType);
+            string filename = Path.Combine(directoryName, pre + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".png");
 
             im.Save(filename);
         }

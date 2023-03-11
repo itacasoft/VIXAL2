@@ -54,6 +54,8 @@ namespace VIXAL2
         const double MONEY = 10000.00;
         const double COMMISSION = 0.0019;
 
+        static List<DoubleDatedValue> allLists;
+
         static void Main(string[] args)
         {
             if (args.Length == 0)
@@ -158,10 +160,10 @@ namespace VIXAL2
             var listExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
 
-            var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
+            allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
 
             ReportManager reportMan = new ReportManager(trainingIterations, hiddenLayers, cellsCount);
-            reportMan.PrintGraphs(orchestrator.DataSet, allLists, null, true);
+            reportMan.PrintGraphs(orchestrator.DataSet, allLists, null);
         }
 
         static void OnSimulationEnded()
@@ -171,7 +173,10 @@ namespace VIXAL2
             Console.WriteLine("Trading... ");
             List<FinTrade> trades = orchestrator.SimulateFinTrades(true);
 
-            ReportManager.SaveToFile(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.ClassShortName, trades);
+            ReportManager reportMan = new ReportManager(trainingIterations, hiddenLayers, cellsCount);
+            reportMan.PrintGraphs(orchestrator.DataSet, allLists, trades);
+
+            ReportManager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.ClassShortName, trades);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Simulation ENDED. Thanks for having used VIXAL2 :)!");

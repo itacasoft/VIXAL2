@@ -7,6 +7,7 @@ using System.IO;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
 using System.Collections.Generic;
+using VIXAL2.Data.Report;
 
 namespace VIXAL2
 {
@@ -53,8 +54,6 @@ namespace VIXAL2
         static int cellsCount;
         const double MONEY = 10000.00;
         const double COMMISSION = 0.0019;
-
-        static List<DoubleDatedValue> allLists;
 
         static void Main(string[] args)
         {
@@ -104,7 +103,10 @@ namespace VIXAL2
             orchestrator = new LSTMOrchestrator(OnReiterate, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, batchSize);
             orchestrator.LoadAndPrepareDataSet(inputFile, stockIndex, 1, dsType, predictDays, range);
 
-            ReportManager.ReportDate = DateTime.Now;
+            hiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
+            cellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
+
+            ReportManager.InitialConstructor(trainingIterations, hiddenLayers, cellsCount);
             StartTraining(trainingIterations);
         }
 
@@ -128,7 +130,10 @@ namespace VIXAL2
             orchestrator.StartTraining_Sync(iterations, hiddenLayers, cellsCount, mustReiterate);
         }
 
-
+        /// <summary>
+        /// Updates for each iteration 
+        /// </summary>
+        /// <param name="iteration"></param>
         static void OnTrainingProgress(int iteration)
         {
             Utils.DrawMessage(prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, (double)iteration / trainingIterations * 100.0), ConsoleColor.Gray);
@@ -140,6 +145,10 @@ namespace VIXAL2
             }
         }
 
+
+        /// <summary>
+        /// Updates graphs and performs actions at the end of one serie of iteration for a stock 
+        /// </summary>
         static void OnTrainingEnded()
         {
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 0.0), ConsoleColor.Gray);
@@ -160,21 +169,32 @@ namespace VIXAL2
             var listExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.Green);
 
-            allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
+            var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
 
-            ReportManager reportMan = new ReportManager(trainingIterations, hiddenLayers, cellsCount);
-            reportMan.PrintGraphs(orchestrator.DataSet, allLists, null);
+            ReportManager reportMan = new ReportManager(orchestrator.DataSet);
+            reportMan.DrawPredicted(allLists);
+            reportMan.Print();
         }
 
+        /// <summary>
+        /// Updates graphs and performs actions at the end of all series of simulatios for a stock 
+        /// </summary>
         static void OnSimulationEnded()
         {
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Trading... ");
+            
             List<FinTrade> trades = orchestrator.SimulateFinTrades(true);
+            ReportItem item = ReportManager.ReportItemAdd(orchestrator.DataSet, orchestrator.WeightedSlopePerformance, orchestrator.AvgSlopePerformance, orchestrator.AvgDiffPerformance);
+            ReportManager.EnrichReportItemWithTradesData(item, trades);
+            ReportManager.EnrichReportItemWithTradesDataWithCommissions(item, trades);
 
-            ReportManager reportMan = new ReportManager(trainingIterations, hiddenLayers, cellsCount);
-            reportMan.PrintGraphs(orchestrator.DataSet, allLists, trades);
+            ReportManager reportMan = new ReportManager(orchestrator.DataSet);
+            reportMan.DrawLatestPredicted();
+            reportMan.DrawTrades(trades);
+            reportMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
+            reportMan.Print();
 
             ReportManager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.ClassShortName, trades);
 

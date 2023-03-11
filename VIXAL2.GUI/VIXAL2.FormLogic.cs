@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using VIXAL2.Data.Base;
+using VIXAL2.Data.Report;
 using ZedGraph;
 
 namespace VIXAL2.GUI

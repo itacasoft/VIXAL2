@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NeuralNetwork.Base;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
@@ -6,35 +7,50 @@ using System.IO;
 using System.Xml.Serialization;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
+using VIXAL2.Data.Report;
 using ZedGraph;
 
 namespace VIXAL2
 {
     internal class ReportManager
     {
-        GraphPane Pane;
-        LineItem originalLine;
-        int iterations;
-        int hidden;
-        int cells;
+        #region StaticProperties
+        public static int Iterations;
+        public static int Hidden;
+        public static int Cells;
+        private static List<ReportItem> reportItems;
+        private static ReportHeader reportHeader;
         public static DateTime ReportDate;
 
-        public ReportManager(int iterations, int hiddenLayers, int cells)
+        public static List<DoubleDatedValue> latestPredictedList;
+
+        public static void InitialConstructor(int iterations, int hiddenLayers, int cells)
         {
-            this.iterations = iterations;
-            this.hidden = hiddenLayers;
-            this.cells = cells;
+            Iterations = iterations;
+            Hidden = hiddenLayers;
+            Cells = cells;
+            reportItems = new List<ReportItem>();
+            ReportDate = DateTime.Now;
+        }
+        #endregion
+
+        GraphPane Pane;
+        LineItem originalLine;
+        StocksDataset ds;
+
+        public ReportManager(StocksDataset ds)
+        {
+            this.ds = ds;
             Pane = new GraphPane(new RectangleF(0, 0, 8000, 2000), "Model Evaluation", "Samples", "Observed/Predicted");
         }
 
-        private void DrawTestSeparationLine(StocksDataset ds)
+        private void DrawTestSeparationLine()
         {
             var separationline = new LineItem("");
             separationline.Symbol.Fill = new Fill(Color.Black);
             separationline.Line.Style = System.Drawing.Drawing2D.DashStyle.Dot;
             separationline.Symbol.Size = 1;
             Pane.CurveList.Add(separationline);
-
 
             int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DelayDays;
             TimeSerieArray testDataY = ds.GetTestArrayY();
@@ -48,7 +64,7 @@ namespace VIXAL2
             separationline.AddPoint(p1);
         }
 
-        private void DrawTrainingLine(StocksDataset ds)
+        private void DrawTrainingLine()
         {
             const int COL_TO_DRAW = 0;
             var trainDataY = ds.GetTrainArrayY();
@@ -93,7 +109,7 @@ namespace VIXAL2
             trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ", R:" + ds.Range + "" + ")";
         }
 
-        private void DrawPredictedLine(StocksDataset ds, List<DoubleDatedValue> predictedList)
+        private void DrawPredictedLine(List<DoubleDatedValue> predictedList)
         {
             var testDataY = ds.GetTestArrayY();
 
@@ -112,7 +128,49 @@ namespace VIXAL2
             }
         }
 
-        private void DrawOriginalLine(StocksDataset ds)
+        /// <summary>
+        /// Prints the graph of performances to a png file
+        /// </summary>
+        /// <param name="slopePerformance"></param>
+        /// <param name="AvgSlopePerformance"></param>
+        /// <param name="diffPerformance"></param>
+        /// <param name="AvgDiffPerformance"></param>
+        public void PrintPerformances(Performance[] slopePerformance, double AvgSlopePerformance, PerformanceDiff[] diffPerformance, double AvgDiffPerformance)
+        {
+            var myPane = new GraphPane(new RectangleF(0, 0, 2000, 1000), "Performances", "Days from start", "Success Percentage");
+
+            LineItem slopePerformanceDataLine = new LineItem("SlopePerformance", null, null, Color.DarkKhaki, ZedGraph.SymbolType.Diamond, 1);
+            slopePerformanceDataLine.Symbol.Fill = new Fill(Color.DarkKhaki);
+            slopePerformanceDataLine.Symbol.Size = 5;
+
+            LineItem diffPerformanceDataLine = new LineItem("DiffPerformance", null, null, Color.DarkOliveGreen, ZedGraph.SymbolType.Diamond, 1);
+            diffPerformanceDataLine.Symbol.Fill = new Fill(Color.DarkOliveGreen);
+            diffPerformanceDataLine.Symbol.Size = 5;
+
+            for (int i = 1; i < slopePerformance.Length; i++)
+            {
+                var p = new PointPair(i, slopePerformance[i].SuccessPercentage);
+                p.Tag = slopePerformance[i].ToString();
+                slopePerformanceDataLine.AddPoint(p);
+            }
+
+            diffPerformanceDataLine.Clear();
+            for (int i = 0; i < diffPerformance.Length; i++)
+            {
+                var p = new PointPair(i, diffPerformance[i].SuccessPercentage);
+                p.Tag = diffPerformance[i].ToString();
+                diffPerformanceDataLine.AddPoint(p);
+            }
+
+            myPane.CurveList.Add(slopePerformanceDataLine);
+            myPane.CurveList.Add(diffPerformanceDataLine);
+
+            myPane.Title.Text = "Performance: SlopeDiff(%) = " + AvgSlopePerformance.ToString("P") + "; Diff(%) = " + AvgDiffPerformance.ToString("P");
+
+            SaveToFile(ds.GetTestArrayY().GetColName(0) + "_perf", ds.ClassShortName, myPane);
+        }
+
+        private void DrawOriginalLine()
         {
             originalLine = new LineItem("Real Data", null, null, Color.Black, ZedGraph.SymbolType.None, 1);
             originalLine.Symbol.Fill = new Fill(Color.Black);
@@ -141,30 +199,45 @@ namespace VIXAL2
             originalLine.Label.Text = "Close Price (" + realData.GetColName(ds.FirstColumnToPredict) + ")";
         }
 
-        public void PrintGraphs(StocksDataset ds, List<DoubleDatedValue> predictedList, List<FinTrade> trades)
+        public void DrawPredicted(List<DoubleDatedValue> predictedList)
+        {
+            latestPredictedList = predictedList;
+
+            DrawOriginalLine();
+
+            DrawTrainingLine();
+
+            DrawTestSeparationLine();
+
+            DrawPredictedLine(predictedList);
+        }
+
+        public void DrawLatestPredicted()
+        {
+            DrawPredicted(latestPredictedList);
+        }
+
+        /// <summary>
+        /// Prints the graph
+        /// </summary>
+        public void Print()
         {
             string pre = "";
-
-            DrawOriginalLine(ds);
-
-            DrawTrainingLine(ds);
-
-            DrawTestSeparationLine(ds);
-
-            DrawPredictedLine(ds, predictedList);
-
-            if (trades != null)
+            foreach (var c in Pane.CurveList)
             {
-                DrawTrades(ds, trades);
-                pre = "_trades";
+                if (c.Label.Text.StartsWith("Trade", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    pre = "_trades";
+                    break;
+                }
             }
 
-            Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.ClassShortName + ", Iterations:" + iterations + ", Hidden:" + hidden + ", Cells:" + cells + ")";
-
+            Pane.Title.Text = ds.GetTestArrayY().GetColName(0) + " - (DsType:" + ds.ClassShortName + ", Iterations:" + Iterations + ", Hidden:" + Hidden + ", Cells:" + Cells + ")";
             SaveToFile(ds.GetTestArrayY().GetColName(0) + pre, ds.ClassShortName, Pane);
         }
 
-        private void DrawTrades(StocksDataset ds, List<FinTrade> trades)
+
+        public void DrawTrades(List<FinTrade> trades)
         {
             TimeSerieArray originalData;
 
@@ -241,6 +314,111 @@ namespace VIXAL2
             string filename = Path.Combine(directoryName, pre + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".png");
 
             im.Save(filename);
+        }
+
+        private static void ReportClear()
+        {
+            reportItems.Clear();
+            reportHeader = null;
+        }
+
+        public static void EnrichReportItemWithTradesData(ReportItem item, List<FinTrade> trades)
+        {
+            //calcolo la media e la somma
+            double gainPerc = 0;
+            double gain = 0;
+            int goodTrades = 0;
+            int badTrades = 0;
+            for (int i = 0; i < trades.Count; i++)
+            {
+                gainPerc += trades[i].GainPerc;
+                if (gainPerc > 0) goodTrades++;
+                else badTrades++;
+            }
+
+            if (trades.Count > 0)
+            {
+                gainPerc = gainPerc / (double)trades.Count;
+                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
+            }
+
+            item.FinTrade_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
+            item.FinTrade_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
+            item.FinTrade_BadTrades = badTrades;
+            item.FinTrade_GoodTrades = goodTrades;
+        }
+
+        public static void EnrichReportItemWithTradesDataWithCommissions(ReportItem item, List<FinTrade> trades)
+        {
+            //calcolo la media e la somma
+            double gainPerc = 0;
+            double gain = 0;
+            int goodTrades = 0;
+            int badTrades = 0;
+            for (int i = 0; i < trades.Count; i++)
+            {
+                gainPerc += trades[i].GainPerc;
+                if (gainPerc > 0) goodTrades++;
+                else badTrades++;
+            }
+
+            if (trades.Count > 0)
+            {
+                gainPerc = gainPerc / (double)trades.Count;
+                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
+            }
+
+            item.FinTradeComm_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
+            item.FinTradeComm_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
+            item.FinTradeComm_BadTrades = badTrades;
+            item.FinTradeComm_GoodTrades = goodTrades;
+        }
+
+        private Image MergeImages(Image image1, Image image2, int space)
+        {
+            Bitmap bitmap = new Bitmap(Math.Max(image1.Width, image2.Width), image1.Height + image2.Height + space);
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                g.Clear(Color.Black);
+                g.DrawImage(image1, 0, 0);
+                g.DrawImage(image2, 0, image1.Height + space);
+            }
+            Image img = bitmap;
+            return img;
+        }
+
+        public static ReportItem ReportItemAdd(StocksDataset ds, double WeightedSlopePerformance, double AvgSlopePerformance, double AvgDiffPerformance)
+        {
+            if (reportHeader == null)
+            {
+                reportHeader = new ReportHeader();
+                reportHeader.Title = "Report of " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+                reportHeader.Text.Add("Dataset type: " + ds.ClassShortName);
+                reportHeader.Text.Add("Predict days: " + ds.PredictDays);
+                reportHeader.Text.Add("Range days: " + ds.Range);
+                reportHeader.Text.Add("Network hidden layers: " + Hidden);
+                reportHeader.Text.Add("Network cells for layer: " + Cells);
+                reportHeader.Text.Add("Iterations: " + Iterations);
+//                reportHeader.Text.Add("Batch size: " + batchsize);
+            }
+
+            string stockName = ds.GetTestArrayY().GetColName(0);
+            ReportItem item = new ReportItem();
+            item.StockName = stockName;
+            item.TimeOfSimulation = DateTime.Now;
+
+            ImageConverter _imageConverter = new ImageConverter();
+
+            //var img1 = zedGraphControl1.GetImage();
+
+            //var img2 = zedGraphControl3.GetImage();
+
+            item.WeightedSlopePerformance = WeightedSlopePerformance;
+            item.AvgDiffPerformance = AvgDiffPerformance;
+            item.AvgSlopePerformance = AvgSlopePerformance;
+
+            reportItems.Add(item);
+            return item;
         }
     }
 }

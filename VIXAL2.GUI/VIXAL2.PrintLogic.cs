@@ -9,50 +9,12 @@ using System.Xml.Serialization;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using VIXAL2.Data.Base;
+using VIXAL2.Data.Report;
 
 namespace VIXAL2.GUI
 {
     public partial class VIXAL2Form : Form
     {
-        private class ReportHeader
-        {
-            public string Title;
-            public List<string> Text = new List<string>();
-
-            public override string ToString()
-            {
-                string res = Title + Environment.NewLine;
-                for (int i=0; i<Text.Count; i++)
-                {
-                    res += Text[i];
-                    res += ", ";
-                }
-                return res;
-            }
-        }
-
-        public class ReportItem
-        {
-            public string StockName;
-            public DateTime TimeOfSimulation;
-            //public List<string> Text;
-            [XmlIgnoreAttribute]
-            public byte[] Image1;
-            [XmlIgnoreAttribute]
-            public byte[] Image2;
-            public double WeightedSlopePerformance;
-            public double AvgSlopePerformance;
-            public double AvgDiffPerformance;
-            public double FinTrade_GainPerc;
-            public double FinTrade_Gain;
-            public int FinTrade_GoodTrades;
-            public int FinTrade_BadTrades;
-            public double FinTradeComm_GainPerc;
-            public double FinTradeComm_Gain;
-            public int FinTradeComm_GoodTrades;
-            public int FinTradeComm_BadTrades;
-        }
-
         private List<ReportItem> reportItems = new List<ReportItem>();
         private ReportHeader reportHeader;
 

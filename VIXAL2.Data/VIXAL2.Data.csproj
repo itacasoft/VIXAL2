@@ -87,6 +87,8 @@
     <Compile Include="Base\NormalizedDataSet.cs" />
     <Compile Include="MovingEnhancedAverageDataSet2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Report\ReportHeader.cs" />
+    <Compile Include="Report\ReportItem.cs" />
     <Compile Include="RsiDataSet.cs" />
     <Compile Include="StockDataSet.cs" />
     <Compile Include="Base\TimeSerieArray.cs" />

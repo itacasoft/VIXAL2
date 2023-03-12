@@ -33,9 +33,9 @@ namespace VIXAL2.GUI
 
             LoadListView(orchestrator.DataSet);
             //disegno il grafico dei prezzi reali
-            LoadOriginalLine(orchestrator.DataSet);
+            DrawOriginalLine(orchestrator.DataSet);
 
-            LoadGraphs(orchestrator.DataSet);
+            DrawGraphs(orchestrator.DataSet);
 
             LoadBars(orchestrator.DataSet);
 
@@ -115,7 +115,7 @@ namespace VIXAL2.GUI
             var allLists = ListE.Concat(listV).Concat(listT).Concat(listEx).ToList();
 
             if (orchestrator.DataSet is Data.MovingAverageDataSet)
-                LoadPredictedLine2(orchestrator.DataSet as Data.MovingAverageDataSet, allLists);
+                DrawPredictedLine2(orchestrator.DataSet as Data.MovingAverageDataSet, allLists);
 
             orchestrator.ComputePerformances(listT);
 
@@ -173,7 +173,7 @@ namespace VIXAL2.GUI
         {
             var trades = SimulateFinTrades(false);
             var tradesWithCommissions = SimulateFinTrades(true);
-            LoadTrades(tradesWithCommissions);
+            DrawTrades(tradesWithCommissions);
 
             ReportItem item = ReportItemAdd();
             EnrichReportItemWithTradesData(item, trades);

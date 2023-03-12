@@ -56,15 +56,23 @@ namespace VIXAL2
             Pane.CurveList.Add(separationline);
 
             int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DelayDays;
-            TimeSerieArray testDataY = ds.GetTestArrayY();
+            var myDate = ds.OriginalData.SampleIndexToDate(sample - 1).Value;
 
             separationline.Clear();
             var p1 = new PointPair(sample, ds.MinYValue);
-            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            p1.Tag = "( " + myDate.ToShortDateString() + " )";
             separationline.AddPoint(p1);
             p1 = new PointPair(sample, ds.MaxYValue);
-            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            p1.Tag = "( " + myDate.ToShortDateString() + " )";
             separationline.AddPoint(p1);
+
+            TextObj text = new TextObj("(" + myDate.ToShortDateString() + ")", sample, ds.MinYValue);
+            text.Location.AlignH = AlignH.Center;
+            text.Location.AlignV = AlignV.Bottom;
+            text.FontSpec.Border.IsVisible = false;
+            text.FontSpec.Fill.IsVisible = false;
+            text.FontSpec.Size = 10;
+            Pane.GraphObjList.Add(text);
         }
 
         private void DrawTrainingLine()

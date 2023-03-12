@@ -144,6 +144,8 @@ namespace VIXAL2.GUI
             zedGraphControl3.IsShowPointValues = true;
             zedGraphControl3.PointValueFormat = "0.0000";
             zedGraphControl3.PointDateFormat = "d";
+
+            //zedGraphControl1.GraphPane.XAxis.Type = AxisType.Date;
         }
 
         private void VIXAL2Form_Load(object sender, EventArgs e)
@@ -170,7 +172,7 @@ namespace VIXAL2.GUI
         /// Disegno il grafico dei prezzi originali
         /// </summary>
         /// <param name="ds"></param>
-        private void LoadOriginalLine(StocksDataset ds)
+        private void DrawOriginalLine(StocksDataset ds)
         {
             //disegno il grafico dei prezzi reali normalizzato
             var sample1 = 1;// + ds.PredictDays;
@@ -199,7 +201,7 @@ namespace VIXAL2.GUI
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
 
-        private void LoadPredictedLine2(MovingAverageDataSet ds, List<DoubleDatedValue> predictedList)
+        private void DrawPredictedLine2(MovingAverageDataSet ds, List<DoubleDatedValue> predictedList)
         {
             LineItem predictedLine2 = null;
             foreach  (LineItem l in this.zedGraphControl1.GraphPane.CurveList)
@@ -248,7 +250,7 @@ namespace VIXAL2.GUI
         /// </summary>
         /// <param name="trades"></param>
         /// <exception cref="Exception"></exception>
-        private void LoadTrades(List<FinTrade> trades)
+        private void DrawTrades(List<FinTrade> trades)
         {
             TimeSerieArray originalData;
 
@@ -288,7 +290,7 @@ namespace VIXAL2.GUI
         }
 
 
-        private void LoadGraphs(StocksDataset ds)
+        private void DrawGraphs(StocksDataset ds)
         {
             const int COL_TO_DRAW = 0;
             var trainDataY = ds.GetTrainArrayY();
@@ -343,15 +345,44 @@ namespace VIXAL2.GUI
         private void DrawTestSeparationLine(StocksDataset ds)
         {
             int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DelayDays;
-            TimeSerieArray testDataY = ds.GetTestArrayY();
+            var myDate = orchestrator.DataSet.OriginalData.SampleIndexToDate(sample - 1).Value;
 
             separationline.Clear();
             var p1 = new PointPair(sample, ds.MinYValue);
-            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            p1.Tag = "( " + myDate.ToShortDateString() + " )";
             separationline.AddPoint(p1);
             p1 = new PointPair(sample, ds.MaxYValue);
-            p1.Tag = "( " + testDataY.GetDate(0).ToShortDateString() + " )";
+            p1.Tag = "( " + myDate.ToShortDateString() + " )";
             separationline.AddPoint(p1);
+
+            var t = GetOrCreateText("l1");
+            t.Text = "(" + myDate.ToShortDateString() + ")";
+            t.Location.X = sample;
+            t.Location.Y = ds.MinYValue;
+        }
+
+        private TextObj GetOrCreateText(string name)
+        {
+            TextObj text = null;
+
+            for (int i=0; i< zedGraphControl1.GraphPane.GraphObjList.Count; i++ )
+            {
+                if (zedGraphControl1.GraphPane.GraphObjList[i].Tag == name)
+                    text = (TextObj)zedGraphControl1.GraphPane.GraphObjList[i];
+            }
+
+            if (text == null)
+            {
+                text = new TextObj();
+                text.Location.AlignH = AlignH.Center;
+                text.FontSpec.Border.IsVisible = false;
+                text.FontSpec.Fill.IsVisible = false;
+                text.FontSpec.Size = 10;
+                text.Tag = name;
+                zedGraphControl1.GraphPane.GraphObjList.Add(text);
+            }
+
+            return text;
         }
 
         private void LoadListView(StocksDataset ds)

@@ -1,48 +1,34 @@
 ﻿using NeuralNetwork.Base;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Xml.Serialization;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
-using VIXAL2.Data.Report;
+using VIXAL2.Report;
 using ZedGraph;
 
 namespace VIXAL2
 {
-    internal class ReportManager
+    internal class GraphManager
     {
         #region StaticProperties
-        public static int Iterations;
-        public static int Hidden;
-        public static int Cells;
-        public static int BatchSize;
-        private static List<ReportItem> reportItems;
-        private static ReportHeader reportHeader;
-        public static DateTime ReportDate;
-
         public static List<DoubleDatedValue> latestPredictedList;
+        #endregion
 
-        public static void InitialConstructor(int iterations, int hiddenLayers, int cells, int batchSize)
+        public int Iterations;
+        public int Hidden;
+        public int Cells;
+        public int BatchSize;
+        GraphPane Pane;
+        LineItem originalLine;
+        StocksDataset ds;
+
+        public GraphManager(StocksDataset ds, int iterations, int hiddenLayers, int cells, int batchSize)
         {
             Iterations = iterations;
             Hidden = hiddenLayers;
             Cells = cells;
             BatchSize = batchSize;
-            reportItems = new List<ReportItem>();
-            ReportDate = DateTime.Now;
-        }
-        #endregion
-
-        GraphPane Pane;
-        LineItem originalLine;
-        StocksDataset ds;
-
-        public ReportManager(StocksDataset ds)
-        {
             this.ds = ds;
             Pane = new GraphPane(new RectangleF(0, 0, 8000, 2000), "Model Evaluation", "Samples", "Observed/Predicted");
         }
@@ -278,31 +264,6 @@ namespace VIXAL2
             Pane.XAxis.Scale.Min = -20;
         }
 
-        public static void SaveToXML(string pre, string dsType, List<FinTrade> trades)
-        {
-            var serializer = new XmlSerializer(typeof(List<FinTrade>));
-            string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
-
-            string directoryName = CreateAndGetDirectory(dsType);
-            string filename = Path.Combine(directoryName, pre + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
-
-            using (var writer = new StreamWriter(filename))
-            {
-                serializer.Serialize(writer, trades);
-            }
-
-        }
-
-        private static string CreateAndGetDirectory(string dsType)
-        {
-            string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
-
-            string result = Path.Combine(reportFolder, dsType + "_" + ReportDate.ToString("yyyyMMdd_HHmm"));
-            if (!System.IO.Directory.Exists(result))
-                System.IO.Directory.CreateDirectory(result);
-            return result;
-        }
-
         public static void SaveToFile(string pre, string dsType, GraphPane pane)
         {
             Bitmap bm = new Bitmap(10, 10);
@@ -311,119 +272,7 @@ namespace VIXAL2
 
             Image im = pane.GetImage();
 
-            string directoryName = CreateAndGetDirectory(dsType);
-            string filename = Path.Combine(directoryName, pre + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".png");
-
-            im.Save(filename);
+            Manager.SaveToFile(pre, dsType, im);
         }
-
-        private static void ReportClear()
-        {
-            reportItems.Clear();
-            reportHeader = null;
-        }
-
-        public static void EnrichReportItemWithTradesData(ReportItem item, List<FinTrade> trades)
-        {
-            //calcolo la media e la somma
-            double gainPerc = 0;
-            double gain = 0;
-            int goodTrades = 0;
-            int badTrades = 0;
-            for (int i = 0; i < trades.Count; i++)
-            {
-                gainPerc += trades[i].GainPerc;
-                if (gainPerc > 0) goodTrades++;
-                else badTrades++;
-            }
-
-            if (trades.Count > 0)
-            {
-                gainPerc = gainPerc / (double)trades.Count;
-                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
-            }
-
-            item.FinTrade_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
-            item.FinTrade_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
-            item.FinTrade_BadTrades = badTrades;
-            item.FinTrade_GoodTrades = goodTrades;
-        }
-
-        public static void EnrichReportItemWithTradesDataWithCommissions(ReportItem item, List<FinTrade> trades)
-        {
-            //calcolo la media e la somma
-            double gainPerc = 0;
-            double gain = 0;
-            int goodTrades = 0;
-            int badTrades = 0;
-            for (int i = 0; i < trades.Count; i++)
-            {
-                gainPerc += trades[i].GainPerc;
-                if (gainPerc > 0) goodTrades++;
-                else badTrades++;
-            }
-
-            if (trades.Count > 0)
-            {
-                gainPerc = gainPerc / (double)trades.Count;
-                gain = trades[trades.Count - 1].EndMoney - trades[0].StartMoney;
-            }
-
-            item.FinTradeComm_GainPerc = Math.Round(gainPerc, 3, MidpointRounding.AwayFromZero);
-            item.FinTradeComm_Gain = Math.Round(gain, 2, MidpointRounding.AwayFromZero);
-            item.FinTradeComm_BadTrades = badTrades;
-            item.FinTradeComm_GoodTrades = goodTrades;
-        }
-
-        public static void PrintOverallReport(string dsType)
-        {
-            List<ReportItem> sortedReportItems = reportItems.OrderBy(o => o.WeightedSlopePerformance).ToList();
-
-            var serializer = new XmlSerializer(typeof(List<ReportItem>));
-
-            string directoryName = CreateAndGetDirectory(dsType);
-            string filename = Path.Combine(directoryName, "overall_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
-
-            using (var writer = new StreamWriter(filename))
-            {
-                serializer.Serialize(writer, sortedReportItems);
-            }
-        }
-
-        public static ReportItem ReportItemAdd(StocksDataset ds, double WeightedSlopePerformance, double AvgSlopePerformance, double AvgDiffPerformance)
-        {
-            if (reportHeader == null)
-            {
-                reportHeader = new ReportHeader();
-                reportHeader.Title = "Report of " + DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-                reportHeader.Text.Add("Dataset type: " + ds.DsType.ToString());
-                reportHeader.Text.Add("Predict days: " + ds.PredictDays);
-                reportHeader.Text.Add("Range days: " + ds.Range);
-                reportHeader.Text.Add("Network hidden layers: " + Hidden);
-                reportHeader.Text.Add("Network cells for layer: " + Cells);
-                reportHeader.Text.Add("Iterations: " + Iterations);
-                reportHeader.Text.Add("Batch size: " + BatchSize);
-            }
-
-            string stockName = ds.GetTestArrayY().GetColName(0);
-            ReportItem item = new ReportItem();
-            item.StockName = stockName;
-            item.TimeOfSimulation = DateTime.Now;
-
-            ImageConverter _imageConverter = new ImageConverter();
-
-            //var img1 = zedGraphControl1.GetImage();
-
-            //var img2 = zedGraphControl3.GetImage();
-
-            item.WeightedSlopePerformance = WeightedSlopePerformance;
-            item.AvgDiffPerformance = AvgDiffPerformance;
-            item.AvgSlopePerformance = AvgSlopePerformance;
-
-            reportItems.Add(item);
-            return item;
-        }
-
-
     }
 }

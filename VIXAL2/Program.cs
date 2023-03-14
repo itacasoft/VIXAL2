@@ -95,7 +95,7 @@ namespace VIXAL2
             SimulationManager.HiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
             SimulationManager.CellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
 
-            ReportManager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount, SimulationManager.BatchSize);
+            Report.Manager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount, SimulationManager.BatchSize);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("VIXAL2 started with parameters: ");
@@ -115,7 +115,7 @@ namespace VIXAL2
                 sim.StartTraining(i);
             }
 
-            ReportManager.PrintOverallReport(dsType.ToString());
+            Report.Manager.PrintOverallReportAsExcel(dsType.ToString());
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("VIXAL2 simulation ENDED. That's all folks :)!");

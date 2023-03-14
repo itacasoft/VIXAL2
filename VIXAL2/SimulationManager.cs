@@ -124,7 +124,7 @@ namespace VIXAL2
 
             var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
 
-            ReportManager.latestPredictedList = allLists;
+            GraphManager.latestPredictedList = allLists;
             //ReportManager reportMan = new ReportManager(orchestrator.DataSet);
             //reportMan.DrawPredicted(allLists);
             //reportMan.Print();
@@ -140,17 +140,17 @@ namespace VIXAL2
             Console.WriteLine(yStock + "|" + "Trading... ");
 
             List<FinTrade> trades = orchestrator.SimulateFinTrades(true);
-            ReportItem item = ReportManager.ReportItemAdd(orchestrator.DataSet, orchestrator.WeightedSlopePerformance, orchestrator.AvgSlopePerformance, orchestrator.AvgDiffPerformance);
-            ReportManager.EnrichReportItemWithTradesData(item, trades);
-            ReportManager.EnrichReportItemWithTradesDataWithCommissions(item, trades);
+            ReportItem item = Report.Manager.ReportItemAdd(orchestrator.DataSet, orchestrator.WeightedSlopePerformance, orchestrator.AvgSlopePerformance, orchestrator.AvgDiffPerformance);
+            Report.Manager.EnrichReportItemWithTradesData(item, trades);
+            Report.Manager.EnrichReportItemWithTradesDataWithCommissions(item, trades);
 
-            ReportManager reportMan = new ReportManager(orchestrator.DataSet);
-            reportMan.DrawLatestPredicted();
-            reportMan.DrawTrades(trades);
-            reportMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
-            reportMan.Print();
+            GraphManager graphMan = new GraphManager(orchestrator.DataSet, trainingIterations, HiddenLayers, CellsCount, BatchSize);
+            graphMan.DrawLatestPredicted();
+            graphMan.DrawTrades(trades);
+            graphMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
+            graphMan.Print();
 
-            ReportManager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
+            Report.Manager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
         }
 
         private void OnReiterate(StocksDataset dataset)

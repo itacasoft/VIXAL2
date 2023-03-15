@@ -6,6 +6,7 @@ using VIXAL2.Data;
 using VIXAL2.Data.Report;
 using NeuralNetwork.Base;
 using VIXAL2.Data.Base;
+using System.Configuration;
 
 namespace VIXAL2
 {
@@ -27,6 +28,14 @@ namespace VIXAL2
         /// Numero di celle della rete neurale
         /// </summary>
         public static int CellsCount;
+
+        public static void InitialConstructor()
+        {
+            SimulationManager.BatchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
+            SimulationManager.HiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
+            SimulationManager.CellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
+        }
+
         #endregion
         /// <summary>
         /// Numero di iterazioni all'interno di un training
@@ -56,11 +65,19 @@ namespace VIXAL2
         /// CSV file containing values for training
         /// </summary>
         string inputFile;
+        /// <summary>
+        /// Filter by date (from)
+        /// </summary>
+        string sDataDa;
+        /// <summary>
+        /// Filter by date (to)
+        /// </summary>
+        string sDataA;
 
         string yStock;
         LSTMOrchestrator orchestrator;
 
-        public SimulationManager(string inputFile, DataSetType dsType, int predictDays, int range, int trainingIterations, bool mustReiterate)
+        public SimulationManager(string inputFile, DataSetType dsType, int predictDays, int range, int trainingIterations, bool mustReiterate, string sDataDa = "1900.01.01", string sDataA = "2099.12.31")
         {
             this.inputFile = inputFile;
             this.dsType = dsType;
@@ -68,6 +85,8 @@ namespace VIXAL2
             this.range = range;
             this.trainingIterations = trainingIterations;
             this.mustReiterate = mustReiterate;
+            this.sDataA = sDataA;
+            this.sDataDa = sDataDa;
 
             orchestrator = new LSTMOrchestrator(OnReiterate, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, BatchSize);
         }
@@ -75,7 +94,7 @@ namespace VIXAL2
 
         public void StartTraining(int stockIndex)
         {
-            var ds = orchestrator.LoadAndPrepareDataSet(inputFile, stockIndex, 1, dsType, predictDays, range);
+            var ds = orchestrator.LoadAndPrepareDataSet(inputFile, stockIndex, 1, dsType, predictDays, range, sDataDa, sDataA);
             yStock = ds.GetTestArrayY().GetColName(0);
 
             Utils.DrawMessage(yStock + "|" + prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, 0), ConsoleColor.Gray);

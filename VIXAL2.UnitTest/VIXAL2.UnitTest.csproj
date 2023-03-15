@@ -67,6 +67,7 @@
     <Compile Include="TestPerformanceAvg.cs" />
     <Compile Include="TestPerformances.cs" />
     <Compile Include="TestFinTrades.cs" />
+    <Compile Include="TestRSI.cs" />
     <Compile Include="TestTrades.cs" />
     <Compile Include="TestVixal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

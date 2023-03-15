@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SharpML.Types;
 using Accord.Math;
 using Accord.Statistics;
 using System.Data;
@@ -12,81 +11,119 @@ namespace VIXAL2.Data
 {
     public static class DatasetFactory
     {
-        private static void ProcessData(string[][] stocks, out List<string> stockNames, out List<DateTime> stockDates, out double[][] stocksData)
+        private static RawStocksData InternalLoadArrayAsRawData(string[][] rawData)
         {
             //first row is header (symbols), exluding the first field (date)
-            stockNames = new List<string>();
-            for (int i = 1; i < stocks[0].Length; i++)
+            RawStocksData result = new RawStocksData(rawData.Length - 1);
+
+            for (int i = 1; i < rawData[0].Length; i++)
             {
-                stockNames.Add(stocks[0][i]);
+                result.stockNames.Add(rawData[0][i]);
             }
 
-            stockDates = new List<DateTime>();
-
-            stocksData = new double[stocks.Length - 1][];
-            for (int row = 1; row < stocks.Length; row++)
+            for (int row = 1; row < rawData.Length; row++)
             {
-                stocksData[row - 1] = new double[stocks[row].Length - 1]; //first column is dates
+                result.stocksData[row - 1] = new double[rawData[row].Length - 1]; //first column is dates
 
                 DateTime stockDate;
-                if (!DateTime.TryParse(stocks[row][0], out stockDate))
-                    throw new Exception(stocks[row][0] + " at row " + row.ToString() + " does not represent a valid date");
-                stockDates.Add(stockDate);
+                if (!DateTime.TryParse(rawData[row][0], out stockDate))
+                    throw new Exception(rawData[row][0] + " at row " + row.ToString() + " does not represent a valid date");
+                result.stockDates.Add(stockDate);
 
-                for (int col = 1; col < stocks[row].Length; col++)
+                for (int col = 1; col < rawData[row].Length; col++)
                 {
-                    if (!double.TryParse(stocks[row][col], out stocksData[row - 1][col - 1]))
+                    if (!double.TryParse(rawData[row][col], out result.stocksData[row - 1][col - 1]))
                     {
                         throw new InvalidCastException("Field at row " + (row).ToString() + ", col " + col.ToString() + " is not a valid double value");
                     }
                 }
             }
-        }
 
-
-        private static Tuple<List<string>, List<DateTime>, double[][]> LoadCsvAsTuple(string inputCsv)
-        {
-            string[][] stocks = SharpML.Types.Utils.LoadCsvAsStrings(inputCsv);
-
-            List<string> stockNames;
-            List<DateTime> stockDates;
-            double[][] stocksData;
-            ProcessData(stocks, out stockNames, out stockDates, out stocksData);
-
-            FillNaNs(stocksData);
-
-            Tuple<List<string>, List<DateTime>, double[][]> result = Tuple.Create(stockNames, stockDates, stocksData);
             return result;
         }
 
-        public static StocksDataset CreateDataset(string inputCsv, int firstColumnToPredict, int predictCount, DataSetType dataSetType)
+        public static Tuple<int, int> DatesToIndexes(DateTime dataDa, DateTime dataA, List<DateTime> dates)
         {
-            var t = LoadCsvAsTuple(inputCsv);
+            int indexDa = -1;
+            int indexA = -1;
+            for (int i = 0; i < dates.Count; i++)
+            {
+                if (dates[i] >= dataDa)
+                {
+                    indexDa = i;
+                    break;
+                }
+            }
+
+            for (int i = dates.Count - 1; i >= 0; i--)
+            {
+                if (dates[i] <= dataA)
+                {
+                    indexA = i;
+                    break;
+                }
+            }
+
+            return new Tuple<int, int>(indexDa, indexA);
+        }
+
+        public static RawStocksData LoadArrayAsRawData(string[][] stocksData, string sDataDa = "1900.01.01", string sDataA = "2099.12.31")
+        {
+            var result = InternalLoadArrayAsRawData(stocksData);
+            FillNaNs(result.stocksData);
+
+            bool filter = (sDataDa != "1900.01.01") || (sDataA != "2099.12.31");
+
+            if (filter)
+            {
+                DateTime dataDa, dataA;
+                DateTime.TryParse(sDataDa, out dataDa);
+                DateTime.TryParse(sDataA, out dataA);
+
+                var t = DatesToIndexes(dataDa, dataA, result.stockDates);
+
+                //Filter by indexes
+                result.stocksData = result.stocksData.Skip(t.Item1).Take(t.Item2 - t.Item1 + 1).ToArray();
+                result.stockDates = result.stockDates.Skip(t.Item1).Take(t.Item2 - t.Item1 + 1).ToList();
+            }
+
+            return result;
+        }
+
+        public static RawStocksData LoadCsvAsRawData(string inputCsv, string sDataDa = "1900.01.01", string sDataA = "2099.12.31")
+        {
+            string[][] stocksData = SharpML.Types.Utils.LoadCsvAsStrings(inputCsv);
+            return LoadArrayAsRawData(stocksData, sDataDa, sDataA);
+        }
+
+        public static StocksDataset CreateDataset(string inputCsv, int firstColumnToPredict, int predictCount, DataSetType dataSetType, string sDataDa = "1900.01.01", string sDataA = "2099.12.31")
+        {
+            var t = LoadCsvAsRawData(inputCsv, sDataDa, sDataA);
 
             //check if config is correct
-            if (predictCount > t.Item3.Length)
+            if (predictCount > t.stocksData.Length)
                 throw new ArgumentException("PredictCount cannot be larger than input columns");
 
             StocksDataset ds;
             if (dataSetType == DataSetType.MovingAverage)
             {
-                ds = new MovingAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
+                ds = new MovingAverageDataSet(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == DataSetType.RSI)
             {
-                ds = new RsiDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
+                ds = new RsiDataSet(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == DataSetType.Enh_MovingAverage)
             {
-                ds = new MovingEnhancedAverageDataSet(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
+                ds = new MovingEnhancedAverageDataSet(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == DataSetType.Enh2_MovingAverage)
             {
-                ds = new MovingEnhancedAverageDataSet2(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
+                ds = new MovingEnhancedAverageDataSet2(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
             }
             else
             {
-                ds = new StocksDataset(t.Item1.ToArray(), t.Item2.ToArray(), t.Item3, firstColumnToPredict, predictCount);
+                ds = new StocksDataset(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
             }
             return ds;
         }

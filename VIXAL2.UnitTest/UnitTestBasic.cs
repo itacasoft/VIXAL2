@@ -1,8 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharpML.Types;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using VIXAL2.Data;
+using VIXAL2.Data.Base;
 using VIXAL2.UnitTest.Data;
 
 namespace VIXAL2.UnitTest
@@ -74,469 +76,118 @@ namespace VIXAL2.UnitTest
 
 
         [TestMethod]
-        public void TestMovingAverageArray1()
+        public void Test_DatesToIndexes()
         {
-            double[] MM = {
-            1.00,
-            2.00,
-            3.00,
-            4.00,
-            5.00,
-            6.00,
-            7.00,
-            8.00,
-            9.00,
-            10.00};
+            List<DateTime> dates = new List<DateTime>();
+            dates.Add(Convert.ToDateTime("2022-01-04"));
+            dates.Add(Convert.ToDateTime("2022-01-05"));
+            dates.Add(Convert.ToDateTime("2022-01-06"));
+            dates.Add(Convert.ToDateTime("2022-01-07"));
+            dates.Add(Convert.ToDateTime("2022-01-08"));
+            dates.Add(Convert.ToDateTime("2022-01-11"));
+            dates.Add(Convert.ToDateTime("2022-01-12"));
+            dates.Add(Convert.ToDateTime("2022-01-13"));
+            dates.Add(Convert.ToDateTime("2022-01-16"));
+            dates.Add(Convert.ToDateTime("2022-01-17"));
 
-            int range = 3;
-            double[] input = (double[])MM.Clone();
+            var result = DatasetFactory.DatesToIndexes(Convert.ToDateTime("2022-01-10"), Convert.ToDateTime("2022-01-13"), dates);
+            Assert.AreEqual(result.Item1, 5);
+            Assert.AreEqual(result.Item2, 7);
 
-            double[] output = MovingAverageDataSet.GetMovingAverage(input, range);
-            Assert.AreEqual(output.Length, input.Length);
-            Assert.IsTrue(output[0] == 1 || double.IsNaN(output[0]));
-            Assert.IsTrue(output[1] == 1.5 || double.IsNaN(output[1]));
-            Assert.AreEqual(output[2], 2);
-            Assert.AreEqual(output[3], 3);
+            result = DatasetFactory.DatesToIndexes(Convert.ToDateTime("1900-01-01"), Convert.ToDateTime("2100-01-13"), dates);
+            Assert.AreEqual(result.Item1, 0);
+            Assert.AreEqual(result.Item2, 9);
         }
 
         [TestMethod]
-        public void TestMovingAverageArray2()
+        public void Test_LoadCsvAsRawData_NoFilter()
         {
-            double[][] input =
-            {
-                new double[] { 1, 0, 1 },
-                new double[] { 2, 2, 3 },
-                new double[] { 3, 4, 5 },
-                new double[] { 4, 6, 7 },
-                new double[] { 5, 8, 9 },
-                new double[] { 6, 10, 11 },
-                new double[] { 7, 12, 13 },
-                new double[] { 8, 14, 15 },
-                new double[] { 9, 16, 17 },
-                new double[] { 10, 18, 19 }
-            };
+            string[][] stocksData = new string[11][];
+            for (int row = 0; row < 11; row++) stocksData[row] = new string[3];
 
-            int range = 3;
-            double[][] output = MovingAverageDataSet.GetMovingAverage(input, range);
-            Assert.AreEqual(output.Length, input.Length);
-            Assert.IsTrue(output[0][0] == 1 || double.IsNaN(output[0][0]));
-            Assert.IsTrue(output[1][0] == 1.5 || double.IsNaN(output[1][0]));
-            Assert.AreEqual(output[2][0], 2);
-            Assert.AreEqual(output[3][0], 3);
-            Assert.AreEqual(output[3][1], 4);
+            stocksData[0][0] = "Date";
+            stocksData[0][1] = "APPLE";
+            stocksData[0][2] = "ENI";
+
+            stocksData[1][0] = "2017.03.14";
+            stocksData[2][0] = "2017.03.15";
+            stocksData[3][0] = "2017.03.16";
+            stocksData[4][0] = "2017.03.17";
+            stocksData[5][0] = "2017.03.20";
+            stocksData[6][0] = "2017.03.21";
+            stocksData[7][0] = "2017.03.22";
+            stocksData[8][0] = "2017.03.23";
+            stocksData[9][0] = "2017.03.24";
+            stocksData[10][0] = "2017.03.27";
+
+            for (int row = 1; row < 11; row++)
+            {
+                stocksData[row][1] = "2,01";
+                stocksData[row][2] = "3,66";
+            }
+
+            RawStocksData raw = DatasetFactory.LoadArrayAsRawData(stocksData);
+            Assert.AreEqual(raw.stockNames.Count, 2);
+            Assert.AreEqual(raw.stockNames[1], "ENI");
+
+            Assert.AreEqual(raw.stockDates.Count, 10);
+            Assert.AreEqual(raw.stockDates[0], Convert.ToDateTime("2017.03.14"));
+            Assert.AreEqual(raw.stockDates[2], Convert.ToDateTime("2017.03.16"));
+
+            Assert.AreEqual(raw.stocksData.Length, 10);
+            Assert.AreEqual(raw.stocksData[2][1], 3.66);
+            Assert.AreEqual(raw.stocksData[3][0], 2.01);
         }
 
         [TestMethod]
-        public void TestRsi()
+        public void Test_LoadCsvAsRawData_Filtered()
         {
-            double[] input1 =
-            {
-                1,
-                2,
-                3,
-                2,
-                1,
-                2,
-                300,
-                10,
-                1
-            };
+            string[][] stocksData = new string[11][];
+            for (int row = 0; row < 11; row++) stocksData[row] = new string[3];
 
-            double res = RsiDataSet.SingleRsi(input1);
-            Assert.AreEqual(res, 50.0);
+            stocksData[0][0] = "Date";
+            stocksData[0][1] = "APPLE";
+            stocksData[0][2] = "ENI";
+
+            stocksData[1][0] = "2017.03.14";
+            stocksData[2][0] = "2017.03.15";
+            stocksData[3][0] = "2017.03.16";
+            stocksData[4][0] = "2017.03.17";
+            stocksData[5][0] = "2017.03.20";
+            stocksData[6][0] = "2017.03.21";
+            stocksData[7][0] = "2017.03.22";
+            stocksData[8][0] = "2017.03.23";
+            stocksData[9][0] = "2017.03.24";
+            stocksData[10][0] = "2017.03.27";
+
+            for (int row = 1; row < 11; row++)
+            {
+                stocksData[row][1] = "2,01";
+                stocksData[row][2] = "3,66";
+            }
+
+            RawStocksData raw = DatasetFactory.LoadArrayAsRawData(stocksData, "2017.03.14", "2017.03.16");
+
+            Assert.AreEqual(raw.stockDates.Count, 3);
+            Assert.AreEqual(raw.stockDates[0], Convert.ToDateTime("2017.03.14"));
+            Assert.AreEqual(raw.stockDates[2], Convert.ToDateTime("2017.03.16"));
+            Assert.AreEqual(raw.stocksData.Length, 3);
+
+            raw = DatasetFactory.LoadArrayAsRawData(stocksData, "2017.03.15", "2017.03.18");
+
+            Assert.AreEqual(raw.stockDates.Count, 3);
+            Assert.AreEqual(raw.stockDates[0], Convert.ToDateTime("2017.03.15"));
+            Assert.AreEqual(raw.stockDates[2], Convert.ToDateTime("2017.03.17"));
+            Assert.AreEqual(raw.stocksData.Length, 3);
+
+
+            raw = DatasetFactory.LoadArrayAsRawData(stocksData, "2017.03.25");
+
+            Assert.AreEqual(raw.stockDates.Count, 1);
+            Assert.AreEqual(raw.stockDates[0], Convert.ToDateTime("2017.03.27"));
+            Assert.AreEqual(raw.stocksData.Length, 1);
         }
 
-        [TestMethod]
-        public void TestRsi2()
-        {
-            double[] RR0 = {
-            8.97,
-            7.099296,
-            7.156265,
-            7.055473,
-            5.777599,
-            6.057189,
-            5.689953,
-            6.017749,
-            5.866998,
-            6.104518,
-            6.391996,
-            6.386737,
-            7.340321,
-            7.645328
-            };
-
-            double[] RR = {
-            8.97,
-            7.099296,
-            7.156265,
-            7.055473,
-            5.777599,
-            6.057189,
-            5.689953,
-            6.017749,
-            5.866998,
-            6.104518,
-            6.391996,
-            6.386737,
-            7.340321,
-            7.645328,
-            7.634810,
-            7.201841,
-            7.531389,
-            8.080927,
-            8.063396,
-            8.622577,
-            8.172955,
-            8.164190,
-            8.263230,
-            8.146661,
-            8.158054,
-            8.158054,
-            8.158054,
-            8.034474,
-            7.521747,
-            7.409561,
-            7.526130,
-            7.392033,
-            6.976592,
-            7.316656,
-            7.425338,
-            7.230763,
-            7.365738,
-            7.611146,
-            7.850419,
-            7.637440,
-            7.637440,
-            7.196583,
-            7.613775,
-            7.382391,
-            7.498959,
-            7.564693,
-            7.564693,
-            7.564693,
-            7.637440,
-            7.471789,
-            7.462148,
-            7.467408,
-            7.990771,
-            7.738781,
-            7.780318,
-            7.589248,
-            7.544942,
-            7.624324,
-            7.637247,
-            7.799701,
-            7.838470,
-            7.497867,
-            7.698167,
-            8.095999,
-            8.306452,
-            8.274145,
-            8.774433,
-            8.920274,
-            8.654440,
-            8.519674,
-            7.920620,
-            7.926158,
-            7.919697,
-            8.247377,
-            8.211378,
-            8.155073,
-            8.191072,
-            8.125536,
-            8.211378,
-            7.820009,
-            7.828316,
-            7.750781,
-            7.961234,
-            7.836624
-            };
-
-            int range = 14;
-            double[] input = (double[])RR.Clone();
-
-            double[] output = RsiDataSet.GetRsi(input, range);
-            double a = RsiDataSet.SingleRsi(RR0);
-            Assert.AreEqual(a, output[13]);
-            Assert.AreEqual(output.Length, input.Length);
-
-            double[] input1 = new double[range];
-            Array.Copy(RR, RR.Length - 14, input1, 0, 14);
-
-            double[] rsi1 = RsiDataSet.GetRsi(input1, range);
-            double b = RsiDataSet.SingleRsi(input1);
-            Assert.AreEqual(b, rsi1[13]);
-        }
-
-        [TestMethod]
-        public void TestRsiDataSet()
-        {
-            const int RANGE = 14;
-            const int FIRST_PREDICT = 0;
-            const int PREDICT_DAYS = 10;
-            const int EXPECTED_TRAINCOUNT = 52;
-            const int EXPECTED_VALIDCOUNT = 17;
-            const int EXPECTED_TESTCOUNT = 8;
-            const int DATA_LENGHT = 100;
-
-            double[][] data = new double[DATA_LENGHT][];
-
-            for (int i=0; i<data.Length; i++)
-            {
-                data[i] = new double[2];
-                data[i][0] = EnergyData.Eni[i];
-                data[i][1] = EnergyData.Brent[i];
-            }
-
-            Assert.AreEqual(data.Length, DATA_LENGHT);
-
-            DateTime[] DD = new DateTime[data.Length];
-            //fill date array
-            DD[0] = DateTime.Parse("01/01/2010");
-            for (int i= 1; i<data.Length; i++)
-            {
-                DD[i] = DD[i-1].AddDays(1);
-            }
-
-            string[] stocks =
-            {
-                "COMPANY_A",
-                "COMPANY_B"
-            };
-
-
-            RsiDataSet ds = new RsiDataSet(stocks, DD, data, FIRST_PREDICT, 1);
-            ds.PredictDays = PREDICT_DAYS;
-            ds.SetRange(RANGE);
-            ds.Prepare(0.60F, 0.2F);
-
-            //train count
-            Assert.AreEqual(EXPECTED_TRAINCOUNT, Math.Floor((data.Length - (RANGE - 1)) * ds.TrainPercent));
-            //valid count
-            Assert.AreEqual(EXPECTED_VALIDCOUNT, Math.Floor((data.Length - (RANGE - 1)) * ds.ValidPercent));
-            //test count
-            Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
-
-            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
-            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
-#if NORMALIZE_FIRST
-            Assert.IsTrue(ds.TestDataY[2][0] > 0.70 && ds.TestDataY[2][0] < 0.75);
-#else
-            Assert.IsTrue(ds.TestDataY[2][0] > 60 && ds.TestDataY[2][0] < 65);
-#endif
-            //assert FeatureLabel structure is equal to the original one
-            var fl = ds.GetFeatureLabelDataSet();
-            Assert.AreEqual(fl["features"].train.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(fl["features"].valid.Length, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(fl["features"].test.Length, EXPECTED_TESTCOUNT);
-            Assert.AreEqual(fl["label"].train.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
-
-#if NORMALIZE_FIRST
-            //assert FeatureLabel values are the same of the original ones
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
-#else
-            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
-            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
-
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
-#endif
-        }
-
-
-        [TestMethod]
-        public void TestMovingAverageDataSet()
-        {
-            const int EXPECTED_TRAINCOUNT = 52;
-            const int EXPECTED_VALIDCOUNT = 17;
-            const int EXPECTED_TESTCOUNT = 8;
-            const int RANGE = 14;
-            const int FIRST_PREDICT = 0;
-            const int PREDICT_DAYS = 10;
-            const int DATA_LENGHT = 100;
-
-
-            double[][] data = new double[DATA_LENGHT][];
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] = new double[2];
-                data[i][0] = EnergyData.Eni[i];
-                data[i][1] = EnergyData.Brent[i];
-            }
-
-            Assert.AreEqual(data.Length, DATA_LENGHT);
-
-            DateTime[] DD = new DateTime[data.Length];
-            //fill date array
-            DD[0] = DateTime.Parse("01/01/2010");
-            for (int i = 1; i < data.Length; i++)
-            {
-                DD[i] = DD[i - 1].AddDays(1);
-            }
-
-            string[] stocks =
-            {
-                "COMPANY_A",
-                "COMPANY_B"
-            };
-
-
-            MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
-            ds.PredictDays = PREDICT_DAYS;
-            ds.SetRange(RANGE);
-            ds.Prepare(0.6F, 0.2F);
-
-
-            //train count
-            Assert.AreEqual(EXPECTED_TRAINCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.TrainPercent));
-            //valid count
-            Assert.AreEqual(EXPECTED_VALIDCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.ValidPercent));
-            //test count
-            Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
-
-            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
-            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
-
-#if NORMALIZE_FIRST
-            Assert.IsTrue(ds.TestDataY[2][0] > 0.80 && ds.TestDataY[2][0] < 0.82);
-#else
-            Assert.IsTrue(ds.TestDataY[2][0] > 7 && ds.TestDataY[2][0] < 8);
-#endif
-
-            //assert FeatureLabel structure is equal to the original one
-            var fl = ds.GetFeatureLabelDataSet();
-            Assert.AreEqual(fl["features"].train.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(fl["features"].valid.Length, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(fl["features"].test.Length, EXPECTED_TESTCOUNT);
-            Assert.AreEqual(fl["label"].train.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
-
-#if NORMALIZE_FIRST
-            //assert FeatureLabel values are the same of the original ones
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
-#else
-            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
-            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
-
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
-#endif
-        }
-
-        [TestMethod]
-        public void TestMovingAverageForwardDataSet()
-        {
-            const int RANGE = 14;
-            const int FIRST_PREDICT = 0;
-            const int PREDICT_DAYS = 10;
-            const int EXPECTED_TRAINCOUNT = 70;
-            const int EXPECTED_VALIDCOUNT = 0;
-            const int EXPECTED_TESTCOUNT = 7;
-            const int DATA_LENGHT = 100;
-
-            double[][] data = new double[DATA_LENGHT][];
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] = new double[2];
-                data[i][0] = EnergyData.Eni[i];
-                data[i][1] = EnergyData.Brent[i];
-            }
-
-            Assert.AreEqual(data.Length, DATA_LENGHT);
-
-            DateTime[] DD = new DateTime[data.Length];
-            //fill date array
-            DD[0] = DateTime.Parse("01/01/2010");
-            for (int i = 1; i < data.Length; i++)
-            {
-                DD[i] = DD[i - 1].AddDays(1);
-            }
-
-            string[] stocks =
-            {
-                "COMPANY_A",
-                "COMPANY_B"
-            };
-
-
-            MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
-            ds.PredictDays = PREDICT_DAYS;
-            ds.SetRange(RANGE);
-            ds.Prepare(0.8F, 0);
-
-            //train count
-            Assert.AreEqual(EXPECTED_TRAINCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.TrainPercent));
-            //valid count
-            Assert.AreEqual(EXPECTED_VALIDCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.ValidPercent));
-            //test count
-            Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
-
-            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
-            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
-            double valueToCheck = ds.TestDataX[0][0];
-
-#if NORMALIZE_FIRST
-            Assert.IsTrue(valueToCheck > 0.82 && valueToCheck < 0.84);
-#else
-            Assert.IsTrue(valueToCheck > 8.0 && valueToCheck < 8.1);
-#endif
-
-            //assert FeatureLabel structure is equal to the original one
-            var fl = ds.GetFeatureLabelDataSet();
-            Assert.AreEqual(fl["features"].train.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(fl["features"].valid.Length, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(fl["features"].test.Length, EXPECTED_TESTCOUNT);
-            Assert.AreEqual(fl["label"].train.Length, EXPECTED_TRAINCOUNT);
-            Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
-            Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
-
-#if NORMALIZE_FIRST
-            //assert FeatureLabel values are the same of the original ones
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
-#else
-            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
-            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
-
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
-            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
-#endif
-
-            bool result = ds.Forward(1);
-            Assert.IsTrue(result);
-            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT + 1);
-            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT + 1);
-            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT - 1);
-            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT - 1);
-            Assert.AreEqual(ds.TrainDataX[70][0], valueToCheck);
-
-            result = ds.Forward(6);
-            Assert.IsFalse(result);
-            Assert.AreEqual(ds.TestCount, 6);
-        }
     }
 }
 

@@ -77,6 +77,7 @@
     <Compile Include="Base\DoubleDatedValue.cs" />
     <Compile Include="Base\IAverageRangeDataSet.cs" />
     <Compile Include="Base\PredictedData.cs" />
+    <Compile Include="Base\RawStocksData.cs" />
     <Compile Include="Base\TimeSerieArrayExt.cs" />
     <Compile Include="Base\FinTrade.cs" />
     <Compile Include="Base\Trade.cs" />

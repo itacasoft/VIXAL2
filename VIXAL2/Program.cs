@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Configuration;
 using System.IO;
 using VIXAL2.Data.Base;
 
@@ -40,7 +39,14 @@ namespace VIXAL2
         /// Stock index where to end simulation
         /// </summary>
         static int endStockIndex = 0;
-
+        /// <summary>
+        /// Filter by date (from, including)
+        /// </summary>
+        static string sFromDate = "1900.01.01";
+        /// <summary>
+        /// Filter by date (to, including)
+        /// </summary>
+        static string sToDate = "2099.12.31";
 
         static void Main(string[] args)
         {
@@ -63,25 +69,33 @@ namespace VIXAL2
             {
                 switch (args[x].Trim().ToLower())
                 {
-                    case "/s":
                     case "/si":
                         startStockIndex = Convert.ToInt32(args[x+1]);
                         break;
-                    case "/e":
                     case "/ei":
                         endStockIndex = Convert.ToInt32(args[x + 1]);
                         break;
                     case "/t":
+                    case "/ty":
                         dsType = (DataSetType)Convert.ToInt32(args[x+1]);
                         break;
                     case "/p":
+                    case "/pr":
                         predictDays = Convert.ToInt32(args[x+1]); 
                         break;
                     case "/r":
+                    case "/ra":
                         range = Convert.ToInt32(args[x+1]);
                         break;
                     case "/i":
+                    case "/it":
                         trainingIterations = Convert.ToInt32(args[x+1]);
+                        break;
+                    case "/fd":
+                        sFromDate = args[x + 1];
+                        break;
+                    case "/td":
+                        sToDate = args[x + 1];
                         break;
                     case "/re":
                         mustReiterate = true; 
@@ -91,10 +105,7 @@ namespace VIXAL2
 
             if (endStockIndex < startStockIndex) endStockIndex = startStockIndex;
 
-            SimulationManager.BatchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
-            SimulationManager.HiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
-            SimulationManager.CellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
-
+            SimulationManager.InitialConstructor();
             Report.Manager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount, SimulationManager.BatchSize);
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -110,8 +121,8 @@ namespace VIXAL2
 
             for (int i = startStockIndex; i <= endStockIndex; i++)
             {
-                Console.WriteLine("Simulation " + (i-startStockIndex+1).ToString() + " of " + (endStockIndex-startStockIndex+1).ToString() + " about to start at " + DateTime.Now.ToShortTimeString());
-                SimulationManager sim = new SimulationManager(inputFile, dsType, predictDays, range, trainingIterations, mustReiterate);
+                Console.WriteLine("Simulation " + (i-startStockIndex+1).ToString() + " of " + (endStockIndex-startStockIndex+1).ToString() + " starting at " + DateTime.Now.ToShortTimeString() + "...");
+                SimulationManager sim = new SimulationManager(inputFile, dsType, predictDays, range, trainingIterations, mustReiterate, sFromDate, sToDate);
                 sim.StartTraining(i);
             }
 
@@ -125,7 +136,7 @@ namespace VIXAL2
         {
             Console.WriteLine("Calculates trend of stocks using LSTM");
             Console.WriteLine();
-            Console.WriteLine("VIXAL2 [filename] /s [stock index] /t [Dataset type] /i [iterations] /p [predict days] /r [range] /re");
+            Console.WriteLine("VIXAL2 [filename] /si [stock index] /ty [Dataset type] /it [iterations] /pr [predict days] /ra [range] /fd [from date (including)] /td [to date (including)] /re");
             Console.WriteLine();
         }
 

@@ -8,7 +8,6 @@ using System.Xml.Serialization;
 using VIXAL2.Data;
 using VIXAL2.Data.Base;
 using VIXAL2.Data.Report;
-using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SpreadsheetLight;
 
@@ -183,40 +182,42 @@ namespace VIXAL2.Report
             string filename = Path.Combine(directoryName, "a_overall_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xlsx");
 
             SLDocument sl = new SLDocument();
-
             int row = 1;
-            sl.SetCellValue(row, 1, "StockName");
-            sl.SetCellValue(row, 2, "TimeOfSimulation");
-            sl.SetCellValue(row, 3, "WeightedSlopePerformance");
-            sl.SetCellValue(row, 4, "AvgSlopePerformance");
-            sl.SetCellValue(row, 5, "AvgDiffPerformance");
-            sl.SetCellValue(row, 6, "FinTrade_GainPerc");
-            sl.SetCellValue(row, 7, "FinTrade_Gain");
-            sl.SetCellValue(row, 8, "FinTrade_GoodTrades");
-            sl.SetCellValue(row, 9, "FinTrade_BadTrades");
-            sl.SetCellValue(row, 10, "FinTradeComm_GainPerc");
-            sl.SetCellValue(row, 11, "FinTradeComm_Gain");
-            sl.SetCellValue(row, 12, "FinTradeComm_GoodTrades");
-            sl.SetCellValue(row, 13, "FinTradeComm_BadTrades");
 
-            SLStyle style = sl.CreateStyle();
-            style.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.Yellow, System.Drawing.Color.Blue);
-            style.Font.Bold = true;
-            sl.SetCellStyle(1, 1, style);
-            sl.SetCellStyle(1, 2, style);
-            sl.SetCellStyle(1, 3, style);
-            sl.SetCellStyle(1, 4, style);
-            sl.SetCellStyle(1, 5, style);
-            sl.SetCellStyle(1, 6, style);
-            sl.SetCellStyle(1, 7, style);
-            sl.SetCellStyle(1, 8, style);
-            sl.SetCellStyle(1, 9, style);
-            sl.SetCellStyle(1, 10, style);
-            sl.SetCellStyle(1, 11, style);
-            sl.SetCellStyle(1, 12, style);
-            sl.SetCellStyle(1, 13, style);
+            if (reportItems.Count > 0)
+            {
+                var item = reportItems[0];
+                sl.SetCellValue(row, 1, nameof(item.StockName));
+                sl.SetCellValue(row, 2, nameof(item.TimeOfSimulation));
+                sl.SetCellValue(row, 3, nameof(item.WeightedSlopePerformance));
+                sl.SetCellValue(row, 4, nameof(item.AvgSlopePerformance));
+                sl.SetCellValue(row, 5, nameof(item.AvgDiffPerformance));
+                sl.SetCellValue(row, 6, nameof(item.FinTrade_GainPerc));
+                sl.SetCellValue(row, 7, nameof(item.FinTrade_Gain));
+                sl.SetCellValue(row, 8, nameof(item.FinTrade_GoodTrades));
+                sl.SetCellValue(row, 9, nameof(item.FinTrade_BadTrades));
+                sl.SetCellValue(row, 10, nameof(item.FinTradeComm_GainPerc));
+                sl.SetCellValue(row, 11, nameof(item.FinTradeComm_Gain));
+                sl.SetCellValue(row, 12, nameof(item.FinTradeComm_GoodTrades));
+                sl.SetCellValue(row, 13, nameof(item.FinTradeComm_BadTrades));
 
-
+                SLStyle style = sl.CreateStyle();
+                style.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.Yellow, System.Drawing.Color.Blue);
+                style.Font.Bold = true;
+                sl.SetCellStyle(1, 1, style);
+                sl.SetCellStyle(1, 2, style);
+                sl.SetCellStyle(1, 3, style);
+                sl.SetCellStyle(1, 4, style);
+                sl.SetCellStyle(1, 5, style);
+                sl.SetCellStyle(1, 6, style);
+                sl.SetCellStyle(1, 7, style);
+                sl.SetCellStyle(1, 8, style);
+                sl.SetCellStyle(1, 9, style);
+                sl.SetCellStyle(1, 10, style);
+                sl.SetCellStyle(1, 11, style);
+                sl.SetCellStyle(1, 12, style);
+                sl.SetCellStyle(1, 13, style);
+            }
             row++;
 
             foreach (var item in reportItems)
@@ -242,7 +243,6 @@ namespace VIXAL2.Report
             sl.SetColumnStyle(2, style1);
 
             SLStyle style2 = sl.CreateStyle();
-            //            style.FormatCode = "#,##0.00 €_);[Red](#,##0.00 €)";
             style2.FormatCode = "#,##0.00 €";
             sl.SetColumnStyle(7, style2);
             sl.SetColumnStyle(11, style2);

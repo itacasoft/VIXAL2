@@ -48,6 +48,246 @@ namespace VIXAL2.UnitTest
 
 
         [TestMethod]
+        public void TestMovingAverageArray1()
+        {
+            double[] MM = {
+            1.00,
+            2.00,
+            3.00,
+            4.00,
+            5.00,
+            6.00,
+            7.00,
+            8.00,
+            9.00,
+            10.00};
+
+            int range = 3;
+            double[] input = (double[])MM.Clone();
+
+            double[] output = MovingAverageDataSet.GetMovingAverage(input, range);
+            Assert.AreEqual(output.Length, input.Length);
+            Assert.IsTrue(output[0] == 1 || double.IsNaN(output[0]));
+            Assert.IsTrue(output[1] == 1.5 || double.IsNaN(output[1]));
+            Assert.AreEqual(output[2], 2);
+            Assert.AreEqual(output[3], 3);
+        }
+
+        [TestMethod]
+        public void TestMovingAverageArray2()
+        {
+            double[][] input =
+            {
+                new double[] { 1, 0, 1 },
+                new double[] { 2, 2, 3 },
+                new double[] { 3, 4, 5 },
+                new double[] { 4, 6, 7 },
+                new double[] { 5, 8, 9 },
+                new double[] { 6, 10, 11 },
+                new double[] { 7, 12, 13 },
+                new double[] { 8, 14, 15 },
+                new double[] { 9, 16, 17 },
+                new double[] { 10, 18, 19 }
+            };
+
+            int range = 3;
+            double[][] output = MovingAverageDataSet.GetMovingAverage(input, range);
+            Assert.AreEqual(output.Length, input.Length);
+            Assert.IsTrue(output[0][0] == 1 || double.IsNaN(output[0][0]));
+            Assert.IsTrue(output[1][0] == 1.5 || double.IsNaN(output[1][0]));
+            Assert.AreEqual(output[2][0], 2);
+            Assert.AreEqual(output[3][0], 3);
+            Assert.AreEqual(output[3][1], 4);
+        }
+
+
+        [TestMethod]
+        public void TestMovingAverageDataSet()
+        {
+            const int EXPECTED_TRAINCOUNT = 52;
+            const int EXPECTED_VALIDCOUNT = 17;
+            const int EXPECTED_TESTCOUNT = 8;
+            const int RANGE = 14;
+            const int FIRST_PREDICT = 0;
+            const int PREDICT_DAYS = 10;
+            const int DATA_LENGHT = 100;
+
+
+            double[][] data = new double[DATA_LENGHT][];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = new double[2];
+                data[i][0] = EnergyData.Eni[i];
+                data[i][1] = EnergyData.Brent[i];
+            }
+
+            Assert.AreEqual(data.Length, DATA_LENGHT);
+
+            DateTime[] DD = new DateTime[data.Length];
+            //fill date array
+            DD[0] = DateTime.Parse("01/01/2010");
+            for (int i = 1; i < data.Length; i++)
+            {
+                DD[i] = DD[i - 1].AddDays(1);
+            }
+
+            string[] stocks =
+            {
+                "COMPANY_A",
+                "COMPANY_B"
+            };
+
+
+            MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
+            ds.PredictDays = PREDICT_DAYS;
+            ds.SetRange(RANGE);
+            ds.Prepare(0.6F, 0.2F);
+
+
+            //train count
+            Assert.AreEqual(EXPECTED_TRAINCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.TrainPercent));
+            //valid count
+            Assert.AreEqual(EXPECTED_VALIDCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.ValidPercent));
+            //test count
+            Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
+
+            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
+            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
+
+#if NORMALIZE_FIRST
+            Assert.IsTrue(ds.TestDataY[2][0] > 0.80 && ds.TestDataY[2][0] < 0.82);
+#else
+            Assert.IsTrue(ds.TestDataY[2][0] > 7 && ds.TestDataY[2][0] < 8);
+#endif
+
+            //assert FeatureLabel structure is equal to the original one
+            var fl = ds.GetFeatureLabelDataSet();
+            Assert.AreEqual(fl["features"].train.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(fl["features"].valid.Length, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(fl["features"].test.Length, EXPECTED_TESTCOUNT);
+            Assert.AreEqual(fl["label"].train.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
+
+#if NORMALIZE_FIRST
+            //assert FeatureLabel values are the same of the original ones
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
+#else
+            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
+            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
+
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
+#endif
+        }
+
+        [TestMethod]
+        public void TestMovingAverageForwardDataSet()
+        {
+            const int RANGE = 14;
+            const int FIRST_PREDICT = 0;
+            const int PREDICT_DAYS = 10;
+            const int EXPECTED_TRAINCOUNT = 70;
+            const int EXPECTED_VALIDCOUNT = 0;
+            const int EXPECTED_TESTCOUNT = 7;
+            const int DATA_LENGHT = 100;
+
+            double[][] data = new double[DATA_LENGHT][];
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = new double[2];
+                data[i][0] = EnergyData.Eni[i];
+                data[i][1] = EnergyData.Brent[i];
+            }
+
+            Assert.AreEqual(data.Length, DATA_LENGHT);
+
+            DateTime[] DD = new DateTime[data.Length];
+            //fill date array
+            DD[0] = DateTime.Parse("01/01/2010");
+            for (int i = 1; i < data.Length; i++)
+            {
+                DD[i] = DD[i - 1].AddDays(1);
+            }
+
+            string[] stocks =
+            {
+                "COMPANY_A",
+                "COMPANY_B"
+            };
+
+
+            MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
+            ds.PredictDays = PREDICT_DAYS;
+            ds.SetRange(RANGE);
+            ds.Prepare(0.8F, 0);
+
+            //train count
+            Assert.AreEqual(EXPECTED_TRAINCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.TrainPercent));
+            //valid count
+            Assert.AreEqual(EXPECTED_VALIDCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.ValidPercent));
+            //test count
+            Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
+
+            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(ds.ValidCount, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT);
+            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT);
+            double valueToCheck = ds.TestDataX[0][0];
+
+#if NORMALIZE_FIRST
+            Assert.IsTrue(valueToCheck > 0.82 && valueToCheck < 0.84);
+#else
+            Assert.IsTrue(valueToCheck > 8.0 && valueToCheck < 8.1);
+#endif
+
+            //assert FeatureLabel structure is equal to the original one
+            var fl = ds.GetFeatureLabelDataSet();
+            Assert.AreEqual(fl["features"].train.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(fl["features"].valid.Length, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(fl["features"].test.Length, EXPECTED_TESTCOUNT);
+            Assert.AreEqual(fl["label"].train.Length, EXPECTED_TRAINCOUNT);
+            Assert.AreEqual(fl["label"].valid.Length, EXPECTED_VALIDCOUNT);
+            Assert.AreEqual(fl["label"].test.Length, EXPECTED_TESTCOUNT);
+
+#if NORMALIZE_FIRST
+            //assert FeatureLabel values are the same of the original ones
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - ds.TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - ds.TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - ds.TestDataY[2][0]) < 0.0000001);
+#else
+            double[][] normalized_TrainDataX = ds.Normalize(ds.TrainDataX);
+            double[][] normalized_TestDataY = ds.Normalize(ds.TestDataY);
+
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][0] - normalized_TrainDataX[3][0]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["features"].train[3][1] - normalized_TrainDataX[3][1]) < 0.0000001);
+            Assert.IsTrue(Math.Abs(fl["label"].test[2][0] - normalized_TestDataY[2][0]) < 0.0000001);
+#endif
+
+            bool result = ds.Forward(1);
+            Assert.IsTrue(result);
+            Assert.AreEqual(ds.TrainDataX.Length, EXPECTED_TRAINCOUNT + 1);
+            Assert.AreEqual(ds.TrainDataY.Length, EXPECTED_TRAINCOUNT + 1);
+            Assert.AreEqual(ds.TestCount, EXPECTED_TESTCOUNT - 1);
+            Assert.AreEqual(ds.TestDataY.Length, EXPECTED_TESTCOUNT - 1);
+            Assert.AreEqual(ds.TrainDataX[70][0], valueToCheck);
+
+            result = ds.Forward(6);
+            Assert.IsFalse(result);
+            Assert.AreEqual(ds.TestCount, 6);
+        }
+
+
+        [TestMethod]
         public void Test_MovingAverageDataset_GetTrainArrayY()
         {
             const int PREDICT_DAYS = 10;

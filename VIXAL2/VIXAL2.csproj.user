@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>"..\\..\\..\\Data\\FullDataSet.csv" /si 0 /ei 4 /t 5 /p 40 /r 10 /i 10 /re</StartArguments>
+    <StartArguments>"..\\..\\..\\Data\\FullDataSet.csv" /si 0 /ei 0 /ty 5 /pr 40 /ra 10 /it 10 /fd 2019.01.01 /re</StartArguments>
   </PropertyGroup>
 </Project>

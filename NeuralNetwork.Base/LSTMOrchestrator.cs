@@ -447,7 +447,7 @@ namespace NeuralNetwork.Base
                 //calcolo la media dei primi DAYS_FOR_PERFORMANCE
                 for (int i = 1; i < SlopePerformances.Length; i++)
                 {
-                    avgSlopePerformance += SlopePerformances[i].FailedPercentage;
+                    avgSlopePerformance += SlopePerformances[i].SuccessPercentage;
                 }
                 avgSlopePerformance = avgSlopePerformance / (SlopePerformances.Length-1);
                 return avgSlopePerformance;
@@ -465,7 +465,7 @@ namespace NeuralNetwork.Base
                 {
                     //il coefficiente del peso deve essere attorno a 1.8-1.9
                     double weight = 1.85 * ((double)SlopePerformances.Length + 1.00 - (double)i)/ (double)SlopePerformances.Length;
-                    result += SlopePerformances[i].FailedPercentage * weight;
+                    result += SlopePerformances[i].SuccessPercentage * weight;
                 }
                 result = result / (SlopePerformances.Length-1);
                 return result;
@@ -482,7 +482,7 @@ namespace NeuralNetwork.Base
 
                 for (int i = 0; i < DiffPerformance.Length; i++)
                 {
-                    avgDiffPerformance += DiffPerformance[i].FailedPercentage;
+                    avgDiffPerformance += DiffPerformance[i].SuccessPercentage;
                 }
                 avgDiffPerformance = avgDiffPerformance / DiffPerformance.Length;
                 return avgDiffPerformance;

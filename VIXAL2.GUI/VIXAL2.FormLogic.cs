@@ -291,7 +291,7 @@ namespace VIXAL2.GUI
                 diffPerformanceDataLine.AddPoint(p);
             }
 
-            zedGraphControl3.GraphPane.Title.Text = "Performance: SlopeDiff(%) = " + orchestrator.AvgSlopePerformance.ToString("P") + "; Diff(%) = " + orchestrator.AvgDiffPerformance.ToString("P");
+            zedGraphControl3.GraphPane.Title.Text = "Performance: SlopePerf(%) = " + orchestrator.AvgSlopePerformance.ToString("P") + "; DiffPerf(%) = " + orchestrator.AvgDiffPerformance.ToString("P");
             zedGraphControl3.RestoreScale(zedGraphControl3.GraphPane);
 
             lblPerformance1.Text = "SlopePerformance (first): " + orchestrator.SlopePerformances[1].ToString();

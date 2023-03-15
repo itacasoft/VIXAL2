@@ -82,20 +82,11 @@ namespace NeuralNetwork.Base
                 ((IAverageRangeDataSet)DataSet).SetRange(range);
             }
 
-            float validPercent = 0;
-
-            //se il dataset fa la media anche su dati futuri, devo escluderli dal test, quindi 
-            //creo anche dati di validation
-            if (DataSet is IFutureAverageRangeDataSet)
-            {
-                int dd = range / 2;
-                validPercent = (float)(dd) / (float)(DataSet.Dates.Count);
-            }
-
-            float trainPercent = 1.0F - DataSet.ValidPercent - 0.05F;
             DataSet.PredictDays = predictDays;
 
-            DataSet.Prepare(trainPercent, validPercent);
+            var t = DataSet.CalculateTrainAndValidPercent(DataSet.Dates.Count, DataSet.PredictDays, DataSet.Range);
+
+            DataSet.Prepare(t.Item1, t.Item2);
             Trades = new List<Trade>();
         }
 

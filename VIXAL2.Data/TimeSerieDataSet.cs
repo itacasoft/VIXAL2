@@ -265,18 +265,26 @@ namespace VIXAL2.Data
             }
         }
 
-
-        protected void SplitData(double[][] input)
+        internal Tuple<int,int,int> CalculateTrainValidTestCount(double trainPerc, double validPerc)
         {
-            int trainTo = Convert.ToInt32(_data.Count * trainPercent);
-            int trainCount = trainTo;
-            int validFrom = trainTo + 1;
-            int validTo = Convert.ToInt32(_data.Count * validPercent) + validFrom;
+            int trainCount = Convert.ToInt32(_data.Count * trainPerc);
+            int validFrom = trainCount + 1;
+            int validTo = Convert.ToInt32(_data.Count * validPerc) + validFrom;
             int validCount = validTo - validFrom;
             int testCount = _data.Count - validCount - trainCount - predictDays;
 
+            return new Tuple<int, int, int>(trainCount, validCount, testCount);
+        }
+
+        protected void SplitData(double[][] input)
+        {
+            var t = CalculateTrainValidTestCount(trainPercent, validPercent);
+            int trainCount = t.Item1;
+            int validCount = t.Item2;
+            int testCount = t.Item3;
+
             if (testCount <= 0)
-                throw new InvalidProgramException("TestCount cannot be < 0");
+                throw new ArgumentOutOfRangeException("TestCount cannot be < 0");
 
             trainDataX = new double[trainCount][];
             for (int row = 0; row < trainDataX.Length; row++)

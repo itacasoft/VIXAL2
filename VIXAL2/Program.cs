@@ -3,6 +3,8 @@ using System.Linq;
 using System.IO;
 using VIXAL2.Data.Base;
 using System.Collections.Generic;
+using System.Configuration;
+using VIXAL2.Data;
 
 namespace VIXAL2
 {
@@ -48,6 +50,22 @@ namespace VIXAL2
         /// Filter by date (to, including)
         /// </summary>
         static string sToDate = "2099.12.31";
+        /// <summary>
+        /// Test samples
+        /// </summary>
+        static int testCount;
+        /// <summary>
+        /// Hidden layers for NN
+        /// </summary>
+        static int hiddenLayers;
+        /// <summary>
+        /// Cells per layer of the NN
+        /// </summary>
+        static int cellsCount;
+        /// <summary>
+        /// Batch size for NN input
+        /// </summary>
+        static int batchSize;
 
         static void Main(string[] args)
         {
@@ -65,6 +83,11 @@ namespace VIXAL2
             inputFile = args[0];
             if (!File.Exists(inputFile))
                 throw new FileNotFoundException("File " + inputFile + " not found");
+
+            //default
+            batchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
+            hiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
+            cellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
 
             for (var x = 1; x < args.Count(); x++)
             {
@@ -101,6 +124,18 @@ namespace VIXAL2
                     case "/re":
                         mustReiterate = true; 
                         break;
+                    case "/tc":
+                        StocksDataset.MinTestCount = Convert.ToInt32(args[x + 1]);
+                        break;
+                    case "/hl":
+                        hiddenLayers = Convert.ToInt32(args[x + 1]);
+                        break;
+                    case "/cc":
+                        cellsCount = Convert.ToInt32(args[x + 1]);
+                        break;
+                    case "/bs":
+                        batchSize = Convert.ToInt32(args[x + 1]);
+                        break;
                 }
             }
 
@@ -117,9 +152,13 @@ namespace VIXAL2
             parameters.Add("DateFrom", sFromDate);
             parameters.Add("DateTo", sToDate);
             parameters.Add("MustReiterate", mustReiterate.ToString());
+            parameters.Add("TestCount", testCount.ToString());
+            parameters.Add("HiddenLayers", hiddenLayers.ToString());
+            parameters.Add("CellsCount", cellsCount.ToString());
+            parameters.Add("BatchSize", batchSize.ToString());
             DisplayParameters(parameters);
 
-            SimulationManager.InitialConstructor();
+            SimulationManager.InitialConstructor(hiddenLayers, cellsCount, batchSize);
             Report.Manager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount, SimulationManager.BatchSize);
             Report.Manager.SaveParametersToFile(dsType.ToString(), parameters);
 

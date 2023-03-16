@@ -1,0 +1,4 @@
+﻿TODO
+- vedere quante iterazioni sono ottimali
+- vedere correlazione trades/slopeperf
+- vedere se le azioni buone a distanza di pochi mesi si mantengono

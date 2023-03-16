@@ -8,6 +8,11 @@ namespace VIXAL2.Data
 {
     public class StocksDataset : TimeSerieDataSet
     {
+        /// <summary>
+        /// Minimum number of sample for tests
+        /// </summary>
+        public static int MinTestCount = -1;
+
         TimeSerieArray originalData;
 
         public Object Obj1;
@@ -180,7 +185,7 @@ namespace VIXAL2.Data
         {
             float minTrainPercent = float.Parse(ConfigurationManager.AppSettings["MinTrainPercent"], CultureInfo.InvariantCulture);
             float minTestPercent = float.Parse(ConfigurationManager.AppSettings["MinTestPercent"], CultureInfo.InvariantCulture);
-            int minTestCount = Convert.ToInt32(ConfigurationManager.AppSettings["MinTestCount"]);
+            if (MinTestCount == -1) MinTestCount = Convert.ToInt32(ConfigurationManager.AppSettings["MinTestCount"]);
 
             float validPerc = 0.0F;
 
@@ -202,10 +207,10 @@ namespace VIXAL2.Data
             int validCount = t.Item2;
             int testCount = t.Item3;
 
-            if (testCount < minTestCount)
+            if (testCount < MinTestCount)
             {
                 //provo ad aumentare la percentuale di test
-                float testPerc2 = (float)(minTestCount + predictDays) / (float)(dataCount);
+                float testPerc2 = (float)(MinTestCount + predictDays) / (float)(dataCount);
                 float trainPerc2 = 1.0F - validPerc - testPerc2;
 
                 if (trainPerc2 < minTrainPercent)

@@ -10,6 +10,7 @@ using VIXAL2.Data.Base;
 using VIXAL2.Data.Report;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SpreadsheetLight;
+using System.Reflection;
 
 namespace VIXAL2.Report
 {
@@ -51,7 +52,7 @@ namespace VIXAL2.Report
         public static void SaveParametersToFile(string dsType, Dictionary<string,string> parames)
         {
             string directoryName = CreateAndGetDirectory(dsType);
-            string filename = Path.Combine(directoryName, "Initial_params_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            string filename = Path.Combine(directoryName, "1_initial_params_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
 
             using (var writer = new StreamWriter(filename))
             {
@@ -60,12 +61,17 @@ namespace VIXAL2.Report
                     writer.WriteLine(v.Key + " = " + v.Value);
                 }
             }
+
+            Console.WriteLine("Parameters saved to " + filename);
         }
 
 
         public static string CreateAndGetDirectory(string dsType)
         {
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
+
+            string currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            reportFolder = Path.Combine(currentDirectory, reportFolder);
 
             string result = Path.Combine(reportFolder, dsType + "_" + ReportDate.ToString("yyyyMMdd_HHmm"));
             if (!System.IO.Directory.Exists(result))
@@ -86,7 +92,7 @@ namespace VIXAL2.Report
             var serializer = new XmlSerializer(typeof(List<ReportItem>));
 
             string directoryName = CreateAndGetDirectory(dsType);
-            string filename = Path.Combine(directoryName, "overall_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
+            string filename = Path.Combine(directoryName, "2_overall_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xml");
 
             using (var writer = new StreamWriter(filename))
             {
@@ -190,10 +196,88 @@ namespace VIXAL2.Report
             im.Save(filename);
         }
 
+        public static void SaveToExcel(string pre, string dsType, List<FinTrade> trades)
+        {
+            string directoryName = CreateAndGetDirectory(dsType);
+            string filename = Path.Combine(directoryName, pre + "_trades_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xlsx");
+
+            SLDocument sl = new SLDocument();
+            int row = 1;
+
+            if (trades.Count > 0)
+            {
+                var item = trades[0];
+                sl.SetCellValue(row, 1, nameof(item.StockName));
+                sl.SetCellValue(row, 2, nameof(item.StartDate));
+                sl.SetCellValue(row, 3, nameof(item.StartPrice));
+                sl.SetCellValue(row, 4, nameof(item.EndDate));
+                sl.SetCellValue(row, 5, nameof(item.EndPrice));
+                sl.SetCellValue(row, 6, nameof(item.TradingPosition));
+                sl.SetCellValue(row, 7, nameof(item.Commissions));
+                sl.SetCellValue(row, 8, nameof(item.Gain));
+                sl.SetCellValue(row, 9, nameof(item.GainPerc));
+                sl.SetCellValue(row, 10, "Success");
+
+                SLStyle style = sl.CreateStyle();
+                style.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.Yellow, System.Drawing.Color.Blue);
+                style.Font.Bold = true;
+                sl.SetCellStyle(1, 1, style);
+                sl.SetCellStyle(1, 2, style);
+                sl.SetCellStyle(1, 3, style);
+                sl.SetCellStyle(1, 4, style);
+                sl.SetCellStyle(1, 5, style);
+                sl.SetCellStyle(1, 6, style);
+                sl.SetCellStyle(1, 7, style);
+                sl.SetCellStyle(1, 8, style);
+                sl.SetCellStyle(1, 9, style);
+                sl.SetCellStyle(1, 10, style);
+            }
+            row++;
+
+            foreach (var item in trades)
+            {
+                sl.SetCellValue(row, 1, item.StockName);
+                sl.SetCellValue(row, 2, item.StartDate);
+                sl.SetCellValue(row, 3, item.StartPrice);
+                sl.SetCellValue(row, 4, item.EndDate);
+                sl.SetCellValue(row, 5, item.EndPrice);
+                sl.SetCellValue(row, 6, item.TradingPosition.ToString());
+                sl.SetCellValue(row, 7, item.Commissions);
+                sl.SetCellValue(row, 8, item.Gain);
+                sl.SetCellValue(row, 9, item.GainPerc);
+//                sl.SetCellValue(row, 10, "=IF(H" + row + ">0;1;0)");
+                row++;
+            }
+
+            sl.SetCellValue(row + 1, 7, "TOTAL");
+            sl.SetCellValue(row + 1, 8, "=SUM(H2:H" + (row-1) + ")");
+
+            //sl.SetCellValue(row + 1, 9, "SUCCESS");
+            //Non funzionano, perchè??
+            //sl.SetCellValue(row + 1, 10, "=SUM(J2:J" + (row - 1) + ")/COUNT(J2:J" + (row - 1) + ")");
+            //sl.SetCellValue(row + 1, 10, "=SUM(J2:J" + (row - 1) + ")");
+
+            SLStyle style1 = sl.CreateStyle();
+            style1.FormatCode = "dd/mm/yyyy";
+            sl.SetColumnStyle(2, style1);
+            sl.SetColumnStyle(4, style1);
+
+            SLStyle style2 = sl.CreateStyle();
+            style2.FormatCode = "#,##0.00 €";
+            sl.SetColumnStyle(7, style2);
+            sl.SetColumnStyle(8, style2);
+
+            SLStyle style3 = sl.CreateStyle();
+            style3.FormatCode = "0.00 %";
+            sl.SetColumnStyle(9, style3);
+
+            sl.SaveAs(filename);
+        }
+
         public static void SaveToExcel(string dsType, List<ReportItem> reportItems)
         {
             string directoryName = Manager.CreateAndGetDirectory(dsType);
-            string filename = Path.Combine(directoryName, "a_overall_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xlsx");
+            string filename = Path.Combine(directoryName, "2_overall_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".xlsx");
 
             SLDocument sl = new SLDocument();
             int row = 1;

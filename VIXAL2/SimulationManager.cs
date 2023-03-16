@@ -29,11 +29,11 @@ namespace VIXAL2
         /// </summary>
         public static int CellsCount;
 
-        public static void InitialConstructor()
+        public static void InitialConstructor(int hiddenLayers, int cellsCount, int batchSize)
         {
-            SimulationManager.BatchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
-            SimulationManager.HiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
-            SimulationManager.CellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
+            SimulationManager.BatchSize = batchSize;
+            SimulationManager.HiddenLayers = hiddenLayers;
+            SimulationManager.CellsCount = cellsCount;
         }
 
         #endregion
@@ -169,7 +169,8 @@ namespace VIXAL2
             graphMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
             graphMan.Print();
 
-            Report.Manager.SaveTradesToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
+            Report.Manager.SaveToExcel(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
+//            Report.Manager.SaveTradesToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
         }
 
         private void OnReiterate(StocksDataset dataset)

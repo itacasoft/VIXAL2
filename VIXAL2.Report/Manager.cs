@@ -34,7 +34,7 @@ namespace VIXAL2.Report
             ReportDate = DateTime.Now;
         }
 
-        public static void SaveToXML(string pre, string dsType, List<FinTrade> trades)
+        public static void SaveTradesToXML(string pre, string dsType, List<FinTrade> trades)
         {
             var serializer = new XmlSerializer(typeof(List<FinTrade>));
             string reportFolder = ConfigurationManager.AppSettings["ReportFolder"];
@@ -46,8 +46,22 @@ namespace VIXAL2.Report
             {
                 serializer.Serialize(writer, trades);
             }
-
         }
+
+        public static void SaveParametersToFile(string dsType, Dictionary<string,string> parames)
+        {
+            string directoryName = CreateAndGetDirectory(dsType);
+            string filename = Path.Combine(directoryName, "Initial_params_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+
+            using (var writer = new StreamWriter(filename))
+            {
+                foreach (var v in parames)
+                {
+                    writer.WriteLine(v.Key + " = " + v.Value);
+                }
+            }
+        }
+
 
         public static string CreateAndGetDirectory(string dsType)
         {

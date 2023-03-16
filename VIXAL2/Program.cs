@@ -2,6 +2,7 @@
 using System.Linq;
 using System.IO;
 using VIXAL2.Data.Base;
+using System.Collections.Generic;
 
 namespace VIXAL2
 {
@@ -105,19 +106,22 @@ namespace VIXAL2
 
             if (endStockIndex < startStockIndex) endStockIndex = startStockIndex;
 
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("InputFile", inputFile);
+            parameters.Add("StartIndex", startStockIndex.ToString());
+            parameters.Add("EndIndex", endStockIndex.ToString());
+            parameters.Add("DsType", dsType.ToString());
+            parameters.Add("PredictDays", predictDays.ToString());
+            parameters.Add("Range", range.ToString());
+            parameters.Add("TrainIterations", trainingIterations.ToString());
+            parameters.Add("DateFrom", sFromDate);
+            parameters.Add("DateTo", sToDate);
+            parameters.Add("MustReiterate", mustReiterate.ToString());
+            DisplayParameters(parameters);
+
             SimulationManager.InitialConstructor();
             Report.Manager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount, SimulationManager.BatchSize);
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("VIXAL2 started with parameters: ");
-            Console.Write("StartIndex = " + startStockIndex + ", ");
-            Console.Write("EndIndex = " + endStockIndex + ", ");
-            Console.Write("DsType = " + dsType + ", ");
-            Console.Write("PredictDays = " + predictDays + ", ");
-            Console.Write("Range = " + range + ", ");
-            Console.Write("TrainIterations = " + trainingIterations + ", ");
-            Console.WriteLine("Mustreiterate = " + mustReiterate);
-            Console.WriteLine("---------------------");
+            Report.Manager.SaveParametersToFile(dsType.ToString(), parameters);
 
             for (int i = startStockIndex; i <= endStockIndex; i++)
             {
@@ -140,5 +144,16 @@ namespace VIXAL2
             Console.WriteLine();
         }
 
+        static void DisplayParameters(Dictionary<string, string> parames)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("VIXAL2 started with parameters: ");
+
+            foreach (var v in parames)
+            {
+                Console.WriteLine("  " + v.Key + " = " + v.Value);
+            }
+            Console.WriteLine("---------------------");
+        }
     }
 }

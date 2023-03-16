@@ -169,7 +169,7 @@ namespace VIXAL2
             graphMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
             graphMan.Print();
 
-            Report.Manager.SaveToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
+            Report.Manager.SaveTradesToXML(orchestrator.DataSet.GetTestArrayY().GetColName(0), orchestrator.DataSet.DsType.ToString(), trades);
         }
 
         private void OnReiterate(StocksDataset dataset)

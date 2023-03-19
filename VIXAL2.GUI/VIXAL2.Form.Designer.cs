@@ -142,7 +142,7 @@
             this.textBoxYIndex.Name = "textBoxYIndex";
             this.textBoxYIndex.Size = new System.Drawing.Size(36, 26);
             this.textBoxYIndex.TabIndex = 60;
-            this.textBoxYIndex.Text = "0";
+            this.textBoxYIndex.Text = "1";
             // 
             // textBoxCells
             // 

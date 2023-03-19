@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using VIXAL2.Data;
 using VIXAL2.Data.Base;
 using VIXAL2.Data.Report;
 using ZedGraph;
@@ -14,6 +15,16 @@ namespace VIXAL2.GUI
 {
     public partial class VIXAL2Form : Form
     {
+        internal int YIndex
+        {
+            get
+            {
+                int result = Convert.ToInt32(textBoxYIndex.Text);
+                //index is zero based
+                return result - 1;
+            }
+        }
+
         private bool LoadDataset(int stockIndex)
         {
             InitiGraphs();
@@ -21,7 +32,8 @@ namespace VIXAL2.GUI
             orchestrator = new LSTMOrchestrator(OnReiterate, OnTrainingProgress, OnTrainingEnded, OnSimulationEnded, Convert.ToInt32(textBoxBatchSize.Text));
             try
             {
-                orchestrator.LoadAndPrepareDataSet("..\\..\\..\\Data\\FullDataSet.csv", stockIndex, 1, (DataSetType)(comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
+                var t = DatasetFactory.LoadCsvAsRawData("..\\..\\..\\Data\\FullDataSet.csv");
+                orchestrator.LoadAndPrepareDataSet(t, stockIndex, 1, (DataSetType)(comboBoxType.SelectedIndex + 1), Convert.ToInt32(textBoxPredictDays.Text), Convert.ToInt32(textBoxRange.Text));
             }
             catch (Exception ex)
             {
@@ -182,9 +194,9 @@ namespace VIXAL2.GUI
             //se sto iterando su tutti gli stock
             if (checkBoxIterateOnStocks.Checked)
             {
-                int currentIndex = Convert.ToInt32(textBoxYIndex.Text);
-                textBoxYIndex.Text = (currentIndex + 1).ToString();
-                if (LoadDataset(currentIndex + 1))
+                int currentGuiIndex = Convert.ToInt32(textBoxYIndex.Text);
+                textBoxYIndex.Text = (currentGuiIndex + 1).ToString();
+                if (LoadDataset(YIndex))
                 {
                     StartTraining();
                 }

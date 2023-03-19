@@ -54,9 +54,9 @@ namespace VIXAL2
         /// </summary>
         DataSetType dsType;
         /// <summary>
-        /// CSV file containing values for training
+        /// Input dtaa containing values for training and simulation
         /// </summary>
-        string inputFile;
+        RawStocksData inputData;
         /// <summary>
         /// Filter by date (from)
         /// </summary>
@@ -69,9 +69,9 @@ namespace VIXAL2
         string yStock;
         LSTMOrchestrator orchestrator;
 
-        public SimulationManager(string inputFile, DataSetType dsType, int predictDays, int range, int trainingIterations, bool mustReiterate, string sDataDa = "1900.01.01", string sDataA = "2099.12.31")
+        public SimulationManager(RawStocksData inputData, DataSetType dsType, int predictDays, int range, int trainingIterations, bool mustReiterate, string sDataDa = "1900.01.01", string sDataA = "2099.12.31")
         {
-            this.inputFile = inputFile;
+            this.inputData = inputData;
             this.dsType = dsType;
             this.predictDays = predictDays;
             this.range = range;
@@ -86,7 +86,7 @@ namespace VIXAL2
 
         public void StartTraining(int stockIndex)
         {
-            var ds = orchestrator.LoadAndPrepareDataSet(inputFile, stockIndex, 1, dsType, predictDays, range, sDataDa, sDataA);
+            var ds = orchestrator.LoadAndPrepareDataSet(inputData, stockIndex, 1, dsType, predictDays, range);
             yStock = ds.GetTestArrayY().GetColName(0);
 
             Utils.DrawMessage(yStock + "|" + prefixTraining, Utils.CreateProgressBar(Utils.ProgressBarLength, 0), ConsoleColor.Gray);

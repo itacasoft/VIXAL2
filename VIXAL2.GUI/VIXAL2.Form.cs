@@ -188,15 +188,15 @@ namespace VIXAL2.GUI
 
             for (int i = sampleIndex; i < realData.Length; i++)
             {
-                var p = new PointPair(sample1, realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)]);
-                p.Tag = "[" + sample1.ToString() + "] " + realData.GetDate(i).ToShortDateString() + ": " + realData.Values[i][Convert.ToInt32(textBoxYIndex.Text)] + "";
+                var p = new PointPair(sample1, realData.Values[i][YIndex]);
+                p.Tag = "[" + sample1.ToString() + "] " + realData.GetDate(i).ToShortDateString() + ": " + realData.Values[i][YIndex] + "";
                 originalLine.AddPoint(p);
                 sample1++;
             }
 
-            originalLine.Label.Text = "Close Price (" + realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + ")";
+            originalLine.Label.Text = "Close Price (" + realData.GetColName(YIndex) + ")";
 
-            zedGraphControl1.GraphPane.Title.Text = realData.GetColName(Convert.ToInt32(textBoxYIndex.Text)) + " - Model evaluation";
+            zedGraphControl1.GraphPane.Title.Text = realData.GetColName(YIndex) + " - Model evaluation";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -20;
             zedGraphControl1.RestoreScale(zedGraphControl1.GraphPane);
         }
@@ -495,7 +495,7 @@ namespace VIXAL2.GUI
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
-            LoadDataset(Convert.ToInt32(textBoxYIndex.Text));
+            LoadDataset(YIndex);
             ReportClear();
         }
 
@@ -511,7 +511,8 @@ namespace VIXAL2.GUI
 
         private void listView1_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            textBoxYIndex.Text = (e.Column - 1).ToString();
+            //index is zero based, that is why I add +1
+            textBoxYIndex.Text = (e.Column - 1 + 1).ToString();
         }
     }
 }

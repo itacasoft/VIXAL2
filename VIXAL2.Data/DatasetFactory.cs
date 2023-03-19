@@ -99,31 +99,35 @@ namespace VIXAL2.Data
         public static StocksDataset CreateDataset(string inputCsv, int firstColumnToPredict, int predictCount, DataSetType dataSetType, string sDataDa = "1900.01.01", string sDataA = "2099.12.31")
         {
             var t = LoadCsvAsRawData(inputCsv, sDataDa, sDataA);
+            return CreateDataset(t, firstColumnToPredict, predictCount, dataSetType);
+        }
 
+        public static StocksDataset CreateDataset(RawStocksData inputData, int firstColumnToPredict, int predictCount, DataSetType dataSetType)
+        {
             //check if config is correct
-            if (predictCount > t.stocksData.Length)
+            if (predictCount > inputData.stocksData.Length)
                 throw new ArgumentException("PredictCount cannot be larger than input columns");
 
             StocksDataset ds;
             if (dataSetType == DataSetType.MovingAverage)
             {
-                ds = new MovingAverageDataSet(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
+                ds = new MovingAverageDataSet(inputData.stockNames.ToArray(), inputData.stockDates.ToArray(), inputData.stocksData, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == DataSetType.RSI)
             {
-                ds = new RsiDataSet(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
+                ds = new RsiDataSet(inputData.stockNames.ToArray(), inputData.stockDates.ToArray(), inputData.stocksData, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == DataSetType.Enh_MovingAverage)
             {
-                ds = new MovingEnhancedAverageDataSet(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
+                ds = new MovingEnhancedAverageDataSet(inputData.stockNames.ToArray(), inputData.stockDates.ToArray(), inputData.stocksData, firstColumnToPredict, predictCount);
             }
             else if (dataSetType == DataSetType.Enh2_MovingAverage)
             {
-                ds = new MovingEnhancedAverageDataSet2(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
+                ds = new MovingEnhancedAverageDataSet2(inputData.stockNames.ToArray(), inputData.stockDates.ToArray(), inputData.stocksData, firstColumnToPredict, predictCount);
             }
             else
             {
-                ds = new StocksDataset(t.stockNames.ToArray(), t.stockDates.ToArray(), t.stocksData, firstColumnToPredict, predictCount);
+                ds = new StocksDataset(inputData.stockNames.ToArray(), inputData.stockDates.ToArray(), inputData.stocksData, firstColumnToPredict, predictCount);
             }
             return ds;
         }

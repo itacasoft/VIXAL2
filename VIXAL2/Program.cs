@@ -73,7 +73,7 @@ namespace VIXAL2
 
             var t = DatasetFactory.LoadCsvAsRawData(inputFile, sFromDate, sToDate);
             if (t.StocksCount < endStockIndex)
-                throw new ArgumentOutOfRangeException("EdnStockIndex is greater than stocks count");
+                throw new ArgumentOutOfRangeException("EndStockIndex " + endStockIndex + " is greater than stocks count " + t.StocksCount);
 
             Report.Manager.InitialConstructor(trainingIterations, SimulationManager.HiddenLayers, SimulationManager.CellsCount, SimulationManager.BatchSize);
             Report.Manager.SaveParametersToFile(dsType.ToString(), parameters);
@@ -81,8 +81,10 @@ namespace VIXAL2
             for (int i = startStockIndex; i <= endStockIndex; i++)
             {
                 Console.WriteLine("Simulation " + (i-startStockIndex+1).ToString() + " of " + (endStockIndex-startStockIndex+1).ToString() + " starting at " + DateTime.Now.ToShortTimeString() + "...");
-                SimulationManager sim = new SimulationManager(inputFile, dsType, predictDays, range, trainingIterations, mustReiterate, sFromDate, sToDate);
-                sim.StartTraining(i);
+                SimulationManager sim = new SimulationManager(t, dsType, predictDays, range, trainingIterations, mustReiterate, sFromDate, sToDate);
+                //real index is zero based
+                int realIndex = i - 1;
+                sim.StartTraining(realIndex);
             }
 
             Report.Manager.PrintOverallReportAsExcel(dsType.ToString());

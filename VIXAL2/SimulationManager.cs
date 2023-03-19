@@ -28,14 +28,6 @@ namespace VIXAL2
         /// Numero di celle della rete neurale
         /// </summary>
         public static int CellsCount;
-
-        public static void InitialConstructor(int hiddenLayers, int cellsCount, int batchSize)
-        {
-            SimulationManager.BatchSize = batchSize;
-            SimulationManager.HiddenLayers = hiddenLayers;
-            SimulationManager.CellsCount = cellsCount;
-        }
-
         #endregion
         /// <summary>
         /// Numero di iterazioni all'interno di un training
@@ -160,7 +152,7 @@ namespace VIXAL2
 
             List<FinTrade> trades = orchestrator.SimulateFinTrades(true);
             ReportItem item = Report.Manager.ReportItemAdd(orchestrator.DataSet, orchestrator.WeightedSlopePerformance, orchestrator.AvgSlopePerformance, orchestrator.AvgDiffPerformance);
-            Report.Manager.EnrichReportItemWithTradesData(item, trades);
+            //Report.Manager.EnrichReportItemWithTradesData(item, trades);
             Report.Manager.EnrichReportItemWithTradesDataWithCommissions(item, trades);
 
             GraphManager graphMan = new GraphManager(orchestrator.DataSet, trainingIterations, HiddenLayers, CellsCount, BatchSize);

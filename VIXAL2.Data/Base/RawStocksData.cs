@@ -15,5 +15,13 @@ namespace VIXAL2.Data.Base
             stockDates = new List<DateTime>();
             stocksData = new double[length][];
         }
+
+        public int StocksCount
+        {
+            get
+            {
+                return stockNames.Count;
+            }
+        }
     }
 }

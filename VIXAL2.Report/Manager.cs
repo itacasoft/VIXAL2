@@ -245,16 +245,25 @@ namespace VIXAL2.Report
                 sl.SetCellValue(row, 7, item.Commissions);
                 sl.SetCellValue(row, 8, item.Gain);
                 sl.SetCellValue(row, 9, item.GainPerc);
-//                sl.SetCellValue(row, 10, "=IF(H" + row + ">0;1;0)");
+
+                if (item.Gain > 0)
+                {
+                    sl.SetCellValue(row, 10, 1);
+                }
+                else
+                {
+                    sl.SetCellValue(row, 10, 0);
+
+                }
                 row++;
             }
 
             sl.SetCellValue(row + 1, 7, "TOTAL");
             sl.SetCellValue(row + 1, 8, "=SUM(H2:H" + (row-1) + ")");
 
-            //sl.SetCellValue(row + 1, 9, "SUCCESS");
+            sl.SetCellValue(row + 1, 9, "SUCCESS");
             //Non funzionano, perchè??
-            //sl.SetCellValue(row + 1, 10, "=SUM(J2:J" + (row - 1) + ")/COUNT(J2:J" + (row - 1) + ")");
+            sl.SetCellValue(row + 1, 10, "=SUM(J2:J" + (row - 1) + ")/COUNT(J2:J" + (row - 1) + ")");
             //sl.SetCellValue(row + 1, 10, "=SUM(J2:J" + (row - 1) + ")");
 
             SLStyle style1 = sl.CreateStyle();
@@ -290,14 +299,11 @@ namespace VIXAL2.Report
                 sl.SetCellValue(row, 3, nameof(item.WeightedSlopePerformance));
                 sl.SetCellValue(row, 4, nameof(item.AvgSlopePerformance));
                 sl.SetCellValue(row, 5, nameof(item.AvgDiffPerformance));
-                sl.SetCellValue(row, 6, nameof(item.FinTrade_GainPerc));
-                sl.SetCellValue(row, 7, nameof(item.FinTrade_Gain));
-                sl.SetCellValue(row, 8, nameof(item.FinTrade_GoodTrades));
-                sl.SetCellValue(row, 9, nameof(item.FinTrade_BadTrades));
-                sl.SetCellValue(row, 10, nameof(item.FinTradeComm_GainPerc));
-                sl.SetCellValue(row, 11, nameof(item.FinTradeComm_Gain));
-                sl.SetCellValue(row, 12, nameof(item.FinTradeComm_GoodTrades));
-                sl.SetCellValue(row, 13, nameof(item.FinTradeComm_BadTrades));
+                sl.SetCellValue(row, 6, "Gain");
+                sl.SetCellValue(row, 7, "GainPerc");
+                sl.SetCellValue(row, 8, "GoodTrades");
+                sl.SetCellValue(row, 9, "BadTrades");
+                sl.SetCellValue(row, 10, "GoodRatio");
 
                 SLStyle style = sl.CreateStyle();
                 style.Fill.SetPattern(PatternValues.Solid, System.Drawing.Color.Yellow, System.Drawing.Color.Blue);
@@ -312,9 +318,6 @@ namespace VIXAL2.Report
                 sl.SetCellStyle(1, 8, style);
                 sl.SetCellStyle(1, 9, style);
                 sl.SetCellStyle(1, 10, style);
-                sl.SetCellStyle(1, 11, style);
-                sl.SetCellStyle(1, 12, style);
-                sl.SetCellStyle(1, 13, style);
             }
             row++;
 
@@ -325,14 +328,13 @@ namespace VIXAL2.Report
                 sl.SetCellValue(row, 3, item.WeightedSlopePerformance);
                 sl.SetCellValue(row, 4, item.AvgSlopePerformance);
                 sl.SetCellValue(row, 5, item.AvgDiffPerformance);
-                sl.SetCellValue(row, 6, item.FinTrade_GainPerc);
-                sl.SetCellValue(row, 7, item.FinTrade_Gain);
-                sl.SetCellValue(row, 8, item.FinTrade_GoodTrades);
-                sl.SetCellValue(row, 9, item.FinTrade_BadTrades);
-                sl.SetCellValue(row, 10, item.FinTradeComm_GainPerc);
-                sl.SetCellValue(row, 11, item.FinTradeComm_Gain);
-                sl.SetCellValue(row, 12, item.FinTradeComm_GoodTrades);
-                sl.SetCellValue(row, 13, item.FinTradeComm_BadTrades);
+                sl.SetCellValue(row, 6, item.FinTradeComm_Gain);
+                sl.SetCellValue(row, 7, item.FinTradeComm_GainPerc);
+                sl.SetCellValue(row, 8, item.FinTradeComm_GoodTrades);
+                sl.SetCellValue(row, 9, item.FinTradeComm_BadTrades);
+
+                double ratio = (double)item.FinTradeComm_GoodTrades / (double)(item.FinTradeComm_GoodTrades + item.FinTradeComm_BadTrades);
+                sl.SetCellValue(row, 10, ratio);
                 row++;
             }
 
@@ -342,16 +344,14 @@ namespace VIXAL2.Report
 
             SLStyle style2 = sl.CreateStyle();
             style2.FormatCode = "#,##0.00 €";
-            sl.SetColumnStyle(7, style2);
-            sl.SetColumnStyle(11, style2);
+            sl.SetColumnStyle(6, style2);
 
             SLStyle style3 = sl.CreateStyle();
             style3.FormatCode = "0.00 %";
             sl.SetColumnStyle(3, style3);
             sl.SetColumnStyle(4, style3);
             sl.SetColumnStyle(5, style3);
-            sl.SetColumnStyle(6, style3);
-            sl.SetColumnStyle(10, style3);
+            sl.SetColumnStyle(7, style3);
 
             sl.SaveAs(filename);
         }

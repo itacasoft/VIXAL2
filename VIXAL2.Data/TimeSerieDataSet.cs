@@ -16,8 +16,8 @@ namespace VIXAL2.Data
         private double[][] trainDataX, trainDataY;
         private double[][] validDataX, validDataY;
         private double[][] testDataX, testDataY;
-        private float trainPercent = 0.80F;
-        private float validPercent = 0.00F;
+        private int validCount;
+        private int testCount;
         private int predictDays = 20;
         private int firstColumnToPredict;
         private int columnsToPredict;
@@ -42,17 +42,14 @@ namespace VIXAL2.Data
             this.dates = ((DateTime[])_originalDates.Clone()).ToList();
         }
 
-        public virtual void Prepare(float trainPercent, float validPercent)
+        public virtual void Prepare(int validCount, int testCount)
         {
-            if (trainPercent + validPercent >= 1)
-                throw new ArgumentOutOfRangeException("TrainPercent + ValidPercent cannot be equal or greater than 1");
-
+            this.validCount = validCount;
+            this.testCount = testCount;
 #if NORMALIZE_FIRST
             NormalizeAllData();
 #else
             base.Prepare();
-            this.trainPercent = trainPercent;
-            this.validPercent = validPercent;
 #endif
 
             SplitData(_data.ToArray());
@@ -226,30 +223,6 @@ namespace VIXAL2.Data
             }
         }
 
-        public float TrainPercent
-        {
-            get
-            {
-                return trainPercent;
-            }
-        }
-
-        public float ValidPercent
-        {
-            get
-            {
-                return validPercent;
-            }
-        }
-
-        public float TestPercent
-        {
-            get
-            {
-                return 1 - validPercent - trainPercent;
-            }
-        }
-
 
         public int PredictDays
         {
@@ -265,6 +238,16 @@ namespace VIXAL2.Data
             }
         }
 
+        internal int CalculateTrainCount(int validCount, int testCount)
+        {
+            int trainCount = _data.Count - validCount - testCount - predictDays;
+            int validFrom = trainCount + 1;
+            int validTo = validFrom + validCount;
+
+            return trainCount;
+        }
+
+
         internal Tuple<int,int,int> CalculateTrainValidTestCount(double trainPerc, double validPerc)
         {
             int trainCount = Convert.ToInt32(_data.Count * trainPerc);
@@ -276,15 +259,15 @@ namespace VIXAL2.Data
             return new Tuple<int, int, int>(trainCount, validCount, testCount);
         }
 
+        public virtual int CalculateMinumumValidCount()
+        {
+            return 0;
+        }
+
+
         protected void SplitData(double[][] input)
         {
-            var t = CalculateTrainValidTestCount(trainPercent, validPercent);
-            int trainCount = t.Item1;
-            int validCount = t.Item2;
-            int testCount = t.Item3;
-
-            if (testCount <= 0)
-                throw new ArgumentOutOfRangeException("TestCount cannot be < 0");
+            var trainCount = CalculateTrainCount(validCount, testCount);
 
             trainDataX = new double[trainCount][];
             for (int row = 0; row < trainDataX.Length; row++)
@@ -533,14 +516,6 @@ namespace VIXAL2.Data
             get { return columnsToPredict; }
         }
 
-        private float PercentTick
-        {
-            get
-            {
-                return 1.0F / (float)Count;
-            }
-        }
-
         public int Count
         {
             get
@@ -554,8 +529,7 @@ namespace VIXAL2.Data
             if (steps >= TestCount)
                 return false;
 
-            trainPercent += PercentTick;
-            Prepare(trainPercent, validPercent);
+            Prepare(this.validCount, testCount-1);
 
             return true;
         }

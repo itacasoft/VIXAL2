@@ -84,9 +84,9 @@ namespace NeuralNetwork.Base
 
             DataSet.PredictDays = predictDays;
 
-            var t = DataSet.CalculateTrainAndValidPercent(DataSet.Dates.Count, DataSet.PredictDays, DataSet.Range);
+            //var t = DataSet.CalculateTrainAndValidPercent(DataSet.Dates.Count, DataSet.PredictDays, DataSet.Range);
 
-            DataSet.Prepare(t.Item1, t.Item2);
+            DataSet.Prepare(0, StocksDataset.InitialTestCount);
             Trades = new List<Trade>();
         }
 
@@ -464,7 +464,7 @@ namespace NeuralNetwork.Base
                 for (int i = 1; i < SlopePerformances.Length; i++)
                 {
                     //il coefficiente del peso deve essere attorno a 1.8-1.9
-                    double weight = 1.85 * ((double)SlopePerformances.Length + 1.00 - (double)i)/ (double)SlopePerformances.Length;
+                    double weight = 1.764705882 * ((double)SlopePerformances.Length + 1.00 - (double)i)/ (double)SlopePerformances.Length;
                     result += SlopePerformances[i].SuccessPercentage * weight;
                 }
                 result = result / (SlopePerformances.Length-1);

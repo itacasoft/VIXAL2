@@ -56,10 +56,10 @@ namespace VIXAL2.Data
             return stairVector;
         }
 
-        public override void Prepare(float trainPercent, float validPercent)
+        public override void Prepare(int validCount, int testCount)
         {
             ReloadFromOriginal();
-            base.Prepare(trainPercent, validPercent);
+            base.Prepare(validCount, testCount);
 
             for (int col = 0; col < TrainDataY[0].Length; col++)
             {

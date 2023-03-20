@@ -142,13 +142,8 @@ namespace VIXAL2.UnitTest
             MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
             ds.SetRange(RANGE);
-            ds.Prepare(0.6F, 0.2F);
+            ds.Prepare(EXPECTED_VALIDCOUNT, EXPECTED_TESTCOUNT);
 
-
-            //train count
-            Assert.AreEqual(EXPECTED_TRAINCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.TrainPercent));
-            //valid count
-            Assert.AreEqual(EXPECTED_VALIDCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.ValidPercent));
             //test count
             Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
 
@@ -228,12 +223,8 @@ namespace VIXAL2.UnitTest
             MovingAverageDataSet ds = new MovingAverageDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
             ds.SetRange(RANGE);
-            ds.Prepare(0.8F, 0);
+            ds.Prepare(EXPECTED_VALIDCOUNT, EXPECTED_TESTCOUNT);
 
-            //train count
-            Assert.AreEqual(EXPECTED_TRAINCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.TrainPercent));
-            //valid count
-            Assert.AreEqual(EXPECTED_VALIDCOUNT, Convert.ToInt32((data.Length - (RANGE - 1)) * ds.ValidPercent));
             //test count
             Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
 
@@ -293,7 +284,7 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 10;
 
             MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
-            ds.Prepare(0.8F, 0.1F);
+            ds.Prepare(50, 41);
 
             Assert.AreEqual(ds.TrainCount, 404);
             Assert.AreEqual(ds.ValidCount, 50);
@@ -417,7 +408,7 @@ namespace VIXAL2.UnitTest
             MovingAverageDataSet ds = new MovingAverageDataSet(stockName, dates, data);
             ds.PredictDays = PREDICT_DAYS;
             ds.SetRange(RANGE);
-            ds.Prepare(0.2F, 0.0F);
+            ds.Prepare(0, 4);
 
             TimeSerieArray current = ds.GetTestArrayX();
 
@@ -445,14 +436,10 @@ namespace VIXAL2.UnitTest
             const int COLUMN_TO_CHECK = 2;
 
             MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
-            ds.Prepare(0.8F, 0.0F);
+            ds.Prepare(0, 30);
 
             int range = ds.Range;
             int count = ds.OriginalData.Length;
-            double validPerc = ds.ValidPercent;
-            double trainPerc = ds.TrainPercent;
-
-            Assert.AreEqual(ds.TrainCount,Convert.ToInt32((count - range + 1)*trainPerc));
 
             TimeSerieArray current = ds.GetTestArrayX();
 
@@ -479,7 +466,7 @@ namespace VIXAL2.UnitTest
             const int COLUMN_TO_CHECK = 1;
 
             MovingAverageDataSet ds = GetMovingAverageDataset(PREDICT_DAYS);
-            ds.Prepare(0.6F, 0.2F);
+            ds.Prepare(101, 91);
 
             Assert.AreEqual(ds.TrainCount, 303);
             Assert.AreEqual(ds.ValidCount, 101);
@@ -641,31 +628,31 @@ namespace VIXAL2.UnitTest
         {
             var ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(10);
-            ds.Prepare(0.8F, 0.0F);
+            ds.Prepare(0, 30);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(9);
-            ds.Prepare(0.8F, 0.0F);
+            ds.Prepare(0, 30);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(3);
-            ds.Prepare(0.8F, 0.0F);
+            ds.Prepare(0, 30);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(1);
-            ds.Prepare(0.8F, 0.0F);
+            ds.Prepare(0, 30);
 
             Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
 
             var ds1 = GetMovingAverageDataset(40);
             ds1.SetRange(10);
-            ds1.Prepare(0.8F, 0.0F);
+            ds1.Prepare(0, 30);
             var gg1 = GetDelayDaysCalculatedFromDates(ds1);
 
             Assert.AreEqual(ds1.DelayDays, gg1);
@@ -708,7 +695,7 @@ namespace VIXAL2.UnitTest
             MovingAverageDataSet ds = new MovingAverageDataSet(stockNames, dates, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
             ds.SetRange(RANGE);
-            ds.Prepare(0.8F, 0.0F);
+            ds.Prepare(0, 30);
 
             DateTime myDate = ds.MaxDate;
 

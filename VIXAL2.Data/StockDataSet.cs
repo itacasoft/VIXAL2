@@ -1,17 +1,23 @@
 ﻿using SharpML.Types;
 using System;
-using System.Configuration;
-using System.Globalization;
 using VIXAL2.Data.Base;
 
 namespace VIXAL2.Data
 {
     public class StocksDataset : TimeSerieDataSet
     {
-        /// <summary>
-        /// Minimum number of sample for tests
-        /// </summary>
-        public static int MinTestCount = -1;
+        private static int _initialTestCount = -1;
+        public static int InitialTestCount
+        {
+            get
+            {
+                return _initialTestCount;
+            }
+            set
+            {
+                _initialTestCount = value;
+            }
+        }
 
         TimeSerieArray originalData;
 
@@ -160,17 +166,17 @@ namespace VIXAL2.Data
         /// </summary>
         public virtual TimeSerieArrayExt GetExtendedArrayX(bool normalized = false)
         {
-            TimeSerieArrayExt result = new TimeSerieArrayExt(_data.Count - TrainCount - ValidCount - TestCount, _data[0].Length);
+            TimeSerieArrayExt result = new TimeSerieArrayExt(_data.Count - TrainCount - ValidCount - base.TestCount, _data[0].Length);
             result.PredictDays = PredictDays;
 
             for (int row = 0; row < result.Length; row++)
             {
-                DateTime date = dates[row + TrainCount + ValidCount + TestCount];
-                DateTime futureDate = GetFutureStockDate(dates[row + TrainCount + ValidCount + TestCount], PredictDays);
+                DateTime date = dates[row + TrainCount + ValidCount + base.TestCount];
+                DateTime futureDate = GetFutureStockDate(dates[row + TrainCount + ValidCount + base.TestCount], PredictDays);
 
                 for (int col = 0; col < result.Columns; col++)
                 {
-                    var currentValue = _data[row + TrainCount + ValidCount + TestCount][col];
+                    var currentValue = _data[row + TrainCount + ValidCount + base.TestCount][col];
                     if (normalized)
                         currentValue = Normalize(currentValue, col);
                     result.SetValue(row, col, date, futureDate, currentValue);
@@ -179,47 +185,6 @@ namespace VIXAL2.Data
 
             result.Range = this.Range;
             return result;
-        }
-
-        public virtual Tuple<float, float> CalculateTrainAndValidPercent(int dataCount, int predictDays, int range)
-        {
-            float minTrainPercent = float.Parse(ConfigurationManager.AppSettings["MinTrainPercent"], CultureInfo.InvariantCulture);
-            float minTestPercent = float.Parse(ConfigurationManager.AppSettings["MinTestPercent"], CultureInfo.InvariantCulture);
-            if (MinTestCount == -1) MinTestCount = Convert.ToInt32(ConfigurationManager.AppSettings["MinTestCount"]);
-
-            float validPerc = 0.0F;
-
-            //se il dataset fa la media anche su dati futuri, devo escluderli dal test, quindi 
-            //creo anche dati di validation
-            if (this is IFutureAverageRangeDataSet)
-            {
-                int dd = range / 2;
-                validPerc = (float)(dd) / (float)(dataCount);
-            }
-
-            //provo con testpercent al minimo (5%)
-            float trainPerc = 1.0F - validPerc - minTestPercent;
-            if (trainPerc < minTrainPercent)
-                throw new ArgumentOutOfRangeException("TrainPercent cannot be < " + minTrainPercent);
-
-            var t = CalculateTrainValidTestCount(trainPerc, validPerc);
-            int trainCount = t.Item1;
-            int validCount = t.Item2;
-            int testCount = t.Item3;
-
-            if (testCount < MinTestCount)
-            {
-                //provo ad aumentare la percentuale di test
-                float testPerc2 = (float)(MinTestCount + predictDays) / (float)(dataCount);
-                float trainPerc2 = 1.0F - validPerc - testPerc2;
-
-                if (trainPerc2 < minTrainPercent)
-                    throw new ArgumentOutOfRangeException("TrainPercent cannot be < " + minTrainPercent);
-
-                return new Tuple<float, float>(trainPerc2, validPerc);
-            }
-
-            return new Tuple<float, float>(trainPerc, validPerc);
         }
     }
 }

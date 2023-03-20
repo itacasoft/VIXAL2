@@ -460,7 +460,9 @@ namespace LSTMTimeSeriesDemo
             DataSet = DatasetFactory.CreateDataset("..\\..\\..\\..\\Data\\FullDataSet.csv", Convert.ToInt32(textBox5.Text), 1, (DataSetType)( comboBox1.SelectedIndex + 1));
             if (DataSet.GetType() == typeof(MovingAverageDataSet))
                 ((MovingAverageDataSet)DataSet).PredictDays = Convert.ToInt32(textBox6.Text);
-            DataSet.Prepare(0.8F, 0.0F);
+
+            int testCount = (int)(DataSet.Count * (1.0F - 0.8F));
+            DataSet.Prepare(0, testCount);
 
             loadListView(DataSet);
             loadGraphs(DataSet);

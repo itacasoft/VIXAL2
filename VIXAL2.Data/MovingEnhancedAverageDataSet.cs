@@ -49,13 +49,15 @@ namespace VIXAL2.Data
             }
         }
 
-        public override void Prepare(float trainPercent, float validPercent)
+        public override void Prepare(int validCount, int testCount)
         {
             ReloadFromOriginal();
             this._data = GetMovingEnhancedAverage(_originalData).ToList();
             RemoveNaNs(_data, Dates);
 
-            base.Prepare(trainPercent, validPercent);
+            if (validCount < CalculateMinumumValidCount())
+                validCount = CalculateMinumumValidCount();
+            base.Prepare(validCount, testCount);
         }
 
         public override string ClassShortName
@@ -152,6 +154,17 @@ namespace VIXAL2.Data
             result.Range = this.Range;
             return result;
         }
+
+        public override int CalculateMinumumValidCount()
+        {
+            return range/2;
+        }
+
+        //    if (this is IFutureAverageRangeDataSet)
+        //    {
+        //        int dd = range / 2;
+        //        validPerc = (float)(dd) / (float)(dataCount);
+        //    }
 
     }
 }

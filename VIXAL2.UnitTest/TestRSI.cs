@@ -195,12 +195,8 @@ namespace VIXAL2.UnitTest
             RsiDataSet ds = new RsiDataSet(stocks, DD, data, FIRST_PREDICT, 1);
             ds.PredictDays = PREDICT_DAYS;
             ds.SetRange(RANGE);
-            ds.Prepare(0.60F, 0.2F);
+            ds.Prepare(EXPECTED_VALIDCOUNT, EXPECTED_TESTCOUNT);
 
-            //train count
-            Assert.AreEqual(EXPECTED_TRAINCOUNT, Math.Floor((data.Length - (RANGE - 1)) * ds.TrainPercent));
-            //valid count
-            Assert.AreEqual(EXPECTED_VALIDCOUNT, Math.Floor((data.Length - (RANGE - 1)) * ds.ValidPercent));
             //test count
             Assert.AreEqual(EXPECTED_TESTCOUNT, data.Length - (RANGE - 1) - PREDICT_DAYS - EXPECTED_TRAINCOUNT - EXPECTED_VALIDCOUNT);
 

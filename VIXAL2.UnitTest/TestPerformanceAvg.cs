@@ -67,8 +67,8 @@ namespace VIXAL2.UnitTest
             double w1 = Math.Round(orchestrator.WeightedSlopePerformance, 2);
 
             //ideal
-            Assert.AreEqual(avg1, 0.0);
-            Assert.AreEqual(w1, 0.0);
+            Assert.AreEqual(avg1, 1.0);
+            Assert.AreEqual(w1, 1.0);
         }
 
         [TestMethod]
@@ -123,12 +123,12 @@ namespace VIXAL2.UnitTest
             orchestrator.SlopePerformances[14].Failed = 33;
             orchestrator.SlopePerformances[14].Guessed = 67;
 
-            double avg1 = Math.Round(orchestrator.AvgSlopePerformance, 2);
-            double w1 = Math.Round(orchestrator.WeightedSlopePerformance, 2);
+            double avg1 = Math.Round(orchestrator.AvgSlopePerformance, 3);
+            double w1 = Math.Round(orchestrator.WeightedSlopePerformance, 3);
 
-            Assert.AreEqual(avg1, 0.27);
+            Assert.AreEqual(avg1, 0.735);
             //good
-            Assert.IsTrue(w1<avg1);
+            Assert.IsTrue(w1>avg1);
         }
 
         [TestMethod]
@@ -154,41 +154,41 @@ namespace VIXAL2.UnitTest
             orchestrator.SlopePerformances[14].Date = DateTime.Today.AddDays(14);
 
             //curva ascendente (bad)
-            orchestrator.SlopePerformances[14].Failed = 20;
-            orchestrator.SlopePerformances[14].Guessed = 80;
-            orchestrator.SlopePerformances[13].Failed = 21;
-            orchestrator.SlopePerformances[13].Guessed = 79;
-            orchestrator.SlopePerformances[12].Failed = 22;
-            orchestrator.SlopePerformances[12].Guessed = 78;
-            orchestrator.SlopePerformances[11].Failed = 23;
-            orchestrator.SlopePerformances[11].Guessed = 77;
-            orchestrator.SlopePerformances[10].Failed = 24;
-            orchestrator.SlopePerformances[10].Guessed = 76;
-            orchestrator.SlopePerformances[9].Failed = 25;
-            orchestrator.SlopePerformances[9].Guessed = 75;
-            orchestrator.SlopePerformances[8].Failed = 26;
-            orchestrator.SlopePerformances[8].Guessed = 74;
-            orchestrator.SlopePerformances[7].Failed = 27;
-            orchestrator.SlopePerformances[7].Guessed = 73;
-            orchestrator.SlopePerformances[6].Failed = 28;
-            orchestrator.SlopePerformances[6].Guessed = 72;
-            orchestrator.SlopePerformances[5].Failed = 29;
-            orchestrator.SlopePerformances[5].Guessed = 71;
-            orchestrator.SlopePerformances[4].Failed = 30;
-            orchestrator.SlopePerformances[4].Guessed = 70;
-            orchestrator.SlopePerformances[3].Failed = 31;
-            orchestrator.SlopePerformances[3].Guessed = 69;
-            orchestrator.SlopePerformances[2].Failed = 32;
-            orchestrator.SlopePerformances[2].Guessed = 68;
             orchestrator.SlopePerformances[1].Failed = 33;
             orchestrator.SlopePerformances[1].Guessed = 67;
+            orchestrator.SlopePerformances[2].Failed = 32;
+            orchestrator.SlopePerformances[2].Guessed = 68;
+            orchestrator.SlopePerformances[3].Failed = 31;
+            orchestrator.SlopePerformances[3].Guessed = 69;
+            orchestrator.SlopePerformances[4].Failed = 30;
+            orchestrator.SlopePerformances[4].Guessed = 70;
+            orchestrator.SlopePerformances[5].Failed = 29;
+            orchestrator.SlopePerformances[5].Guessed = 71;
+            orchestrator.SlopePerformances[6].Failed = 28;
+            orchestrator.SlopePerformances[6].Guessed = 72;
+            orchestrator.SlopePerformances[7].Failed = 27;
+            orchestrator.SlopePerformances[7].Guessed = 73;
+            orchestrator.SlopePerformances[8].Failed = 26;
+            orchestrator.SlopePerformances[8].Guessed = 74;
+            orchestrator.SlopePerformances[9].Failed = 25;
+            orchestrator.SlopePerformances[9].Guessed = 75;
+            orchestrator.SlopePerformances[10].Failed = 24;
+            orchestrator.SlopePerformances[10].Guessed = 76;
+            orchestrator.SlopePerformances[11].Failed = 23;
+            orchestrator.SlopePerformances[11].Guessed = 77;
+            orchestrator.SlopePerformances[12].Failed = 22;
+            orchestrator.SlopePerformances[12].Guessed = 78;
+            orchestrator.SlopePerformances[13].Failed = 21;
+            orchestrator.SlopePerformances[13].Guessed = 79;
+            orchestrator.SlopePerformances[14].Failed = 20;
+            orchestrator.SlopePerformances[14].Guessed = 80;
 
-            double avg1 = Math.Round(orchestrator.AvgSlopePerformance, 2);
-            double w1 = Math.Round(orchestrator.WeightedSlopePerformance, 2);
+            double avg1 = Math.Round(orchestrator.AvgSlopePerformance, 3);
+            double w1 = Math.Round(orchestrator.WeightedSlopePerformance, 3);
 
-            Assert.AreEqual(avg1, 0.27);
+            Assert.AreEqual(avg1, 0.735);
             //bad
-            Assert.IsTrue(w1>avg1);
+            Assert.IsTrue(w1<avg1);
         }
 
         [TestMethod]
@@ -214,41 +214,41 @@ namespace VIXAL2.UnitTest
             orchestrator.SlopePerformances[14].Date = DateTime.Today.AddDays(14);
 
             //curva piatta orizzontale (not so good)
-            orchestrator.SlopePerformances[14].Failed = 27;
-            orchestrator.SlopePerformances[14].Guessed = 73;
-            orchestrator.SlopePerformances[13].Failed = 27;
-            orchestrator.SlopePerformances[13].Guessed = 73;
-            orchestrator.SlopePerformances[12].Failed = 27;
-            orchestrator.SlopePerformances[12].Guessed = 73;
-            orchestrator.SlopePerformances[11].Failed = 27;
-            orchestrator.SlopePerformances[11].Guessed = 73;
-            orchestrator.SlopePerformances[10].Failed = 27;
-            orchestrator.SlopePerformances[10].Guessed = 73;
-            orchestrator.SlopePerformances[9].Failed = 27;
-            orchestrator.SlopePerformances[9].Guessed = 73;
-            orchestrator.SlopePerformances[8].Failed = 27;
-            orchestrator.SlopePerformances[8].Guessed = 73;
-            orchestrator.SlopePerformances[7].Failed = 27;
-            orchestrator.SlopePerformances[7].Guessed = 73;
-            orchestrator.SlopePerformances[6].Failed = 27;
-            orchestrator.SlopePerformances[6].Guessed = 73;
-            orchestrator.SlopePerformances[5].Failed = 27;
-            orchestrator.SlopePerformances[5].Guessed = 73;
-            orchestrator.SlopePerformances[4].Failed = 27;
-            orchestrator.SlopePerformances[4].Guessed = 73;
-            orchestrator.SlopePerformances[3].Failed = 27;
-            orchestrator.SlopePerformances[3].Guessed = 73;
-            orchestrator.SlopePerformances[2].Failed = 27;
-            orchestrator.SlopePerformances[2].Guessed = 73;
             orchestrator.SlopePerformances[1].Failed = 27;
             orchestrator.SlopePerformances[1].Guessed = 73;
+            orchestrator.SlopePerformances[2].Failed = 27;
+            orchestrator.SlopePerformances[2].Guessed = 73;
+            orchestrator.SlopePerformances[3].Failed = 27;
+            orchestrator.SlopePerformances[3].Guessed = 73;
+            orchestrator.SlopePerformances[4].Failed = 27;
+            orchestrator.SlopePerformances[4].Guessed = 73;
+            orchestrator.SlopePerformances[5].Failed = 27;
+            orchestrator.SlopePerformances[5].Guessed = 73;
+            orchestrator.SlopePerformances[6].Failed = 27;
+            orchestrator.SlopePerformances[6].Guessed = 73;
+            orchestrator.SlopePerformances[7].Failed = 27;
+            orchestrator.SlopePerformances[7].Guessed = 73;
+            orchestrator.SlopePerformances[8].Failed = 27;
+            orchestrator.SlopePerformances[8].Guessed = 73;
+            orchestrator.SlopePerformances[9].Failed = 27;
+            orchestrator.SlopePerformances[9].Guessed = 73;
+            orchestrator.SlopePerformances[10].Failed = 27;
+            orchestrator.SlopePerformances[10].Guessed = 73;
+            orchestrator.SlopePerformances[11].Failed = 27;
+            orchestrator.SlopePerformances[11].Guessed = 73;
+            orchestrator.SlopePerformances[12].Failed = 27;
+            orchestrator.SlopePerformances[12].Guessed = 73;
+            orchestrator.SlopePerformances[13].Failed = 27;
+            orchestrator.SlopePerformances[13].Guessed = 73;
+            orchestrator.SlopePerformances[14].Failed = 27;
+            orchestrator.SlopePerformances[14].Guessed = 73;
 
             double avg1 = Math.Round(orchestrator.AvgSlopePerformance, 2);
             double w1 = Math.Round(orchestrator.WeightedSlopePerformance, 2);
 
-            Assert.AreEqual(avg1, 0.27);
+            Assert.AreEqual(avg1, 0.73);
             //not so good
-            Assert.IsTrue(w1>avg1);
+            Assert.IsTrue(w1==avg1);
         }
 
     }

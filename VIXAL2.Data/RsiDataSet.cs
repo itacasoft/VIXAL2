@@ -25,13 +25,13 @@ namespace VIXAL2.Data
             range = value;
         }
 
-        public override void Prepare(float trainPercent, float validPercent)
+        public override void Prepare(int validCount, int testCount)
         {
             ReloadFromOriginal();
             this._data = GetRsi(_originalData, range).ToList();
             RemoveNaNs(_data, Dates);
 
-            base.Prepare(trainPercent, validPercent);
+            base.Prepare(validCount, testCount);
         }
 
         public override string ClassShortName

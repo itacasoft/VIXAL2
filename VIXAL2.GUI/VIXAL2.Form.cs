@@ -52,6 +52,7 @@ namespace VIXAL2.GUI
         public VIXAL2Form()
         {
             InitializeComponent();
+            StocksDataset.InitialTestCount = Convert.ToInt32(ConfigurationManager.AppSettings["TestCount"]);
         }
 
         private void InitiGraphs()

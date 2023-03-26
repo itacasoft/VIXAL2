@@ -107,7 +107,7 @@ namespace VIXAL2
             int batchSize = Convert.ToInt32(ConfigurationManager.AppSettings["BatchSize"]);
             int hiddenLayers = Convert.ToInt32(ConfigurationManager.AppSettings["HiddenLayers"]);
             int cellsCount = Convert.ToInt32(ConfigurationManager.AppSettings["CellsCount"]);
-            StocksDataset.InitialTestCount = Convert.ToInt32(ConfigurationManager.AppSettings["TestCount"]);
+            StocksDataset.InitialTestCount = Convert.ToInt32(ConfigurationManager.AppSettings["InitialTestCount"]);
 
             for (var x = 1; x < args.Count(); x++)
             {
@@ -172,7 +172,7 @@ namespace VIXAL2
             parameters.Add("DateFrom", sFromDate);
             parameters.Add("DateTo", sToDate);
             parameters.Add("MustReiterate", mustReiterate.ToString());
-            parameters.Add("TestCount", StocksDataset.InitialTestCount.ToString());
+            parameters.Add("InitialTestCount", StocksDataset.InitialTestCount.ToString());
             parameters.Add("HiddenLayers", hiddenLayers.ToString());
             parameters.Add("CellsCount", cellsCount.ToString());
             parameters.Add("BatchSize", batchSize.ToString());

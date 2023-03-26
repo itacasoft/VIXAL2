@@ -31,6 +31,13 @@ namespace VIXAL2.Data
             }
         }
 
+        public override int DaysGapAtEnd
+        {
+            get
+            {
+                return 0;
+            }
+        }
 
         /// <summary>
         /// Returns an array with average centered in the current value

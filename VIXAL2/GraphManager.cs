@@ -12,6 +12,7 @@ namespace VIXAL2
     internal class GraphManager
     {
         #region StaticProperties
+        public static List<DoubleDatedValue> latestModelList;
         public static List<DoubleDatedValue> latestPredictedList;
         #endregion
 
@@ -41,7 +42,7 @@ namespace VIXAL2
             separationline.Symbol.Size = 1;
             Pane.CurveList.Add(separationline);
 
-            int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DelayDays;
+            int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DaysGapAtStart + ds.DaysGapAtEnd;
             var myDate = ds.OriginalData.SampleIndexToDate(sample - 1).Value;
 
             separationline.Clear();
@@ -68,7 +69,7 @@ namespace VIXAL2
 
             //disegno il trainingDataY dal giorno PredictDay così mi ritrovo allineato con i
             //prezzi reali (non sono sicuro che vada bene così però)
-            int sample = 1 + ds.PredictDays + ds.DelayDays;
+            int sample = 1 + ds.PredictDays + ds.DaysGapAtStart;
 
             var trainingDataLine = new LineItem("Training Data", null, null, Color.Blue, ZedGraph.SymbolType.None, 1);
             trainingDataLine.Symbol.Fill = new Fill(Color.Blue);
@@ -106,17 +107,33 @@ namespace VIXAL2
             trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ", R:" + ds.Range + "" + ")";
         }
 
-        private void DrawPredictedLine(List<DoubleDatedValue> predictedList)
+        private void DrawModelLine(List<DoubleDatedValue> modelList, ref int sampleIndex)
         {
             var testDataY = ds.GetTestArrayY();
 
-            var predictedLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
+            var modelLine = new LineItem("Model Data", null, null, Color.Magenta, ZedGraph.SymbolType.None, 1);
+            modelLine.Symbol.Fill = new Fill(Color.Magenta);
+            modelLine.Symbol.Size = 1;
+            modelLine.Label.Text = "Model (" + testDataY.ToStringExt() + ", R:" + ds.Range + ")";
+            Pane.CurveList.Add(modelLine);
+
+            foreach (var y in modelList)
+            {
+                modelLine.AddPoint(new PointPair(sampleIndex, y.Value));
+                sampleIndex++;
+            }
+        }
+
+        private void DrawPredictedLine(List<DoubleDatedValue> predictedList, ref int sampleIndex)
+        {
+            var testDataY = ds.GetTestArrayY();
+            sampleIndex += ds.DaysGapAtEnd;
+
+            var predictedLine = new LineItem("Predicted Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
             predictedLine.Symbol.Fill = new Fill(Color.Red);
             predictedLine.Symbol.Size = 1;
-            predictedLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ", R:" + ds.Range + ")";
+            predictedLine.Label.Text = "Predicted (" + testDataY.ToStringExt() + ", R:" + ds.Range + ")";
             Pane.CurveList.Add(predictedLine);
-
-            int sampleIndex = 1 + ds.PredictDays + ds.DelayDays;
 
             foreach (var y in predictedList)
             {
@@ -196,9 +213,9 @@ namespace VIXAL2
             originalLine.Label.Text = "Close Price (" + realData.GetColName(ds.FirstColumnToPredict) + ")";
         }
 
-        public void DrawPredicted(List<DoubleDatedValue> predictedList)
+        public void DrawLines(List<DoubleDatedValue> modelList, List<DoubleDatedValue> predictedList)
         {
-            latestPredictedList = predictedList;
+            latestModelList = modelList;
 
             DrawOriginalLine();
 
@@ -206,12 +223,15 @@ namespace VIXAL2
 
             DrawTestSeparationLine();
 
-            DrawPredictedLine(predictedList);
+            int sampleIndex = 1 + ds.PredictDays + ds.DaysGapAtStart;
+            DrawModelLine(modelList, ref sampleIndex);
+
+            DrawPredictedLine(predictedList, ref sampleIndex);
         }
 
-        public void DrawLatestPredicted()
+        public void DrawLatestList()
         {
-            DrawPredicted(latestPredictedList);
+            DrawLines(latestModelList, latestPredictedList);
         }
 
         /// <summary>

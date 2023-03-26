@@ -114,9 +114,10 @@ namespace VIXAL2.GUI
         {
             //disegno il modello calcolato dallo stesso primo valore del trainingLine
             //int sample = orchestrator.DataSet.PredictDays + 1;
-            int sampleIndex = 1 + orchestrator.DataSet.PredictDays + orchestrator.DataSet.DelayDays;
+            int sampleIndex = 1 + orchestrator.DataSet.PredictDays + orchestrator.DataSet.DaysGapAtStart;
 
-            predictedLine.Clear();
+            modelLine.Clear();
+            predictedlLine.Clear();
             lossDataLine.Clear();
 
             var ListE = currentModelTrain(ref sampleIndex);
@@ -233,11 +234,13 @@ namespace VIXAL2.GUI
         {
             var predictedList = orchestrator.CurrentModelTestExtreme();
 
+            sampleIndex += orchestrator.DataSet.DaysGapAtEnd;
+
             foreach (var predicted in predictedList)
             {
                 var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(EXTTEST - prediction for " + predicted.Date.ToShortDateString() + ": " + predicted.Value + " )";
-                predictedLine.AddPoint(p);
+                predictedlLine.AddPoint(p);
                 sampleIndex++;
             }
 
@@ -253,7 +256,7 @@ namespace VIXAL2.GUI
             {
                 var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(PREDICTEDY - on " + predicted.PredictionDate.ToShortDateString() + " (value of " + predicted.Date.ToShortDateString() + "): " + predicted.Value + " )";
-                predictedLine.AddPoint(p);
+                modelLine.AddPoint(p);
                 sampleIndex++;
             }
 
@@ -270,7 +273,7 @@ namespace VIXAL2.GUI
             {
                 var p = new PointPair(sampleIndex, predicted.Value);
                 p.Tag = "(PREDICTEDY - on " + predicted.PredictionDate.ToShortDateString() + " (value of " + predicted.Date.ToShortDateString() + "): " + predicted.Value + " )";
-                predictedLine.AddPoint(p);
+                modelLine.AddPoint(p);
                 sampleIndex++;
             }
 
@@ -316,7 +319,7 @@ namespace VIXAL2.GUI
             var list = orchestrator.CurrentModelTrain();
             foreach (var y in list)
             {
-                predictedLine.AddPoint(new PointPair(sampleIndex, y.Value));
+                modelLine.AddPoint(new PointPair(sampleIndex, y.Value));
                 sampleIndex++;
             }
             zedGraphControl2.RestoreScale(zedGraphControl2.GraphPane);

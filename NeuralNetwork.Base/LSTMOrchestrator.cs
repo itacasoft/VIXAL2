@@ -289,11 +289,10 @@ namespace NeuralNetwork.Base
                     //result.Add(y[0]);
                     //denormalize before return
                     if (DataSet.NormalizeFirst)
-                        //result.Add(y[0]);
                         result.Add(new DoubleDatedValue(evalDataY.GetDate(mydateIndex), evalDataY.GetFutureDate(mydateIndex), y[0]));
                     else
-                        //result.Add(DataSet.Decode(y[0], indexColumnToPredict));
                         result.Add(new DoubleDatedValue(evalDataY.GetDate(mydateIndex), evalDataY.GetFutureDate(mydateIndex), DataSet.Decode(y[0], indexColumnToPredict)));
+                    mydateIndex++;
                 }
             }
 

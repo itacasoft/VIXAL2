@@ -133,12 +133,8 @@ namespace VIXAL2
             var listExt = orchestrator.CurrentModelTestExtreme();
             Utils.DrawMessage(yStock + "|" + prefixSimulating, Utils.CreateProgressBar(Utils.ProgressBarLength, 100.0), ConsoleColor.DarkGreen);
 
-            var allLists = listE.Concat(listV).Concat(listT).Concat(listExt).ToList();
-
-            GraphManager.latestPredictedList = allLists;
-            //ReportManager reportMan = new ReportManager(orchestrator.DataSet);
-            //reportMan.DrawPredicted(allLists);
-            //reportMan.Print();
+            GraphManager.latestModelList = listE.Concat(listV).Concat(listT).ToList();
+            GraphManager.latestPredictedList = listExt.ToList();
         }
 
         /// <summary>
@@ -156,7 +152,7 @@ namespace VIXAL2
             Report.Manager.EnrichReportItemWithTradesDataWithCommissions(item, trades);
 
             GraphManager graphMan = new GraphManager(orchestrator.DataSet, trainingIterations, HiddenLayers, CellsCount, BatchSize);
-            graphMan.DrawLatestPredicted();
+            graphMan.DrawLatestList();
             graphMan.DrawTrades(trades);
             graphMan.PrintPerformances(orchestrator.SlopePerformances, orchestrator.AvgSlopePerformance, orchestrator.DiffPerformance, orchestrator.AvgDiffPerformance);
             graphMan.Print();

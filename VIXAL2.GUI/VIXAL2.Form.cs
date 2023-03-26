@@ -19,9 +19,13 @@ namespace VIXAL2.GUI
         LSTMOrchestrator orchestrator;
 
         /// <summary>
+        /// Line predicted by the NN
+        /// </summary>
+        LineItem predictedlLine;
+        /// <summary>
         /// Line calculated by the NN
         /// </summary>
-        LineItem predictedLine;
+        LineItem modelLine;
         /// <summary>
         /// Line that is used for training
         /// </summary>
@@ -73,11 +77,17 @@ namespace VIXAL2.GUI
             trainingDataLine.Symbol.Fill = new Fill(Color.Blue);
             trainingDataLine.Symbol.Size = 1;
 
-            if (predictedLine != null) predictedLine.Clear();
+            if (modelLine != null) modelLine.Clear();
             else
-                predictedLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
-            predictedLine.Symbol.Fill = new Fill(Color.Red);
-            predictedLine.Symbol.Size = 1;
+                modelLine = new LineItem("Model Data", null, null, Color.Magenta, ZedGraph.SymbolType.None, 1);
+            modelLine.Symbol.Fill = new Fill(Color.Magenta);
+            modelLine.Symbol.Size = 1;
+
+            if (predictedlLine != null) predictedlLine.Clear();
+            else
+                predictedlLine = new LineItem("Prediction Data", null, null, Color.Red, ZedGraph.SymbolType.None, 1);
+            predictedlLine.Symbol.Fill = new Fill(Color.Red);
+            predictedlLine.Symbol.Size = 1;
 
             if (originalLine != null) originalLine.Clear();
             else
@@ -112,7 +122,8 @@ namespace VIXAL2.GUI
             this.zedGraphControl1.GraphPane.CurveList.Clear();
             this.zedGraphControl1.GraphPane.CurveList.Add(trainingDataLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
-            this.zedGraphControl1.GraphPane.CurveList.Add(predictedLine);
+            this.zedGraphControl1.GraphPane.CurveList.Add(modelLine);
+            this.zedGraphControl1.GraphPane.CurveList.Add(predictedlLine);
             this.zedGraphControl1.GraphPane.CurveList.Add(originalLine);
             this.zedGraphControl1.GraphPane.AxisChange(this.CreateGraphics());
 
@@ -298,7 +309,7 @@ namespace VIXAL2.GUI
 
             //disegno il trainingDataY dal giorno PredictDay così mi ritrovo allineato con i
             //prezzi reali (non sono sicuro che vada bene così però)
-            int sample = 1 + ds.PredictDays + ds.DelayDays;
+            int sample = 1 + ds.PredictDays + ds.DaysGapAtStart;
 
             for (int i = 0; i < trainDataY.Length; i++)
             {
@@ -331,7 +342,8 @@ namespace VIXAL2.GUI
             }
 
             trainingDataLine.Label.Text = "Training (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + "" +  ")";
-            predictedLine.Label.Text = "Model/Prediction (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + ")";
+            modelLine.Label.Text = "Model (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + ")";
+            predictedlLine.Label.Text = "Prediction (" + testDataY.ToStringExt() + ", R:" + textBoxRange.Text + ")";
 
             zedGraphControl1.GraphPane.Title.Text = testDataY.GetColName(0) + " - (I:" + textBoxIterations.Text + ", Hidden:" + textBoxHidden.Text + ", Cells:" + textBoxCells.Text + ")";
             zedGraphControl1.GraphPane.XAxis.Scale.Min = -2;
@@ -345,7 +357,7 @@ namespace VIXAL2.GUI
 
         private void DrawTestSeparationLine(StocksDataset ds)
         {
-            int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DelayDays;
+            int sample = 1 + ds.TrainCount + ds.ValidCount + ds.PredictDays + ds.DaysGapAtStart + ds.DaysGapAtEnd;
             var myDate = orchestrator.DataSet.OriginalData.SampleIndexToDate(sample - 1).Value;
 
             separationline.Clear();

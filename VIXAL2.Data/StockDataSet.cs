@@ -83,7 +83,11 @@ namespace VIXAL2.Data
             get { return 1; }
         }
 
-        public virtual int DelayDays
+        /// <summary>
+        /// Ritardo fra l'inizio della curva del dataset e i dati originali
+        /// </summary>
+        /// <remarks>Tipicamente, le medie mobili hanno un ritardo rispetto ai dati originali</remarks>
+        public virtual int DaysGapAtStart
         {
             get 
             {
@@ -99,6 +103,17 @@ namespace VIXAL2.Data
                     result++;
                 }
                 return result;
+            }
+        }
+
+        /// <summary>
+        /// Ritardo fra quando finisce la curva del dataset e quella dei dati originali
+        /// </summary>
+        public virtual int DaysGapAtEnd
+        {
+            get
+            {
+                return 0;
             }
         }
 

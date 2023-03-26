@@ -630,32 +630,32 @@ namespace VIXAL2.UnitTest
             ds.SetRange(10);
             ds.Prepare(0, 30);
 
-            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+            Assert.AreEqual(ds.DaysGapAtStart, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(9);
             ds.Prepare(0, 30);
 
-            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+            Assert.AreEqual(ds.DaysGapAtStart, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(3);
             ds.Prepare(0, 30);
 
-            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+            Assert.AreEqual(ds.DaysGapAtStart, GetDelayDaysCalculatedFromDates(ds));
 
             ds = GetMovingEnhancedAverageDataset(40);
             ds.SetRange(1);
             ds.Prepare(0, 30);
 
-            Assert.AreEqual(ds.DelayDays, GetDelayDaysCalculatedFromDates(ds));
+            Assert.AreEqual(ds.DaysGapAtStart, GetDelayDaysCalculatedFromDates(ds));
 
             var ds1 = GetMovingAverageDataset(40);
             ds1.SetRange(10);
             ds1.Prepare(0, 30);
             var gg1 = GetDelayDaysCalculatedFromDates(ds1);
 
-            Assert.AreEqual(ds1.DelayDays, gg1);
+            Assert.AreEqual(ds1.DaysGapAtStart, gg1);
 
         }
 

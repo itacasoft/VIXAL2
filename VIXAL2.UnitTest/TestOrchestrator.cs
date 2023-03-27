@@ -36,6 +36,7 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 20;
             const int RANGE = 10;
             const int COLUMN_TO_PREDICT = 2;
+            StocksDataset.InitialTestCount = 30;
 
             var orchestrator = new LSTMOrchestrator(null, null, null, null, 100);
             var ds = GetMovingEnhancedAverageDataset(PREDICT_DAYS, COLUMN_TO_PREDICT);
@@ -66,6 +67,7 @@ namespace VIXAL2.UnitTest
             const int PREDICT_DAYS = 20;
             const int RANGE = 10;
             const int COLUMN_TO_PREDICT = 2;
+            StocksDataset.InitialTestCount = 30;
 
             var orchestrator = new LSTMOrchestrator(null, null, null, null, 100);
             var ds = GetMovingEnhancedAverageDataset(PREDICT_DAYS, COLUMN_TO_PREDICT);

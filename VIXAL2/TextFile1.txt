@@ -1,5 +1,5 @@
 ﻿TODO
 - vedere quante iterazioni sono ottimali 10
-- vedere quanti cells count sono ottimali
+- vedere quanti hidden layers e cells count sono ottimali
 - vedere correlazione trades/slopeperf
 - vedere se le azioni buone a distanza di pochi mesi si mantengono

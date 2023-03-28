@@ -12,6 +12,92 @@ namespace VIXAL2.UnitTest
     [TestClass]
     public class TestPerformances
     {
+        static Random random = new Random();
+        private static double GenerateDouble(double minValue, double maxValue)
+        {
+            return minValue + (maxValue - minValue) * random.NextDouble();
+        }
+
+        private LSTMOrchestrator GetOrchestrator()
+        {
+            var orchestrator = new LSTMOrchestrator(null, null, null, null, 10);
+            Assert.AreEqual(orchestrator.SlopePerformances.Length, 15);
+
+            orchestrator.SlopePerformances[0].Date = DateTime.Today;
+            orchestrator.SlopePerformances[1].Date = DateTime.Today.AddDays(1);
+            orchestrator.SlopePerformances[2].Date = DateTime.Today.AddDays(2);
+            orchestrator.SlopePerformances[3].Date = DateTime.Today.AddDays(3);
+            orchestrator.SlopePerformances[4].Date = DateTime.Today.AddDays(4);
+            orchestrator.SlopePerformances[5].Date = DateTime.Today.AddDays(5);
+            orchestrator.SlopePerformances[6].Date = DateTime.Today.AddDays(6);
+            orchestrator.SlopePerformances[7].Date = DateTime.Today.AddDays(7);
+            orchestrator.SlopePerformances[8].Date = DateTime.Today.AddDays(8);
+            orchestrator.SlopePerformances[9].Date = DateTime.Today.AddDays(9);
+            orchestrator.SlopePerformances[10].Date = DateTime.Today.AddDays(10);
+            orchestrator.SlopePerformances[11].Date = DateTime.Today.AddDays(11);
+            orchestrator.SlopePerformances[12].Date = DateTime.Today.AddDays(12);
+            orchestrator.SlopePerformances[13].Date = DateTime.Today.AddDays(13);
+            orchestrator.SlopePerformances[14].Date = DateTime.Today.AddDays(14);
+
+            return orchestrator;
+        }
+
+        [TestMethod]
+        public void Test_RandomSlopes_hav_50perc_Avg()
+        {
+            double[] dataY = new double[30];
+            dataY[0] = 20.5779999;
+            dataY[1] = 20.5179999;
+            dataY[2] = 20.4589999;
+            dataY[3] = 20.3669999;
+            dataY[4] = 20.2819998;
+            dataY[5] = 20.2529999;
+            dataY[6] = 20.1519999;
+            dataY[7] = 20.0719998;
+            dataY[8] = 19.9509999;
+            dataY[9] = 19.8849999;
+            dataY[10] = 19.7939999;
+            dataY[11] = 19.696;
+            dataY[12] = 19.6200002;
+            dataY[13] = 19.5420003;
+            dataY[14] = 19.4990003;
+            dataY[15] = 19.4320003;
+            dataY[16] = 19.4070003;
+            dataY[17] = 19.3300002;
+            dataY[18] = 19.3470002;
+            dataY[19] = 19.3800002;
+            dataY[20] = 19.4230003;
+            dataY[21] = 19.4760003;
+            dataY[22] = 19.4930001;
+            dataY[23] = 19.5170001;
+            dataY[24] = 19.5190001;
+            dataY[25] = 19.5424999;
+            dataY[26] = 19.5494443333333;
+            dataY[27] = 19.570625; 
+            dataY[28] = 19.5407141428571;
+            dataY[29] = 19.4724996666667;
+
+            var orchestrator = GetOrchestrator();
+
+            const int ITERATIONS = 1000;
+            double[] avgs = new double[ITERATIONS];
+            double[] ws = new double[ITERATIONS];
+
+            for (int i = 0; i < avgs.Length; i++)
+            {
+                double[] predictedData = new double[30];
+                for (int p = 0; p < predictedData.Length; p++)
+                    predictedData[p] = GenerateDouble(19, 20);
+
+                LSTMUtils.CompareSlopes(dataY, predictedData, ref orchestrator.SlopePerformances);
+                avgs[i] = Math.Round(orchestrator.AvgSlopePerformance, 2);
+                ws[i] = Math.Round(orchestrator.WeightedSlopePerformance, 2);
+            }
+
+            Assert.IsTrue(avgs.Average() < 0.52 && avgs.Average() > 0.48);
+            Assert.IsTrue(ws.Average() < 0.52 && ws.Average() > 0.48);
+        }
+
         [TestMethod]
         public void Test_ComparePredictedAgainstDataYSlopes()
         {

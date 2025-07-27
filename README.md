@@ -1,21 +1,8 @@
-# CNTK.LSTM.StockSeries
-Study on neural network for predicting sales.
+# VIXAL2
+Study on neural network for predicting stock prices.
 
 ## Origin
-This code is the coding part of a thesis.
+A C# implemetation of recurrent neural network using the Microsoft Cognitive Toolkit (CNTK)
 
 ## What does it do?
-This program gets data from various sources, cleans them, prepare them and then feeds neural network with them. Neural network creates predictions of sales.
-
-## Data sources
-* Stock prices
-* Weather
-* Forex
-* Google Trends
-* WikiTrends
-* Futures
-* Fundamentals - population, unemployment, mortality etc.
-
-## How to run it
-
-
+This program receives stock data from various sources (mainly Yahoo Finance), cleans it, prepares it, and then feeds it to a regressive neural network. The neural network-based software predicts stock trends.
